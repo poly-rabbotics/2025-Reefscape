@@ -27,8 +27,8 @@ public class SwerveModule {
     private static final double CONVERSION_FACTOR_ROTATION = Math.toRadians(150 / 7); // TODO: Verify.
     private static final double CONVERSION_FACTOR_MOVEMENT = 1.0 / 6.75;              // Rotations to meters.
 
-    private static final double PID_P = 0.5;
-    private static final double PID_I = 0.1;
+    private static final double PID_P = 0.1;
+    private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
     private static final double ROCK_PID_P = 0.05;
@@ -55,7 +55,8 @@ public class SwerveModule {
 
     public void run() {
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getAngle().radians()));
-        double rotationSpeed = rotationController.calculate(getAngle().radians(), state.angle.getRadians() % Angle.TAU);
+        double desiredAngle = ((state.angle.getRadians() % Angle.TAU) + Angle.TAU) % Angle.TAU;
+        double rotationSpeed = rotationController.calculate(getAngle().radians(), desiredAngle);
         double propulsionSpeed = Double.isNaN(rockPos)
             ? state.speedMetersPerSecond
             : rockController.calculate(getDistanceTraveled(), rockPos);
@@ -81,7 +82,7 @@ public class SwerveModule {
 
         rotationConfigurator.apply(
             new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withInverted(InvertedValue.Clockwise_Positive)
         );
 
         rotationConfigurator.apply(
@@ -99,7 +100,7 @@ public class SwerveModule {
 
         rotationController = new PIDController(PID_P, PID_I, PID_D);
         rotationController.enableContinuousInput(0.0, Angle.TAU);
-        rotationController.setTolerance(0.01);
+        rotationController.setTolerance(Angle.TAU / 360.0);
 
         // Movement Motor
         movementMotor = new TalonFX(movementMotorID);
@@ -205,17 +206,17 @@ public class SwerveModule {
     }
 
     public Angle getAngle() {
-        var radians = angularEncoder.getPosition().getValue().magnitude() * Angle.TAU;
+        var radians = angularEncoder.getPosition().getValueAsDouble() * Angle.TAU;
         //var radians = rotationEncoder.getPosition();
         var offsetRadians = radians + canCoderOffset.radians();
-        return new Angle().setRadians(offsetRadians % Angle.TAU);
+        return new Angle().setRadians(((offsetRadians % Angle.TAU) + Angle.TAU) % Angle.TAU);
     }
     
     /**
      * Gets the reported tempurature of the rotation motor in celsius.
      */
     public double getRotationMotorTemp() {
-        return rotationMotor.getDeviceTemp().getValue().magnitude();
+        return rotationMotor.getDeviceTemp().getValueAsDouble();
     }
 
     /**

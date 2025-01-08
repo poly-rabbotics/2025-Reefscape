@@ -53,10 +53,10 @@ public class SwerveDrive {
     // of zero to be forward. By adding an offset to the corosponding encoder's reported angle, we
     // should be given the actual angle of the swerve module's wheel.
     private static final Angle MODULE_CANCODER_OFFSETS[] = {
-        new Angle().setDegrees(75.498046875), 
-        new Angle().setDegrees(-222.802734375), 
-        new Angle().setDegrees(-73.388671875), 
-        new Angle().setDegrees(57.216796875)  
+        new Angle().setDegrees(0.0), 
+        new Angle().setDegrees(0.0), 
+        new Angle().setDegrees(0.0), 
+        new Angle().setDegrees(0.0)  
     };
 
     // Positions for each wheel in "Rock Mode".
