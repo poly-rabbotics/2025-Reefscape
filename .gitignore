@@ -1,6 +1,2 @@
 .build/
-.gradle
-.settings
-.vscode
-.wpilib
 build
