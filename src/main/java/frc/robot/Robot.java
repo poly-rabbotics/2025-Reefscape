@@ -24,6 +24,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import frc.robot.systems.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -44,14 +45,12 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-        comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
-        comp.enableDigital();
-
-        solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     }
 
     @Override
-    public void robotPeriodic() {}
+    public void robotPeriodic() {
+        Digit.run();
+    }
 
     @Override
     public void autonomousInit() {}

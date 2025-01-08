@@ -1,11 +1,11 @@
 package frc.robot.systems;
 
-import org.
+import org.usfirst.frc.team3487.REVDigitMXPDisplay;
 
-public class Digit() {
+public class Digit {
 
     private static final Digit instance = new Digit();
-    private REVDigitMXPDisplay display;
+    private static REVDigitMXPDisplay display;
 
     private Digit() {
         display = REVDigitMXPDisplay.getInstance();
@@ -13,7 +13,12 @@ public class Digit() {
         display.clear();
     }
 
-    public void set(String text) {
-        display.displayText(text);
+    public static void run() {
+        display.displayScrollText("69420 NICE", 0.1);
     }
+
+    public static double getPot() {
+        return display.getPot();
+    }
+
 }
