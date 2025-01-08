@@ -14,6 +14,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -27,7 +28,7 @@ public class SwerveModule {
     private static final double CONVERSION_FACTOR_ROTATION = Math.toRadians(150 / 7); // TODO: Verify.
     private static final double CONVERSION_FACTOR_MOVEMENT = 1.0 / 6.75;              // Rotations to meters.
 
-    private static final double PID_P = 0.1;
+    private static final double PID_P = 0.70;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
@@ -109,6 +110,7 @@ public class SwerveModule {
         movementConfigurator.apply(
             new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake)
         );
 
         movementConfigurator.apply(

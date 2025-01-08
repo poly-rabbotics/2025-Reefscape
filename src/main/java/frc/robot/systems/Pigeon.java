@@ -66,7 +66,7 @@ public class Pigeon {
      * Gets Yaw.
      */
     public static Angle getYaw() {
-        return new Angle().setDegrees(instance.pigeon.getYaw().getValue().magnitude() % 360.0);
+        return new Angle().setDegrees(-instance.pigeon.getYaw().getValue().magnitude() % 360.0);
     }
 
     /**
