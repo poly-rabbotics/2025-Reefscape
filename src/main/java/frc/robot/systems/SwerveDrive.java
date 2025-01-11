@@ -262,7 +262,7 @@ public class SwerveDrive {
             return;
         }
 
-        inactiveMode = mode;
+        inactiveMode = SwerveDrive.mode;
         SwerveDrive.mode = mode;
     }
 
@@ -503,7 +503,7 @@ public class SwerveDrive {
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         translationSpeedX,
                         translationSpeedY,
-                        -setAngleController.calculate(
+                        setAngleController.calculate(
                             Pigeon.getYaw().radians(),
                             setAngle.radians()
                         ), 

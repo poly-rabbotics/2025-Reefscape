@@ -5,7 +5,11 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -13,12 +17,20 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import frc.robot.subsystems.*;
 import frc.robot.systems.*;
@@ -34,6 +46,15 @@ public class Robot extends LoggedRobot {
     private static final Joystick switchPanel = new Joystick(1);
     private static AutonomousProcedure procedure;
     private static boolean invertedTurn = false;
+
+    
+    private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    private static final PhotonCamera camRight = new PhotonCamera("RightCam");
+    private static final PhotonCamera camLeft = new PhotonCamera("LeftCam");
+    private static final Transform3d robotToCamera = new Transform3d();
+    private static final PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(field, PoseStrategy.AVERAGE_BEST_TARGETS, robotToCamera);
+    private static Optional<EstimatedRobotPose> latestPhotonEstimate = Optional.empty();
+    private static PhotonPipelineResult latestPhotonResult;
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -64,6 +85,10 @@ public class Robot extends LoggedRobot {
         DriverStation.startDataLog(DataLogManager.getLog());
 
         Pigeon.setFeildZero();
+
+        // START PHOTON VISION
+
+        photonEstimator.setReferencePose(new Pose3d());
     }
     
     @Override
@@ -109,6 +134,25 @@ public class Robot extends LoggedRobot {
             switchPanel.getRawButton(3),
             switchPanel.getRawButton(4)
         );
+
+        // START PHOTON VISION
+
+        List<PhotonPipelineResult> results = camRight.getAllUnreadResults();
+        results.addAll(camLeft.getAllUnreadResults());
+
+        for (PhotonPipelineResult res : results) {
+            latestPhotonResult = res;
+        }
+
+        if (latestPhotonResult != null && latestPhotonResult.hasTargets()) {
+            System.out.println("Found Target with area " + latestPhotonResult.getBestTarget().getArea()); 
+            latestPhotonEstimate = photonEstimator.update(latestPhotonResult);
+
+            latestPhotonEstimate
+                .ifPresent((est) -> System.out.println("Estimated Pose at (X: " + est.estimatedPose.getX() + ", Y: " + est.estimatedPose.getY() + ", Z: " + est.estimatedPose.getZ() + ")"));
+        }
+
+        Logger.recordOutput("Estimated Robot Pose", latestPhotonEstimate.map((est) -> est.estimatedPose).orElse(new Pose3d()));
     }
     
     @Override
@@ -188,7 +232,7 @@ public class Robot extends LoggedRobot {
         SwerveDrive.run(
             -controllerOne.getLeftY(),
             -controllerOne.getLeftX(),
-            controllerOne.getRightX()
+            -controllerOne.getRightX()
         );
     }
 
