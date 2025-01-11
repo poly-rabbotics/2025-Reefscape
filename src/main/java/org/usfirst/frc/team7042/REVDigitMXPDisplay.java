@@ -1,4 +1,4 @@
-package org.team7042;
+package org.usfirst.frc.team7042;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
