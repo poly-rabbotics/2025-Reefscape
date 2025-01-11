@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -51,8 +52,8 @@ public class Robot extends LoggedRobot {
     private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     private static final PhotonCamera camRight = new PhotonCamera("RightCam");
     private static final PhotonCamera camLeft = new PhotonCamera("LeftCam");
-    private static final Transform3d robotToCamera = new Transform3d();
-    private static final PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(field, PoseStrategy.AVERAGE_BEST_TARGETS, robotToCamera);
+    private static final Transform3d robotToCamera = new Transform3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
+    private static final PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(field, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
     private static Optional<EstimatedRobotPose> latestPhotonEstimate = Optional.empty();
     private static PhotonPipelineResult latestPhotonResult;
 
