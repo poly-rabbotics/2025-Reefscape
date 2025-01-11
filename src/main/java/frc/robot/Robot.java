@@ -229,10 +229,18 @@ public class Robot extends LoggedRobot {
         ); // Half translation speed.
         SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerOne.getBButton());
         SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerOne.getYButton());
+
+        double rotation = -controllerOne.getRightX();
+
+        if (SwerveDrive.getMode() == SwerveMode.HEADLESS && Math.abs(rotation) < 0.1) {
+            SwerveDrive.setMode(SwerveMode.SET_ANGLE);
+            SwerveDrive.setTargetAngle(Pigeon.getYaw());
+        }
+
         SwerveDrive.run(
             -controllerOne.getLeftY(),
             -controllerOne.getLeftX(),
-            -controllerOne.getRightX()
+            rotation
         );
     }
 

@@ -93,8 +93,8 @@ public class SwerveDrive {
     // Set angle constants. Use in teleop for "snap angles" available to the driver, or any other
     // controls function in teleop in which the driver may determine a desired angle, rather than
     // controlling the speed ot rotation itself.
-    private static final double SET_ANGLE_PID_P = 0.5;
-    private static final double SET_ANGLE_PID_I = 0.0;
+    private static final double SET_ANGLE_PID_P = 0.75;
+    private static final double SET_ANGLE_PID_I = 0.01;
     private static final double SET_ANGLE_PID_D = 0.0;
 
     // Module objects. Stores the module objects themselves which allow us to interface with them.
