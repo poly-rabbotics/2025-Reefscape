@@ -13,16 +13,23 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import frc.robot.subsystems.Angle;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+
 /*
  * Manages the robot's pigeon.
  */
+@Logged
 public class Pigeon {
     private static final int PIGEON_CAN_ID = 20;
     private static final Pigeon instance = new Pigeon(PIGEON_CAN_ID);
 
     private final Pigeon2 pigeon;
+
+    @NotLogged
     private final OrientationalChangeCalculator angularChangeCalculator;
     
+    @NotLogged
     private OrientationalChange changePerSecond = new OrientationalChange(
         new Angle().setDegrees(0.0),
         new Angle().setDegrees(0.0),

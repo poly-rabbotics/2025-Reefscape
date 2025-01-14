@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.units.AngleUnit;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -26,7 +25,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
  */
 public class SwerveModule {
     private static final double CONVERSION_FACTOR_ROTATION = Math.toRadians(150 / 7); // TODO: Verify.
-    private static final double CONVERSION_FACTOR_MOVEMENT = 1.0 / 6.75;              // Rotations to meters.
+    private static final double CONVERSION_FACTOR_MOVEMENT = 6.75 * 10/3;             // Rotations to meters.
 
     private static final double PID_P = 0.70;
     private static final double PID_I = 0.0;
@@ -55,11 +54,12 @@ public class SwerveModule {
     private double rockPos = Double.NaN;
 
     public void run() {
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getAngle().radians()));
-        double desiredAngle = ((state.angle.getRadians() % Angle.TAU) + Angle.TAU) % Angle.TAU;
+        desiredState.optimize(new Rotation2d(getAngle().radians()));
+
+        double desiredAngle = ((desiredState.angle.getRadians() % Angle.TAU) + Angle.TAU) % Angle.TAU;
         double rotationSpeed = rotationController.calculate(getAngle().radians(), desiredAngle);
         double propulsionSpeed = Double.isNaN(rockPos)
-            ? state.speedMetersPerSecond
+            ? desiredState.speedMetersPerSecond
             : rockController.calculate(getDistanceTraveled(), rockPos);
     
         movementMotor.set(propulsionSpeed);

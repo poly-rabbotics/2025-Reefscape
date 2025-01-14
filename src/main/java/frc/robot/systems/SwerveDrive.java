@@ -31,6 +31,8 @@ import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 
+import edu.wpi.first.epilogue.Logged;
+
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.StatusedTimer;
 import frc.robot.subsystems.SwerveMode;
@@ -40,6 +42,7 @@ import frc.robot.subsystems.PathPosition;
 /*
  * Manages the swerve drive train.
  */
+@Logged
 public class SwerveDrive {
     // CAN IDs of drive motors and encoders.
     private static final int MODULE_MOVEMENT_CAN_IDS[] = { 1,   2,   3,   4  };
