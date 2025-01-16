@@ -4,34 +4,26 @@
 
 package frc.robot.systems;
 
-import java.io.IOException;
-
-import java.nio.file.Path;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.Trajectory.State;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
-
-import edu.wpi.first.epilogue.Logged;
 
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.StatusedTimer;
@@ -42,7 +34,6 @@ import frc.robot.subsystems.PathPosition;
 /*
  * Manages the swerve drive train.
  */
-@Logged
 public class SwerveDrive {
     // CAN IDs of drive motors and encoders.
     private static final int MODULE_MOVEMENT_CAN_IDS[] = { 1,   2,   3,   4  };
@@ -50,7 +41,7 @@ public class SwerveDrive {
     private static final int MODULE_CANCODER_CAN_IDS[] = { 9,   10,  11,  12 };
     
     // Side length of the drive. Assumes a square drive.
-    private static final double CHASSIS_SIDE_LENGTH = 0.58;
+    private static final double CHASSIS_SIDE_LENGTH = 0.6604; // ~26"
 
     // Offsets of each absolute encoder (in this case CANCoders) from zero, where we take an angle
     // of zero to be forward. By adding an offset to the corosponding encoder's reported angle, we
@@ -108,9 +99,6 @@ public class SwerveDrive {
 
     // Kinematics takes our desired drive state and produces states for each module.
     private static final SwerveDriveKinematics kinematics;
-
-    // Odometry keeps track of our position on the field.
-    private static final SwerveDriveOdometry odometry;
 
     // PID controllers for autonomous trajectory following. Despite being an autonomous ability,
     // these controllers could be used in teleop, as the drive mode that uses them is always
@@ -191,9 +179,7 @@ public class SwerveDrive {
         }
 
         // Populate the modules positions for later.
-        for (int i = 0; i < modules.length; i++) {
-            positions[i] = modules[i].getPosition();
-        }
+        updateModulePositions();
 
         // Create the kinematics object. From now on all interfacin with kinematics must be done
         // with modules in the same order. We've already set up all our module related objects in
@@ -204,14 +190,6 @@ public class SwerveDrive {
             MODULE_PHYSICAL_POSITIONS[1],
             MODULE_PHYSICAL_POSITIONS[2],
             MODULE_PHYSICAL_POSITIONS[3]
-        );
-
-        // Odometry will be interfaced with in the same order as kinematics are now. It also
-        // requires the angle of our gyro and the positions we recorder earlier.
-        odometry = new SwerveDriveOdometry(
-            kinematics, 
-            new Rotation2d(Pigeon.getYaw().radians()), 
-            positions
         );
 
         // Enable continuous input and set tolerance on the rotation controllers. Continuous input
@@ -531,7 +509,7 @@ public class SwerveDrive {
 
                 State state = autonomousTrajectory.sample(trajectoryTimer.get());
                 Pose2d setPosition = state.poseMeters;
-                Pose2d position = odometry.getPoseMeters();
+                Pose2d position = PoseEstimator.estimate2d();
 
                 translationSpeedX
                     = trajectoryStrafeXController.calculate(
@@ -574,7 +552,7 @@ public class SwerveDrive {
                 }
 
                 Pose2d setPosition = setPathPosition.pose;
-                Pose2d position = odometry.getPoseMeters();
+                Pose2d position = PoseEstimator.estimate2d();
 
                 translationSpeedX
                     = trajectoryStrafeXController.calculate(position.getX(), setPosition.getX());
@@ -611,7 +589,8 @@ public class SwerveDrive {
         // Record module states
 
         SwerveDrive.moduleStates = moduleStates;
-        
+        updateModulePositions();
+
         // Reset temporary states
         
         displayMode = mode;
@@ -633,106 +612,12 @@ public class SwerveDrive {
     }
 
     /**
-     * Record states for logging and displays like AdvantageKit.
+     * Updates the current positions of all modules.
      */
-    public static void recordStates() {
-        SwerveModuleState[] measuredState = new SwerveModuleState[modules.length];
-
+    private static void updateModulePositions() {
         for (int i = 0; i < modules.length; i++) {
-            measuredState[i] = modules[i].getActualState();
-        }
-
-        Logger.recordOutput("Swerve Module States Measured", measuredState);
-        Logger.recordOutput("Swerve Module States", moduleStates);
-
-        if (setPathPosition != null) {
-            Logger.recordOutput("Swerve Drive Target Pose", setPathPosition.pose);
-        } else {
-            Logger.recordOutput("Swerve Drive Target Pose", new Pose2d());
-        }
-
-        Logger.recordOutput("Swerve Odometry", getOdometryPose());
-        Logger.recordOutput("Swerve Average Motor Tempurature (celsius)", getAverageMotorTemp());
-
-        Logger.recordOutput("Swerve Speed Rotation", getRotationSpeed());
-        Logger.recordOutput("Swerve Speed Translation X", getTranslationSpeedX());
-        Logger.recordOutput("Swerve Speed Translation Y", getTranslationSpeedY());
-
-        Logger.recordOutput("Swerve Drive Mode", getMode());
-        Logger.recordOutput("Swerve Display Mode", getDisplayMode());
-
-        Logger.recordOutput("Swerve Chassis Speeds Output Vx", chassisSpeedsOutput.vxMetersPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Output Vy", chassisSpeedsOutput.vyMetersPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Output Tau", chassisSpeedsOutput.omegaRadiansPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Calculated Vx", chassisSpeedsCalculated.vxMetersPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Calculated Vy", chassisSpeedsCalculated.vyMetersPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Calculated Tau", chassisSpeedsCalculated.omegaRadiansPerSecond);
-
-        Logger.recordOutput("Swerve Trajectory Coefficiant X", trajectoryCoefficiantX);
-        Logger.recordOutput("Swerve Trajectory Coefficiant Y", trajectoryCoefficiantY);
-    }
-
-    /**
-     * Updates module positions and drive odometry.
-     */
-    public static void updateOdometry() {
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].updatePosition();
             positions[i] = modules[i].getPosition();
         }
-
-        chassisSpeedsOutput = kinematics.toChassisSpeeds(
-            modules[0].getDesiredState(),
-            modules[1].getDesiredState(),
-            modules[2].getDesiredState(),
-            modules[3].getDesiredState()
-        );
-
-        chassisSpeedsCalculated = kinematics.toChassisSpeeds(
-            modules[0].getActualState(),
-            modules[1].getActualState(),
-            modules[2].getActualState(),
-            modules[3].getActualState()
-        );
-
-        odometry.update(new Rotation2d(Pigeon.getYaw().radians()), positions);
-    }
-    
-    /**
-     * Gets current odometry position.
-     */
-    public static Pose2d getOdometryPose() {
-        return odometry.getPoseMeters();
-    }
-
-    /**
-     * Zeros position entirely, assuming the robot is facing forward, then set
-     * the odometry position to the given X and Y components.
-     */
-    public static void setOdometry(Pose2d pose) {
-        //zeroPositions();
-
-        odometry.resetPosition(
-            new Rotation2d(Pigeon.getYaw().radians()),
-            positions,
-            pose
-        );
-    }
-    
-    /**
-     * Zeros all movement encoder positions.
-     */
-    public static void zeroPositions() {
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].zeroPositions();
-            positions[i] = modules[i].getPosition();
-        }
-
-        odometry.resetPosition(
-            new Rotation2d(Pigeon.getYaw().radians()), 
-            positions, 
-            new Pose2d(0.0, 0.0, new Rotation2d(0.0))
-        );
     }
 
     /**
@@ -747,44 +632,6 @@ public class SwerveDrive {
         }
 
         return tempSum / (modules.length * 2.0);
-    }
-
-    /**
-     * Loads a PathWeaver JSON file to be used in the TRAJECTORY_FOLLOW drive
-     * mode. This function will set the odometry position to the beginning of
-     * trajectory.
-     */
-    public static void grabPathweaverFile(String filePath) {
-        try {
-            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve("output/" + filePath);
-            autonomousTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-            
-            Pose2d initialPosition = autonomousTrajectory.getInitialPose();
-            initialPosition = new Pose2d(
-                -initialPosition.getX(),
-                initialPosition.getY(),
-                initialPosition.getRotation()
-            );
-
-            odometry.resetPosition(
-                new Rotation2d(Pigeon.getYaw().radians()),
-                positions,
-                initialPosition
-            );
-        } catch (IOException e) {
-            DriverStation.reportError(
-                "Could not open trajectory at '" + filePath + "'",
-                e.getStackTrace()
-            );
-        }
-    }
-
-    /**
-     * Starts the trajectory timer at zero time elapsed.
-     */
-    public static void startTrajectoryTimer() {
-        trajectoryTimer.reset();
-        trajectoryTimer.start();
     }
 
     /**
@@ -812,17 +659,21 @@ public class SwerveDrive {
         setPathPosition = pose;
     }
 
+    /**
+     * Returns true if the drive is within tolerance to its desired position. Intended for use with
+     * a swerve mode which takes over driving.
+     */
     public static boolean withinPositionTolerance() {
         final double TOLERANCE_X = 0.3;
         final double TOLERANCE_Y = 0.3;
         final double TOLERANCE_THETA = 0.1;
 
         // makes sure angle are within [0, tau)
-        double measuredAngle = (getOdometryPose().getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
+        double measuredAngle = (PoseEstimator.estimate2d().getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
         double setAngle = (setPathPosition.pose.getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
 
-        return Math.abs(getOdometryPose().getX() - setPathPosition.pose.getX()) < TOLERANCE_X
-            && Math.abs(getOdometryPose().getY() - setPathPosition.pose.getY()) < TOLERANCE_Y
+        return Math.abs(PoseEstimator.estimate2d().getX() - setPathPosition.pose.getX()) < TOLERANCE_X
+            && Math.abs(PoseEstimator.estimate2d().getY() - setPathPosition.pose.getY()) < TOLERANCE_Y
             && Math.abs(measuredAngle - setAngle) < TOLERANCE_THETA;
     }
 
@@ -831,11 +682,72 @@ public class SwerveDrive {
         trajectoryCoefficiantY = y;
     }
 
-    public static double getTrajectoryCoefficiantX() {
-        return trajectoryCoefficiantX;
+    /**
+     * Create a new pose estimator for this drive.
+     */
+    public static SwerveDrivePoseEstimator3d createSwervePoseEstimator(Pose3d startPose) {
+        return new SwerveDrivePoseEstimator3d(
+            kinematics,
+            new Rotation3d(
+                Pigeon.getYaw().radians(),
+                Pigeon.getPitch().radians(),
+                Pigeon.getRoll().radians()
+            ),
+            positions,
+            startPose
+        );
     }
 
-    public static double getTrajectoryCoefficiantY() {
-        return trajectoryCoefficiantY;
+    /**
+     * Updates the given pose estimator using measurements from swerve modules and the gyro.
+     */
+    public static void updatePoseEstimator(SwerveDrivePoseEstimator3d poseEstimator) {
+        poseEstimator.update(
+            new Rotation3d(
+                Pigeon.getRoll().radians(),
+                Pigeon.getPitch().radians(),
+                Pigeon.getYaw().radians()
+            ),
+            positions
+        );
+    }
+
+    /**
+     * Record states for logging and displays like AdvantageKit.
+     */
+    public static void recordState() {
+        SwerveModuleState[] measuredState = new SwerveModuleState[modules.length];
+
+        for (int i = 0; i < modules.length; i++) {
+            measuredState[i] = modules[i].getActualState();
+        }
+
+        Logger.recordOutput("Swerve Module States Measured", measuredState);
+        Logger.recordOutput("Swerve Module States", moduleStates);
+
+        if (setPathPosition != null) {
+            Logger.recordOutput("Swerve Drive Target Pose", setPathPosition.pose);
+        } else {
+            Logger.recordOutput("Swerve Drive Target Pose", new Pose2d());
+        }
+
+        Logger.recordOutput("Swerve Average Motor Tempurature (celsius)", getAverageMotorTemp());
+
+        Logger.recordOutput("Swerve Speed Rotation", getRotationSpeed());
+        Logger.recordOutput("Swerve Speed Translation X", getTranslationSpeedX());
+        Logger.recordOutput("Swerve Speed Translation Y", getTranslationSpeedY());
+
+        Logger.recordOutput("Swerve Drive Mode", getMode());
+        Logger.recordOutput("Swerve Display Mode", getDisplayMode());
+
+        Logger.recordOutput("Swerve Chassis Speeds Output Vx", chassisSpeedsOutput.vxMetersPerSecond);
+        Logger.recordOutput("Swerve Chassis Speeds Output Vy", chassisSpeedsOutput.vyMetersPerSecond);
+        Logger.recordOutput("Swerve Chassis Speeds Output Tau", chassisSpeedsOutput.omegaRadiansPerSecond);
+        Logger.recordOutput("Swerve Chassis Speeds Calculated Vx", chassisSpeedsCalculated.vxMetersPerSecond);
+        Logger.recordOutput("Swerve Chassis Speeds Calculated Vy", chassisSpeedsCalculated.vyMetersPerSecond);
+        Logger.recordOutput("Swerve Chassis Speeds Calculated Tau", chassisSpeedsCalculated.omegaRadiansPerSecond);
+
+        Logger.recordOutput("Swerve Trajectory Coefficiant X", trajectoryCoefficiantX);
+        Logger.recordOutput("Swerve Trajectory Coefficiant Y", trajectoryCoefficiantY);
     }
 }

@@ -24,7 +24,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
  * Class for managing and manipulating a swerve module. 
  */
 public class SwerveModule {
-    private static final double CONVERSION_FACTOR_ROTATION = Math.toRadians(150 / 7); // TODO: Verify.
+    private static final double CONVERSION_FACTOR_ROTATION = Math.toRadians(150 / 7);
     private static final double CONVERSION_FACTOR_MOVEMENT = 6.75 * 10/3;             // Rotations to meters.
 
     private static final double PID_P = 0.70;
@@ -64,6 +64,16 @@ public class SwerveModule {
     
         movementMotor.set(propulsionSpeed);
         rotationMotor.set(rotationSpeed);
+
+        actualState = new SwerveModuleState(
+            movementMotor.getVelocity().getValueAsDouble(),
+            new Rotation2d(getAngle().radians())
+        );
+        
+        position = new SwerveModulePosition(
+            movementMotor.getPosition().getValueAsDouble(), 
+            new Rotation2d(getAngle().radians())
+        );
     }
     
     public SwerveModule(
@@ -138,21 +148,6 @@ public class SwerveModule {
     }
 
     /**
-     * Updates position and actual state.
-     */
-    public void updatePosition() {
-        actualState = new SwerveModuleState(
-            movementMotor.getVelocity().getValueAsDouble(),
-            new Rotation2d(getAngle().radians())
-        );
-        
-        position = new SwerveModulePosition(
-            movementMotor.getPosition().getValueAsDouble(), 
-            new Rotation2d(getAngle().radians())
-        );
-    }
-
-    /**
      * Sets the desired module state for this module. This must be run 
      * repeatedly to continue PID calculations.
      */
@@ -177,6 +172,13 @@ public class SwerveModule {
      */
     public SwerveModuleState getDesiredState() {
         return desiredState;
+    }
+
+    /**
+     * Gets the position of the module. 
+     */
+    public SwerveModulePosition getPosition() {
+        return position;
     }
 
     /**
@@ -209,7 +211,6 @@ public class SwerveModule {
 
     public Angle getAngle() {
         var radians = angularEncoder.getPosition().getValueAsDouble() * Angle.TAU;
-        //var radians = rotationEncoder.getPosition();
         var offsetRadians = radians + canCoderOffset.radians();
         return new Angle().setRadians(((offsetRadians % Angle.TAU) + Angle.TAU) % Angle.TAU);
     }
@@ -226,19 +227,5 @@ public class SwerveModule {
      */
     public double getMovementMotorTemp() {
         return movementMotor.getDeviceTemp().getValue().magnitude();
-    }
-
-    /**
-     * Gets the position of the module. 
-     */
-    public SwerveModulePosition getPosition() {
-        return position;
-    }
-
-    /**
-     * Sets movement position to zero, will mess up odometry.
-     */
-    public void zeroPositions() {
-        angularEncoder.setPosition(0.0);
     }
 }

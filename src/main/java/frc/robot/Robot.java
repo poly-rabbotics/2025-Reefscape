@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -31,16 +30,14 @@ import frc.robot.systems.*;
  * project.
  */
 public class Robot extends LoggedRobot {
-    private static final XboxController controllerOne = new XboxController(0);
-    private static final Joystick switchPanel = new Joystick(1);
-    private static AutonomousProcedure procedure;
+    private static final XboxController controllerDriver = new XboxController(0);
     private static boolean invertedTurn = false;
-
     
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
      */
+    @SuppressWarnings("resource") // Suppress warning about PDP instantiation.
     @Override
     public void robotInit() {
         //https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/docs/INSTALLATION.md#new-projects
@@ -70,65 +67,29 @@ public class Robot extends LoggedRobot {
     
     @Override
     public void robotPeriodic() {
-        Pigeon.update();
-        Pigeon.recordState();
-
         PoseEstimator.update();
-        SwerveDrive.updateOdometry();
-        SwerveDrive.recordStates();
 
-        if (controllerOne.getBackButtonReleased()) {
-            var pose = DriverStation.isTeleop() 
-                ? new Pose2d(0.0, 0.0, new Rotation2d(0.0))
-                : AutonomousManager.getStartingPosSwitches(
-                    switchPanel.getRawButton(1),
-                    switchPanel.getRawButton(2),
-                    switchPanel.getRawButton(3),
-                    switchPanel.getRawButton(4)
-                );
-            
-                
-            if (switchPanel.getRawButton(6)) {
-                SwerveDrive.setTrajectoryCoefficiants(1.0, -1.0);
-            } else {
-                SwerveDrive.setTrajectoryCoefficiants(1.0, 1.0);
-            }
-
-            pose = new Pose2d(
-                pose.getX() * SwerveDrive.getTrajectoryCoefficiantX(),
-                pose.getY() * SwerveDrive.getTrajectoryCoefficiantY(),
-                SwerveDrive.getTrajectoryCoefficiantY() < 0.0
-                    ? new Rotation2d(Angle.TAU - pose.getRotation().getRadians())
-                    : pose.getRotation()
-            );
-
+        if (controllerDriver.getBackButtonReleased()) {
+            var pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
             Pigeon.setFeildOrientation(new Angle().setRadians(pose.getRotation().getRadians()));
-            SwerveDrive.setOdometry(pose);
+            // TODO: Reset pose estimation here.
+            
+            // Prevents fast rotation when setting heading.
+            if (SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
+                SwerveDrive.setMode(SwerveMode.HEADLESS);
+            }
         }
 
-        AutonomousManager.log(
-            switchPanel.getRawButton(1),
-            switchPanel.getRawButton(2),
-            switchPanel.getRawButton(3),
-            switchPanel.getRawButton(4)
-        );
+        recordLogFrame();
     }
     
     @Override
     public void autonomousInit() {
         SwerveDrive.setMode(SwerveMode.SIDEWALK_WALK);
-        AutonomousManager.reset();
     }
 
     @Override
     public void autonomousPeriodic() {
-        AutonomousManager.getProcedureFromSwitches(
-            switchPanel.getRawButton(1),
-            switchPanel.getRawButton(2),
-            switchPanel.getRawButton(3),
-            switchPanel.getRawButton(4)
-        ).run();
-        
         SwerveDrive.run();
     }
 
@@ -139,12 +100,12 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopPeriodic() {
-        if (controllerOne.getStartButtonReleased()) {
+        if (controllerDriver.getStartButtonReleased()) {
             Pigeon.setFeildZero();
         }
         
         // Left stick changes between headless and relative control modes.
-        if (controllerOne.getLeftStickButtonReleased()) {
+        if (controllerDriver.getLeftStickButtonReleased()) {
             SwerveDrive.setMode(
                 SwerveDrive.getMode() == SwerveMode.HEADLESS 
                     ? SwerveMode.RELATIVE 
@@ -153,7 +114,7 @@ public class Robot extends LoggedRobot {
         }
 
         // Invert turn on right stick.
-        if (controllerOne.getRightStickButtonReleased()){       
+        if (controllerDriver.getRightStickButtonReleased()){       
             if (!invertedTurn) {
                 SwerveDrive.setRotationCurve((x) -> Controls.turnCurveRohan(-x));
                 invertedTurn = true;
@@ -163,33 +124,33 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        double pov = controllerOne.getPOV();
+        double pov = controllerDriver.getPOV();
 
         if (pov != -1 && (SwerveDrive.getMode() == SwerveMode.HEADLESS || SwerveDrive.getMode() == SwerveMode.SET_ANGLE)) {
             double angle = -((double)pov);
 
             SwerveDrive.setMode(SwerveMode.SET_ANGLE);
             SwerveDrive.setTargetAngle(new Angle().setDegrees(angle));
-        } else if (Math.abs(controllerOne.getRightX()) > 0.15 && SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
+        } else if (Math.abs(controllerDriver.getRightX()) > 0.15 && SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
             SwerveDrive.setMode(SwerveMode.HEADLESS);
         }
         
         SwerveDrive.conditionalTempTranslationCurve(
             Controls.cardinalLock(Controls::defaultCurveTwoDimensional), 
-            controllerOne.getXButton()
+            controllerDriver.getXButton()
         ); // Lock to cardinal directions.
         SwerveDrive.conditionalTempTranslationCurve(
             (x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 3.0,
-            controllerOne.getRightBumperButton()
+            controllerDriver.getRightBumperButton()
         ); // Half translation speed.
         SwerveDrive.conditionalTempTranslationCurve(
             Controls.cardinalLock((x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 2.0),
-            controllerOne.getRightBumperButton() && controllerOne.getXButton()
+            controllerDriver.getRightBumperButton() && controllerDriver.getXButton()
         ); // Half translation speed.
-        SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerOne.getBButton());
-        SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerOne.getYButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerDriver.getBButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerDriver.getYButton());
 
-        double rotation = -controllerOne.getRightX();
+        double rotation = -controllerDriver.getRightX();
 
         if (SwerveDrive.getMode() == SwerveMode.HEADLESS && Math.abs(rotation) < 0.1) {
             SwerveDrive.setMode(SwerveMode.SET_ANGLE);
@@ -197,8 +158,8 @@ public class Robot extends LoggedRobot {
         }
 
         SwerveDrive.run(
-            -controllerOne.getLeftY(),
-            -controllerOne.getLeftX(),
+            -controllerDriver.getLeftY(),
+            -controllerDriver.getLeftX(),
             rotation
         );
     }
@@ -208,4 +169,10 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {}
+
+    private void recordLogFrame() {
+        SwerveDrive.recordState();
+        Pigeon.recordState();
+        PoseEstimator.recordState();
+    }
 }
