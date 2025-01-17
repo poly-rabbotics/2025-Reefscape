@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -20,8 +21,11 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+
 import frc.robot.subsystems.*;
 import frc.robot.systems.*;
+import frc.robot.systems.CoralIntake.IntakeState;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -100,6 +104,14 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopPeriodic() {
+        if (controllerDriver.getAButton()) {
+            CoralIntake.setIntakeState(IntakeState.INTAKING);
+        } else if (controllerDriver.getYButton()) {
+            CoralIntake.setIntakeState(IntakeState.OUTTAKING);
+        } else {
+            CoralIntake.setIntakeState(IntakeState.IDLE);
+        }
+
         if (controllerDriver.getStartButtonReleased()) {
             Pigeon.setFeildZero();
         }
@@ -148,7 +160,6 @@ public class Robot extends LoggedRobot {
             controllerDriver.getRightBumperButton() && controllerDriver.getXButton()
         ); // Half translation speed.
         SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerDriver.getBButton());
-        SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerDriver.getYButton());
 
         double rotation = -controllerDriver.getRightX();
 
