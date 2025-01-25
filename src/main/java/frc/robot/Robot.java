@@ -147,15 +147,19 @@ public class Robot extends LoggedRobot {
             Controls.cardinalLock((x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 2.0),
             controllerDriver.getRightBumperButton() && controllerDriver.getXButton()
         ); // Half translation speed.
-        SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerDriver.getBButton());
-        SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerDriver.getYButton());
-
         double rotation = -controllerDriver.getRightX();
 
         if (SwerveDrive.getMode() == SwerveMode.HEADLESS && Math.abs(rotation) < 0.1) {
-            SwerveDrive.setMode(SwerveMode.SET_ANGLE);
             SwerveDrive.setTargetAngle(Pigeon.getYaw());
+            SwerveDrive.tempMode(SwerveMode.SET_ANGLE);
         }
+
+        SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerDriver.getBButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerDriver.getYButton());
+
+        var setPose = new Pose2d(16.522, 4.745, new Rotation2d(Math.PI));
+        SwerveDrive.setTargetPathPosition(new PathPosition(setPose, 0.0));
+        SwerveDrive.conditionalTempMode(SwerveMode.SIDEWALK_WALK, controllerDriver.getAButton());
 
         SwerveDrive.run(
             -controllerDriver.getLeftY(),

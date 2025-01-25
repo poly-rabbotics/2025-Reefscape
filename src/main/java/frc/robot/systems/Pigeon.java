@@ -85,5 +85,4 @@ public class Pigeon {
         Logger.recordOutput("Pigeon Acceleration Y (g)", getAccelerationY());
         Logger.recordOutput("Pigeon Acceleration Z (g)", getAccelerationZ());
     }
-  
 }

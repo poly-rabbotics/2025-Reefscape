@@ -72,16 +72,16 @@ public class SwerveDrive {
 
     // PID parameter constants for following autonomous trajectories. These are used to follow a
     // setpoint given as a two dimensional point and a rotation.
-    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.4;
-    private static final double TRAJECTORY_STRAFE_X_PID_I = 0.004;
-    private static final double TRAJECTORY_STRAFE_X_PID_D = 0.035;
+    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.5;
+    private static final double TRAJECTORY_STRAFE_X_PID_I = 0.025;
+    private static final double TRAJECTORY_STRAFE_X_PID_D = 0.0;
 
-    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.6;
-    private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.004;
-    private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.035;
+    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.5;
+    private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.025;
+    private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.0;
 
-    private static final double TRAJECTORY_ROTATE_PID_P = 1.0;
-    private static final double TRAJECTORY_ROTATE_PID_I = 0.0;
+    private static final double TRAJECTORY_ROTATE_PID_P = 0.75;
+    private static final double TRAJECTORY_ROTATE_PID_I = 0.01;
     private static final double TRAJECTORY_ROTATE_PID_D = 0.0;
 
     // Set angle constants. Use in teleop for "snap angles" available to the driver, or any other
@@ -191,6 +191,9 @@ public class SwerveDrive {
             MODULE_PHYSICAL_POSITIONS[2],
             MODULE_PHYSICAL_POSITIONS[3]
         );
+
+        trajectoryStrafeXController.setTolerance(0.1);
+        trajectoryStrafeYController.setTolerance(0.1);
 
         // Enable continuous input and set tolerance on the rotation controllers. Continuous input
         // between zero and tau will make the controller recognize that it works on a circle, and
@@ -519,7 +522,7 @@ public class SwerveDrive {
                 translationSpeedY
                     = trajectoryStrafeYController.calculate(
                         position.getX(),
-                        -setPosition.getX()
+                        setPosition.getX()
                     );
                 rotationSpeed = -trajectoryRotateController.calculate(
                     position.getRotation().getRadians(),
@@ -558,15 +561,15 @@ public class SwerveDrive {
                     = trajectoryStrafeXController.calculate(position.getX(), setPosition.getX());
                 translationSpeedY
                     = trajectoryStrafeYController.calculate(position.getY(), setPosition.getY());
-                rotationSpeed = -trajectoryRotateController.calculate(
+                rotationSpeed = trajectoryRotateController.calculate(
                     position.getRotation().getRadians(),
                     setPosition.getRotation().getRadians()
                 );
 
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translationSpeedX,
-                        translationSpeedY,
+                        -translationSpeedX,
+                        -translationSpeedY,
                         rotationSpeed, 
                         new Rotation2d(Pigeon.getYaw().radians())
                     )
@@ -656,25 +659,7 @@ public class SwerveDrive {
             setPathPosition.timeSeconds
         );
 
-        setPathPosition = pose;
-    }
-
-    /**
-     * Returns true if the drive is within tolerance to its desired position. Intended for use with
-     * a swerve mode which takes over driving.
-     */
-    public static boolean withinPositionTolerance() {
-        final double TOLERANCE_X = 0.3;
-        final double TOLERANCE_Y = 0.3;
-        final double TOLERANCE_THETA = 0.1;
-
-        // makes sure angle are within [0, tau)
-        double measuredAngle = (PoseEstimator.estimate2d().getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
-        double setAngle = (setPathPosition.pose.getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
-
-        return Math.abs(PoseEstimator.estimate2d().getX() - setPathPosition.pose.getX()) < TOLERANCE_X
-            && Math.abs(PoseEstimator.estimate2d().getY() - setPathPosition.pose.getY()) < TOLERANCE_Y
-            && Math.abs(measuredAngle - setAngle) < TOLERANCE_THETA;
+        SwerveDrive.setPathPosition = pose;
     }
 
     public static void setTrajectoryCoefficiants(double x, double y) {
