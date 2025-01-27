@@ -22,11 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.Trajectory.State;
-
 import frc.robot.subsystems.Angle;
-import frc.robot.subsystems.StatusedTimer;
 import frc.robot.subsystems.SwerveMode;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.PathPosition;
@@ -72,16 +68,16 @@ public class SwerveDrive {
 
     // PID parameter constants for following autonomous trajectories. These are used to follow a
     // setpoint given as a two dimensional point and a rotation.
-    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.4;
-    private static final double TRAJECTORY_STRAFE_X_PID_I = 0.004;
-    private static final double TRAJECTORY_STRAFE_X_PID_D = 0.035;
+    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.5;
+    private static final double TRAJECTORY_STRAFE_X_PID_I = 0.025;
+    private static final double TRAJECTORY_STRAFE_X_PID_D = 0.0;
 
-    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.6;
-    private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.004;
-    private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.035;
+    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.5;
+    private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.025;
+    private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.0;
 
-    private static final double TRAJECTORY_ROTATE_PID_P = 1.0;
-    private static final double TRAJECTORY_ROTATE_PID_I = 0.0;
+    private static final double TRAJECTORY_ROTATE_PID_P = 0.75;
+    private static final double TRAJECTORY_ROTATE_PID_I = 0.01;
     private static final double TRAJECTORY_ROTATE_PID_D = 0.0;
 
     // Set angle constants. Use in teleop for "snap angles" available to the driver, or any other
@@ -116,10 +112,6 @@ public class SwerveDrive {
     // employed elsewhere.
     private static final PIDController setAngleController
         = new PIDController(SET_ANGLE_PID_P, SET_ANGLE_PID_I, SET_ANGLE_PID_D);
-
-    // These are for using pathweaver, which uses a time to determine the objective point.
-    private static StatusedTimer trajectoryTimer = new StatusedTimer();
-    private static Trajectory autonomousTrajectory = new Trajectory();
 
     // For sidewalk paver, which simply sets the current point through an autonomous procedure.
     private static PathPosition setPathPosition = null;
@@ -192,6 +184,9 @@ public class SwerveDrive {
             MODULE_PHYSICAL_POSITIONS[3]
         );
 
+        trajectoryStrafeXController.setTolerance(0.1);
+        trajectoryStrafeYController.setTolerance(0.1);
+
         // Enable continuous input and set tolerance on the rotation controllers. Continuous input
         // between zero and tau will make the controller recognize that it works on a circle, and
         // that a position at zero or any multiple of tau are the same position.
@@ -210,7 +205,7 @@ public class SwerveDrive {
     }
 
     /**
-     * Get the current swerve mode.
+     * Get the current non-temporary swerve mode.
      */
     public static SwerveMode getMode() {
         return mode;
@@ -257,31 +252,6 @@ public class SwerveDrive {
         }
 
         tempMode(mode);
-    }
-
-    /**
-     * Gets the translation speed along the X axis. In headless mode this gives
-     * a speed along the field's x-axis, otheriwse it is the forward speed of 
-     * the robot.
-     */
-    public static double getTranslationSpeedX() {
-        return translationSpeedX;
-    }
-
-    /**
-     * Gets the translation speed along the Y axis. In headless mode this gives
-     * a speed along the field's y-axis, otheriwse it is the sideways speed of 
-     * the robot.
-     */
-    public static double getTranslationSpeedY() {
-        return translationSpeedY;
-    }
-
-    /**
-     * Gets the rotation speed of the robot.
-     */
-    public static double getRotationSpeed() {
-        return rotationSpeed;
     }
 
     /**
@@ -480,70 +450,31 @@ public class SwerveDrive {
             }
 
             case SET_ANGLE: {
-                moduleStates = kinematics.toSwerveModuleStates(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translationSpeedX,
-                        translationSpeedY,
-                        setAngleController.calculate(
-                            Pigeon.getYaw().radians(),
-                            setAngle.radians()
-                        ), 
-                        new Rotation2d(Pigeon.getYaw().radians())
-                    )
-                );
-                break;
-            }
-
-            case TRAJECTORY_FOLLOW: {
-                if (autonomousTrajectory == null || autonomousTrajectory.getTotalTimeSeconds() + 0.35 < trajectoryTimer.get()) {
-                    translationSpeedX = 0.0;
-                    translationSpeedY = 0.0;
-                    rotationSpeed = 0.0;
-
-                    moduleStates = kinematics.toSwerveModuleStates(
-                        new ChassisSpeeds(0.0, 0.0, 0.0)
-                    );
-
-                    break;
-                }
-
-                State state = autonomousTrajectory.sample(trajectoryTimer.get());
-                Pose2d setPosition = state.poseMeters;
-                Pose2d position = PoseEstimator.estimate2d();
-
-                translationSpeedX
-                    = trajectoryStrafeXController.calculate(
-                        position.getY(), 
-                        setPosition.getY()
-                    );
-                translationSpeedY
-                    = trajectoryStrafeYController.calculate(
-                        position.getX(),
-                        -setPosition.getX()
-                    );
-                rotationSpeed = -trajectoryRotateController.calculate(
-                    position.getRotation().getRadians(),
-                    setPosition.getRotation().getRadians()
-                );
+                rotationSpeed = setAngleController.calculate(Pigeon.getYaw().radians(), setAngle.radians());
 
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         translationSpeedX,
                         translationSpeedY,
-                        rotationSpeed, 
+                        rotationSpeed,
                         new Rotation2d(Pigeon.getYaw().radians())
                     )
                 );
-
                 break;
             }
 
             case SIDEWALK_WALK: {
                 if (setPathPosition == null) {
                     // Break early if we have no path.
+                    translationX = 0.0;
+                    translationY = 0.0;
+                    rotationSpeed = 0.0;
 
                     moduleStates = kinematics.toSwerveModuleStates(
-                        ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, 
+                        ChassisSpeeds.fromFieldRelativeSpeeds(
+                            translationX,
+                            translationY,
+                            rotationSpeed, 
                             new Rotation2d(Pigeon.getYaw().radians())
                         )
                     );
@@ -553,20 +484,21 @@ public class SwerveDrive {
 
                 Pose2d setPosition = setPathPosition.pose;
                 Pose2d position = PoseEstimator.estimate2d();
+                SwerveDrive.setAngle = Pigeon.getYaw();
 
                 translationSpeedX
                     = trajectoryStrafeXController.calculate(position.getX(), setPosition.getX());
                 translationSpeedY
                     = trajectoryStrafeYController.calculate(position.getY(), setPosition.getY());
-                rotationSpeed = -trajectoryRotateController.calculate(
+                rotationSpeed = trajectoryRotateController.calculate(
                     position.getRotation().getRadians(),
                     setPosition.getRotation().getRadians()
                 );
 
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translationSpeedX,
-                        translationSpeedY,
+                        -translationSpeedX,
+                        -translationSpeedY,
                         rotationSpeed, 
                         new Rotation2d(Pigeon.getYaw().radians())
                     )
@@ -656,25 +588,7 @@ public class SwerveDrive {
             setPathPosition.timeSeconds
         );
 
-        setPathPosition = pose;
-    }
-
-    /**
-     * Returns true if the drive is within tolerance to its desired position. Intended for use with
-     * a swerve mode which takes over driving.
-     */
-    public static boolean withinPositionTolerance() {
-        final double TOLERANCE_X = 0.3;
-        final double TOLERANCE_Y = 0.3;
-        final double TOLERANCE_THETA = 0.1;
-
-        // makes sure angle are within [0, tau)
-        double measuredAngle = (PoseEstimator.estimate2d().getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
-        double setAngle = (setPathPosition.pose.getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
-
-        return Math.abs(PoseEstimator.estimate2d().getX() - setPathPosition.pose.getX()) < TOLERANCE_X
-            && Math.abs(PoseEstimator.estimate2d().getY() - setPathPosition.pose.getY()) < TOLERANCE_Y
-            && Math.abs(measuredAngle - setAngle) < TOLERANCE_THETA;
+        SwerveDrive.setPathPosition = pose;
     }
 
     public static void setTrajectoryCoefficiants(double x, double y) {
@@ -733,9 +647,9 @@ public class SwerveDrive {
 
         Logger.recordOutput("Swerve Average Motor Tempurature (celsius)", getAverageMotorTemp());
 
-        Logger.recordOutput("Swerve Speed Rotation", getRotationSpeed());
-        Logger.recordOutput("Swerve Speed Translation X", getTranslationSpeedX());
-        Logger.recordOutput("Swerve Speed Translation Y", getTranslationSpeedY());
+        Logger.recordOutput("Swerve Speed Rotation", rotationSpeed);
+        Logger.recordOutput("Swerve Speed Translation X", translationSpeedX);
+        Logger.recordOutput("Swerve Speed Translation Y", translationSpeedY);
 
         Logger.recordOutput("Swerve Drive Mode", getMode());
         Logger.recordOutput("Swerve Display Mode", getDisplayMode());
@@ -749,5 +663,12 @@ public class SwerveDrive {
 
         Logger.recordOutput("Swerve Trajectory Coefficiant X", trajectoryCoefficiantX);
         Logger.recordOutput("Swerve Trajectory Coefficiant Y", trajectoryCoefficiantY);
+
+        Logger.recordOutput("Swerve Set Angle (Radians)", setAngle.radians());
+        Logger.recordOutput("Swerve Set Angle (Degrees)", setAngle.degrees());
+
+        if (setPathPosition != null) {
+            Logger.recordOutput("Swerve Target Pose", setPathPosition.pose);
+        }
     }
 }

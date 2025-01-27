@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-
+import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.PathPosition;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
@@ -88,11 +88,30 @@ public class AutonomousManager {
         return (prevState) -> {
             SwerveDrive.setTargetPathPosition(new PathPosition(pose, 0.0));
 
-            if (SwerveDrive.withinPositionTolerance()) {
+            if (withinPositionTolerance(pose)) {
                 return StepStatus.Done;
             }
 
             return StepStatus.Running;
         };
     }
+
+    /**
+     * Returns true if the drive is within tolerance to its desired position. Intended for use with
+     * a swerve mode which takes over driving.
+     */
+    public static boolean withinPositionTolerance(Pose2d setPathPosition) {
+        final double TOLERANCE_X = 0.3;
+        final double TOLERANCE_Y = 0.3;
+        final double TOLERANCE_THETA = 0.1;
+
+        // makes sure angle are within [0, tau)
+        double measuredAngle = (PoseEstimator.estimate2d().getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
+        double setAngle = (setPathPosition.getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
+
+        return Math.abs(PoseEstimator.estimate2d().getX() - setPathPosition.getX()) < TOLERANCE_X
+            && Math.abs(PoseEstimator.estimate2d().getY() - setPathPosition.getY()) < TOLERANCE_Y
+            && Math.abs(measuredAngle - setAngle) < TOLERANCE_THETA;
+    }
+
 }
