@@ -23,6 +23,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import frc.robot.subsystems.*;
 import frc.robot.systems.*;
+import frc.robot.systems.CoralIntake.IntakeState;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -32,8 +33,10 @@ import frc.robot.systems.*;
  */
 public class Robot extends LoggedRobot {
     private static final int CONTROLLER_PORT_DRIVER = 0;
+    private static final int CONTROLLER_PORT_OPERATOR = 1;
     
     private static final XboxController controllerDriver = new XboxController(CONTROLLER_PORT_DRIVER);
+    private static final XboxController controllerOperator = new XboxController(CONTROLLER_PORT_OPERATOR);
     private static boolean invertedTurn = false;
     
     /**
@@ -123,6 +126,16 @@ public class Robot extends LoggedRobot {
     public void teleopPeriodic() {
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             driverTeleop();
+        }
+
+        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
+            if (controllerOperator.getAButton()) {
+                CoralIntake.setIntakeState(IntakeState.INTAKING);
+            } else if (controllerOperator.getBButton()) {
+                CoralIntake.setIntakeState(IntakeState.OUTTAKING);
+            } else {
+                CoralIntake.setIntakeState(IntakeState.IDLE);
+            }
         }
     }
 
