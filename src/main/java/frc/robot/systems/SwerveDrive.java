@@ -91,7 +91,8 @@ public class SwerveDrive {
     private static final SwerveModule modules[] = new SwerveModule[MODULE_MOVEMENT_CAN_IDS.length];
 
     // Positions of the modules, are used for things like odometry.
-    private static final SwerveModulePosition positions[] = new SwerveModulePosition[MODULE_MOVEMENT_CAN_IDS.length];
+    private static final SwerveModulePosition positions[]
+        = new SwerveModulePosition[MODULE_MOVEMENT_CAN_IDS.length];
 
     // Kinematics takes our desired drive state and produces states for each module.
     private static final SwerveDriveKinematics kinematics;
@@ -101,11 +102,23 @@ public class SwerveDrive {
     // available. Keep this in mind if auto-alignment to a target is desired and we have an accurate
     // source of odometry data.
     private static final PIDController trajectoryStrafeXController
-        = new PIDController(TRAJECTORY_STRAFE_X_PID_P, TRAJECTORY_STRAFE_X_PID_I, TRAJECTORY_STRAFE_X_PID_D);
+        = new PIDController(
+            TRAJECTORY_STRAFE_X_PID_P,
+            TRAJECTORY_STRAFE_X_PID_I,
+            TRAJECTORY_STRAFE_X_PID_D
+        );
     private static final PIDController trajectoryStrafeYController
-        = new PIDController(TRAJECTORY_STRAFE_Y_PID_P, TRAJECTORY_STRAFE_Y_PID_I, TRAJECTORY_STRAFE_Y_PID_D);
+        = new PIDController(
+            TRAJECTORY_STRAFE_Y_PID_P,
+            TRAJECTORY_STRAFE_Y_PID_I,
+            TRAJECTORY_STRAFE_Y_PID_D
+        );
     private static final PIDController trajectoryRotateController
-        = new PIDController(TRAJECTORY_ROTATE_PID_P, TRAJECTORY_ROTATE_PID_I, TRAJECTORY_ROTATE_PID_D);
+        = new PIDController(
+            TRAJECTORY_ROTATE_PID_P,
+            TRAJECTORY_ROTATE_PID_I,
+            TRAJECTORY_ROTATE_PID_D
+        );
 
     // Controller for set angles, may be used on command by the driver while retaining full 
     // translation control. This controller is still available to the whole class, and so may be 
@@ -122,7 +135,8 @@ public class SwerveDrive {
     // curves, which are used for hold-button functions rather than toggle-button ones. This allows
     // a curve to only be active when holdling a button, for example, a button to reduce speed may
     // be a hold-button.
-    private static BiFunction<Double, Double, Double> translationCurve = Controls::defaultCurveTwoDimensional;
+    private static BiFunction<Double, Double, Double> translationCurve
+        = Controls::defaultCurveTwoDimensional;
     private static BiFunction<Double, Double, Double> inactiveTransationCurve = null;
     private static Function<Double, Double> rotationCurve = Controls::defaultCurve;
     private static Function<Double, Double> inactiveRotationCurve = null;
@@ -139,7 +153,12 @@ public class SwerveDrive {
     // chassis state objects are for the desired state of the drive and the state we measure via the
     // encoders on each modules. Chassis states may be displayed with the "swerve" widget in 
     // AdvantageScope, which is very helpful when debugging drive related issues.
-    private static SwerveModuleState[] moduleStates = { new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState() };
+    private static SwerveModuleState[] moduleStates = {
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState()
+    };
     private static ChassisSpeeds chassisSpeedsOutput = new ChassisSpeeds();
     private static ChassisSpeeds chassisSpeedsCalculated = new ChassisSpeeds();
 
@@ -656,10 +675,26 @@ public class SwerveDrive {
 
         Logger.recordOutput("Swerve Chassis Speeds Output Vx", chassisSpeedsOutput.vxMetersPerSecond);
         Logger.recordOutput("Swerve Chassis Speeds Output Vy", chassisSpeedsOutput.vyMetersPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Output Tau", chassisSpeedsOutput.omegaRadiansPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Calculated Vx", chassisSpeedsCalculated.vxMetersPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Calculated Vy", chassisSpeedsCalculated.vyMetersPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Calculated Tau", chassisSpeedsCalculated.omegaRadiansPerSecond);
+
+        Logger.recordOutput(
+            "Swerve Chassis Speeds Output Tau",
+            chassisSpeedsOutput.omegaRadiansPerSecond
+        );
+
+        Logger.recordOutput(
+            "Swerve Chassis Speeds Calculated Vx",
+            chassisSpeedsCalculated.vxMetersPerSecond
+        );
+
+        Logger.recordOutput(
+            "Swerve Chassis Speeds Calculated Vy",
+            chassisSpeedsCalculated.vyMetersPerSecond
+        );
+
+        Logger.recordOutput(
+            "Swerve Chassis Speeds Calculated Tau",
+            chassisSpeedsCalculated.omegaRadiansPerSecond
+        );
 
         Logger.recordOutput("Swerve Trajectory Coefficiant X", trajectoryCoefficiantX);
         Logger.recordOutput("Swerve Trajectory Coefficiant Y", trajectoryCoefficiantY);

@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -20,8 +20,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
-import com.ctre.phoenix6.signals.InvertedValue;
 
 import frc.robot.subsystems.*;
 import frc.robot.systems.*;
@@ -34,7 +32,11 @@ import frc.robot.systems.CoralIntake.IntakeState;
  * project.
  */
 public class Robot extends LoggedRobot {
-    private static final XboxController controllerDriver = new XboxController(0);
+    private static final int CONTROLLER_PORT_DRIVER = 0;
+    private static final int CONTROLLER_PORT_OPERATOR = 1;
+    
+    private static final XboxController controllerDriver = new XboxController(CONTROLLER_PORT_DRIVER);
+    private static final XboxController controllerOperator = new XboxController(CONTROLLER_PORT_OPERATOR);
     private static boolean invertedTurn = false;
     
     /**
@@ -44,20 +46,30 @@ public class Robot extends LoggedRobot {
     @SuppressWarnings("resource") // Suppress warning about PDP instantiation.
     @Override
     public void robotInit() {
-        //https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/docs/INSTALLATION.md#new-projects
         Logger.recordMetadata("ProjectName", "7042 Prototype");
 
         if (isReal()) {
-            // Log for real robot runs
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
             new PowerDistribution(1, ModuleType.kRev);
         } else {
-            // in simulation mode replay from logs
-            setUseTiming(false);
-            String logPath = LogFileUtil.findReplayLog();
-            Logger.setReplaySource(new WPILOGReader(logPath));
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+            try {
+                // Try to replay from a log file.
+                String logPath = LogFileUtil.findReplayLog();
+                Logger.setReplaySource(new WPILOGReader(logPath));
+                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+                setUseTiming(false);
+
+                System.out.println("Replaying from '" + logPath + "' in simulation ...");
+            } catch (Exception e) {
+                // Simulate if no log file exists.
+                Logger.addDataReceiver(new WPILOGWriter());
+                Logger.addDataReceiver(new NT4Publisher());
+                new PowerDistribution(1, ModuleType.kRev);
+
+                System.out.println("Could not find log to replay from ...");
+                System.out.println("Starting non-replay simulation ...");
+            }
         }
 
         Logger.start();
@@ -66,7 +78,7 @@ public class Robot extends LoggedRobot {
         DataLogManager.start();
         DriverStation.startDataLog(DataLogManager.getLog());
 
-        Pigeon.setFeildZero();
+        Pigeon.setYaw(new Angle().setDegrees(0.0));
     }
     
     @Override
@@ -76,7 +88,7 @@ public class Robot extends LoggedRobot {
         if (controllerDriver.getBackButtonReleased()) {
             var pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
             Pigeon.setFeildOrientation(new Angle().setRadians(pose.getRotation().getRadians()));
-            // TODO: Reset pose estimation here.
+            PoseEstimator.reset();
             
             // Prevents fast rotation when setting heading.
             if (SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
@@ -85,6 +97,14 @@ public class Robot extends LoggedRobot {
         }
 
         recordLogFrame();
+
+        if (controllerDriver.getStartButtonReleased()) {
+            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+                Pigeon.setYaw(new Angle().setDegrees(0.0));
+            } else {
+                Pigeon.setYaw(new Angle().setDegrees(180.0));
+            }
+        }
     }
     
     @Override
@@ -104,25 +124,54 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopPeriodic() {
-        if (controllerDriver.getAButton()) {
-            CoralIntake.setIntakeState(IntakeState.INTAKING);
-        } else if (controllerDriver.getYButton()) {
-            CoralIntake.setIntakeState(IntakeState.OUTTAKING);
-        } else {
-            CoralIntake.setIntakeState(IntakeState.IDLE);
+        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
+            driverTeleop();
         }
 
+        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
+            if (controllerOperator.getAButton()) {
+                CoralIntake.setIntakeState(IntakeState.INTAKING);
+            } else if (controllerOperator.getBButton()) {
+                CoralIntake.setIntakeState(IntakeState.OUTTAKING);
+            } else {
+                CoralIntake.setIntakeState(IntakeState.IDLE);
+            }
+        }
+    }
+
+    @Override
+    public void disabledInit() {}
+
+    @Override
+    public void disabledPeriodic() {}
+
+    private void recordLogFrame() {
+        SwerveDrive.recordState();
+        Pigeon.recordState();
+        PoseEstimator.recordState();
+    }
+
+    /**
+     * To be called periodically during teleop, this method handles all behavior that requires input
+     * from the driver's controller.
+     */
+    private void driverTeleop() {
+        // Reset field oriented heading, based on alliance.
         if (controllerDriver.getStartButtonReleased()) {
-            Pigeon.setFeildZero();
+            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+                Pigeon.setYaw(new Angle().setDegrees(0.0));
+            } else {
+                Pigeon.setYaw(new Angle().setDegrees(180.0));
+            }
         }
         
+        boolean isFieldOriented
+            = SwerveDrive.getMode() == SwerveMode.HEADLESS
+            || SwerveDrive.getMode() == SwerveMode.SET_ANGLE;
+
         // Left stick changes between headless and relative control modes.
         if (controllerDriver.getLeftStickButtonReleased()) {
-            SwerveDrive.setMode(
-                SwerveDrive.getMode() == SwerveMode.HEADLESS 
-                    ? SwerveMode.RELATIVE 
-                    : SwerveMode.HEADLESS
-            );
+            SwerveDrive.setMode(isFieldOriented ? SwerveMode.RELATIVE : SwerveMode.HEADLESS);
         }
 
         // Invert turn on right stick.
@@ -138,15 +187,32 @@ public class Robot extends LoggedRobot {
 
         double pov = controllerDriver.getPOV();
 
-        if (pov != -1 && (SwerveDrive.getMode() == SwerveMode.HEADLESS || SwerveDrive.getMode() == SwerveMode.SET_ANGLE)) {
-            double angle = -((double)pov);
+        // If a D-Pad button is pressed, snap to that angle.
+        if (pov != -1 && isFieldOriented) {
+            Angle angle = new Angle().setDegrees(-(double)pov);
 
             SwerveDrive.setMode(SwerveMode.SET_ANGLE);
-            SwerveDrive.setTargetAngle(new Angle().setDegrees(angle));
-        } else if (Math.abs(controllerDriver.getRightX()) > 0.15 && SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
-            SwerveDrive.setMode(SwerveMode.HEADLESS);
+            SwerveDrive.setTargetAngle(angle);
         }
         
+        // If the driver is not actively turning the robot, enable automated turn control to
+        // compensate for drift.
+        if (
+            SwerveDrive.getMode() == SwerveMode.HEADLESS
+            && Math.abs(controllerDriver.getRightX()) < 0.15
+        ) {
+            SwerveDrive.setTargetAngle(Pigeon.getYaw());
+            SwerveDrive.setMode(SwerveMode.SET_ANGLE);
+        }
+
+        // If the driver tries to trun the robot, drop out of automated turn control.
+        if (
+            Math.abs(controllerDriver.getRightX()) > 0.15
+            && SwerveDrive.getMode() == SwerveMode.SET_ANGLE
+        ) {
+            SwerveDrive.setMode(SwerveMode.HEADLESS);
+        }
+
         SwerveDrive.conditionalTempTranslationCurve(
             Controls.cardinalLock(Controls::defaultCurveTwoDimensional), 
             controllerDriver.getXButton()
@@ -161,32 +227,16 @@ public class Robot extends LoggedRobot {
         ); // Half translation speed.
 
         SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerDriver.getBButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerDriver.getYButton());
 
         var setPose = new Pose2d(16.522, 4.745, new Rotation2d(Math.PI));
         SwerveDrive.setTargetPathPosition(new PathPosition(setPose, 0.0));
         SwerveDrive.conditionalTempMode(SwerveMode.SIDEWALK_WALK, controllerDriver.getAButton());
-
-        if (SwerveDrive.getMode() == SwerveMode.HEADLESS && Math.abs(controllerDriver.getRightX()) < 0.15) {
-            SwerveDrive.setTargetAngle(Pigeon.getYaw());
-            SwerveDrive.setMode(SwerveMode.SET_ANGLE);
-        }
 
         SwerveDrive.run(
             -controllerDriver.getLeftY(),
             -controllerDriver.getLeftX(),
             -controllerDriver.getRightX()
         );
-    }
-
-    @Override
-    public void disabledInit() {}
-
-    @Override
-    public void disabledPeriodic() {}
-
-    private void recordLogFrame() {
-        SwerveDrive.recordState();
-        Pigeon.recordState();
-        PoseEstimator.recordState();
     }
 }
