@@ -1,18 +1,19 @@
 package frc.robot.systems;
 
-import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.IntakeCoral;
 
 public class Coral {
 
     private static final Coral instance = new Coral();
-    public static CoralIntake coralIntake;
+    public static IntakeCoral intakeCoral;
 
     private Coral() {
-        coralIntake = new CoralIntake(0, 0);
+        intakeCoral = new IntakeCoral(0, 0);
     }
 
     public static void run(double intakeSpeed) {
-        coralIntake.run(intakeSpeed);
-    }
+        intakeCoral.set(intakeSpeed);
 
+        intakeCoral.run();
+    }
 }
