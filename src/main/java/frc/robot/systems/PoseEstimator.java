@@ -79,6 +79,14 @@ public class PoseEstimator {
     }
 
     /**
+     * Zero position. This will quickly be undone by a vision target, but until then odometry will
+     * start at the origin.
+     */
+    public static void reset() {
+        swervePoseEstimator.resetPose(new Pose3d());
+    }
+
+    /**
      * Update an individual estimator with vision data.
      */
     private static Optional<EstimatedRobotPose> updateEstimator(PhotonPoseEstimator estimator, PhotonCamera cam) {

@@ -20,8 +20,8 @@ public class Pigeon {
      * the relative rotation always return a rotation relative to the rotation
      * the robot is in at the point this method is called.
      */
-    public static void setFeildZero() {
-        pigeon.setYaw(0.0);
+    public static void setYaw(Angle yaw) {
+        pigeon.setYaw(yaw.degrees());
     }
 
     public static void setFeildOrientation(Angle value) {

@@ -66,7 +66,7 @@ public class Robot extends LoggedRobot {
         DataLogManager.start();
         DriverStation.startDataLog(DataLogManager.getLog());
 
-        Pigeon.setFeildZero();
+        Pigeon.setYaw(new Angle().setDegrees(0.0));
     }
     
     @Override
@@ -76,7 +76,7 @@ public class Robot extends LoggedRobot {
         if (controllerDriver.getBackButtonReleased()) {
             var pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
             Pigeon.setFeildOrientation(new Angle().setRadians(pose.getRotation().getRadians()));
-            // TODO: Reset pose estimation here.
+            PoseEstimator.reset();
             
             // Prevents fast rotation when setting heading.
             if (SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
@@ -85,6 +85,13 @@ public class Robot extends LoggedRobot {
         }
 
         recordLogFrame();
+        if (controllerDriver.getStartButtonReleased()) {
+            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+                Pigeon.setYaw(new Angle().setDegrees(0.0));
+            } else {
+                Pigeon.setYaw(new Angle().setDegrees(180.0));
+            }
+        }
     }
     
     @Override
@@ -113,7 +120,11 @@ public class Robot extends LoggedRobot {
         }
 
         if (controllerDriver.getStartButtonReleased()) {
-            Pigeon.setFeildZero();
+            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+                Pigeon.setYaw(new Angle().setDegrees(0.0));
+            } else {
+                Pigeon.setYaw(new Angle().setDegrees(180.0));
+            }
         }
         
         // Left stick changes between headless and relative control modes.
