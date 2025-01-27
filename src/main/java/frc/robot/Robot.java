@@ -85,26 +85,33 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         PoseEstimator.update();
 
-        if (controllerDriver.getBackButtonReleased()) {
-            var pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
-            Pigeon.setFeildOrientation(new Angle().setRadians(pose.getRotation().getRadians()));
-            PoseEstimator.reset();
+        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
+            if (controllerDriver.getBackButtonReleased()) {
+                var pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
+                Pigeon.setFeildOrientation(new Angle().setRadians(pose.getRotation().getRadians()));
+                PoseEstimator.reset();
             
-            // Prevents fast rotation when setting heading.
-            if (SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
-                SwerveDrive.setMode(SwerveMode.HEADLESS);
+                // Prevents fast rotation when setting heading.
+                if (SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
+                    SwerveDrive.setMode(SwerveMode.HEADLESS);
+                }
+            }
+
+            if (controllerDriver.getStartButtonReleased()) {
+                if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+                    Pigeon.setYaw(new Angle().setDegrees(0.0));
+                } else {
+                    Pigeon.setYaw(new Angle().setDegrees(180.0));
+                }
+
+                // Prevents fast rotation when setting heading.
+                if (SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
+                    SwerveDrive.setMode(SwerveMode.HEADLESS);
+                }
             }
         }
 
         recordLogFrame();
-
-        if (controllerDriver.getStartButtonReleased()) {
-            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
-                Pigeon.setYaw(new Angle().setDegrees(0.0));
-            } else {
-                Pigeon.setYaw(new Angle().setDegrees(180.0));
-            }
-        }
     }
     
     @Override
