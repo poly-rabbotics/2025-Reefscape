@@ -3,3 +3,12 @@ build
 bin/main/frc/robot
 .gradle
 bin
+.settings
+ctre_sim
+logs
+hs_err_pid335150.log
+hs_err_pid341462.log
+networktables.json
+simgui-ds.json
+simgui-window.json
+simgui.json
