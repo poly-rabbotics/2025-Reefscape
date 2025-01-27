@@ -23,8 +23,10 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.littletonrobotics.junction.Logger;
 
 public class PoseEstimator {
-    private static final Transform3d BOT_TO_CAM_LEFT = new Transform3d(0.305, 0.222, 0.098, new Rotation3d(0.0, 0.0, 0.0));
-    private static final Transform3d BOT_TO_CAM_RIGHT = new Transform3d(0.273, 0.222, 0.133, new Rotation3d(0.0, 1.047, 0.0));
+    private static final Transform3d BOT_TO_CAM_LEFT
+        = new Transform3d(0.305, 0.222, 0.098, new Rotation3d(0.0, 0.0, 0.0));
+    private static final Transform3d BOT_TO_CAM_RIGHT
+        = new Transform3d(0.273, 0.222, 0.133, new Rotation3d(0.0, 1.047, 0.0));
 
     private static final PhotonCamera camRight = new PhotonCamera("RightCam");
     private static final PhotonCamera camLeft = new PhotonCamera("LeftCam");
@@ -33,18 +35,29 @@ public class PoseEstimator {
     private static final PhotonPoseEstimator photonEstimatorLeft;
     private static final PhotonPoseEstimator photonEstimatorRight;
 
-    private static SwerveDrivePoseEstimator3d swervePoseEstimator = SwerveDrive.createSwervePoseEstimator(new Pose3d());
+    private static SwerveDrivePoseEstimator3d swervePoseEstimator
+        = SwerveDrive.createSwervePoseEstimator(new Pose3d());
 
     static {
         try {
-            field = new AprilTagFieldLayout(Filesystem.getDeployDirectory().toPath().resolve("2025-reefscape.json"));
+            field = new AprilTagFieldLayout(
+                Filesystem.getDeployDirectory().toPath().resolve("2025-reefscape.json")
+            );
         } catch (IOException e) {
             System.out.println("ERROR: Failed to load field JSON, falling back on default");
             field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
         }
 
-        photonEstimatorLeft = new PhotonPoseEstimator(field, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, BOT_TO_CAM_LEFT);
-        photonEstimatorRight = new PhotonPoseEstimator(field, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, BOT_TO_CAM_RIGHT);
+        photonEstimatorLeft = new PhotonPoseEstimator(
+            field,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            BOT_TO_CAM_LEFT
+        );
+        photonEstimatorRight = new PhotonPoseEstimator(
+            field,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            BOT_TO_CAM_RIGHT
+        );
         photonEstimatorLeft.setReferencePose(new Pose3d());
         photonEstimatorRight.setReferencePose(new Pose3d());
     }
@@ -58,7 +71,10 @@ public class PoseEstimator {
         Optional<EstimatedRobotPose> workingEstimate = estimateLeft.or(() -> estimateRight);
 
         SwerveDrive.updatePoseEstimator(swervePoseEstimator);
-        workingEstimate.ifPresent((est) -> swervePoseEstimator.addVisionMeasurement(est.estimatedPose, est.timestampSeconds));
+        workingEstimate.ifPresent(
+            (est) -> swervePoseEstimator
+                .addVisionMeasurement(est.estimatedPose, est.timestampSeconds)
+        );
     }
 
     /**
@@ -94,7 +110,10 @@ public class PoseEstimator {
         PhotonPipelineResult latestResult = null;
 
         for (PhotonPipelineResult res : results) {
-            if (latestResult == null || res.getTimestampSeconds() > latestResult.getTimestampSeconds()) {
+            if (
+                latestResult == null
+                || res.getTimestampSeconds() > latestResult.getTimestampSeconds()
+            ) {
                 latestResult = res;
             }
         }
