@@ -6,23 +6,37 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public class AlgaePneumatic {
 
-    private DoubleSolenoid algaeSolenoid;
+    private DoubleSolenoid algaeSolenoidOne;
+    private DoubleSolenoid algaeSolenoidTwo;
 
-    public AlgaePneumatic(int forwardChannel, int reverseChannel) {
-        algaeSolenoid = new DoubleSolenoid(
+    public AlgaePneumatic(
+        int forwardChannelOne,
+        int reverseChannelOne,
+        int forwardChannelTwo,
+        int reverseChannelTwo
+    ) {
+        algaeSolenoidOne = new DoubleSolenoid(
             PneumaticsModuleType.CTREPCM,
-            forwardChannel,
-            reverseChannel
+            forwardChannelOne,
+            reverseChannelOne
         );
 
-        algaeSolenoid.set(DoubleSolenoid.Value.kForward);
+        algaeSolenoidTwo = new DoubleSolenoid(
+            PneumaticsModuleType.CTREPCM,
+            forwardChannelTwo,
+            reverseChannelTwo
+        );
+
+        algaeSolenoidOne.set(DoubleSolenoid.Value.kForward);
+        algaeSolenoidTwo.set(DoubleSolenoid.Value.kForward);
     }
 
     public void set(Value val) {
-        algaeSolenoid.set(val);
+        algaeSolenoidOne.set(val);
+        algaeSolenoidTwo.set(val);
     }
 
     public DoubleSolenoid.Value get() {
-        return algaeSolenoid.get();
+        return algaeSolenoidOne.get();
     }
 }
