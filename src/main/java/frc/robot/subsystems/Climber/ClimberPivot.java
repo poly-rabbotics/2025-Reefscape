@@ -15,7 +15,7 @@ public class ClimberPivot {
     private static final double PID_D = 0.0;
 
     private static final Angle MAX_ANGLE = new Angle().setDegrees(180.0);
-    private static final Angle MIN_ANGLE = new Angle().setDegrees(180.0);
+    private static final Angle MIN_ANGLE = new Angle().setDegrees(0.0);
 
     private final SparkMax motorLeader;
     private final SparkMax motorFollower;
@@ -66,6 +66,7 @@ public class ClimberPivot {
      * Sets the speed and discards any previously given set angle.
      */
     public void set(double speed) {
+        setAngle = null;
         this.speed = speed;
     }
 
