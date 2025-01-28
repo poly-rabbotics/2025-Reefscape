@@ -1,8 +1,7 @@
 package frc.robot.systems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import frc.robot.subsystems.ClimberPivot;
-import frc.robot.subsystems.ClimberPneumatic;
+import frc.robot.subsystems.Climber.*;
 
 public class Climber {
 

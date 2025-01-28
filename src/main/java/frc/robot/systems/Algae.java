@@ -1,8 +1,7 @@
 package frc.robot.systems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import frc.robot.subsystems.AlgaeIntake;
-import frc.robot.subsystems.AlgaePneumatic;
+import frc.robot.subsystems.Algae.*;
 
 public class Algae {
 

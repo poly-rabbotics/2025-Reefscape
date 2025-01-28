@@ -1,15 +1,15 @@
+package frc.robot.subsystems.Climber;
 
-package frc.robot.subsystems;
-
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.math.controller.PIDController;
+import frc.robot.subsystems.Angle;
 
 public class ClimberPivot {
+
     private static final double PID_P = 0.0;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
@@ -19,18 +19,22 @@ public class ClimberPivot {
 
     private final SparkMax motorLeader;
     private final SparkMax motorFollower;
-    private final PIDController controller = new PIDController(PID_P, PID_I, PID_D);
+    private final PIDController controller = new PIDController(
+        PID_P,
+        PID_I,
+        PID_D
+    );
 
     private double speed = 0.0;
     private Angle setAngle = null;
-    
+
     public ClimberPivot(int leftId, int rightId, boolean inverted) {
         motorLeader = new SparkMax(leftId, MotorType.kBrushless);
         motorFollower = new SparkMax(rightId, MotorType.kBrushless);
-        
+
         SparkMaxConfig motorLeftConfig = new SparkMaxConfig();
         motorLeftConfig.inverted(inverted);
-        
+
         motorLeader.configure(
             motorLeftConfig,
             ResetMode.kResetSafeParameters,
