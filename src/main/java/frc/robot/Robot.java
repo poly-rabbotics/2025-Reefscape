@@ -130,18 +130,6 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
-            Algae.run(
-                controllerOperator.getYButtonPressed(),
-                controllerOperator.getRawAxis(0)
-            );
-
-            Climber.run(
-                controllerOperator.getBButtonPressed(),
-                controllerOperator.getRawAxis(1) * 0.3
-            );
-        }
-
         recordLogFrame();
     }
 
@@ -173,6 +161,18 @@ public class Robot extends LoggedRobot {
                 CoralIntake.setIntakeState(IntakeState.OUTTAKING);
             } else {
                 CoralIntake.setIntakeState(IntakeState.IDLE);
+            }
+
+            if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
+                Algae.run(
+                    controllerOperator.getYButtonPressed(),
+                    controllerOperator.getRawAxis(0)
+                );
+
+                Climber.run(
+                    controllerOperator.getXButtonPressed(),
+                    controllerOperator.getRawAxis(1) * 0.3
+                );
             }
         }
     }
