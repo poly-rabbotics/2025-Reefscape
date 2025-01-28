@@ -10,9 +10,7 @@ public class Climber {
 
     private static ClimberPneumatic climberPneumatic;
 
-    private static final Climber instance = new Climber();
-
-    private Climber() {
+    static {
         climberPneumatic = new ClimberPneumatic(
             CLIMBER_PNEUMATIC_FORWARD_CHANNEL,
             CLIMBER_PNEUMATIC_REVERSE_CHANNEL
@@ -20,7 +18,6 @@ public class Climber {
     }
 
     public static void run(boolean pneumaticButtonPressed) {
-        // Toggle the algae pneumatic when the button is pressed
         if (pneumaticButtonPressed) {
             switch (climberPneumatic.get()) {
                 case kForward:
