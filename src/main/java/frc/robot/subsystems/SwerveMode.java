@@ -29,13 +29,7 @@ public enum SwerveMode {
     SET_ANGLE,
 
     /**
-     * Follows a set trajectory, as loaded previously from a JSON file, which
-     * should have been exported from PathWeaver.
+     * Follow a given drive path autonomously.
      */
-    TRAJECTORY_FOLLOW,
-
-    /**
-     * Like `TRAJECTORY_FOLLOW` but for `SidewalkPaver`.
-     */
-    SIDEWALK_WALK,
+    FOLLOW_PATH,
 }

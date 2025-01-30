@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
-import frc.robot.subsystems.PathPosition;
+import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
 
 public class AutonomousManager {
@@ -86,9 +86,10 @@ public class AutonomousManager {
 
     private static Function<StepStatus, StepStatus> makeDriveStep(Pose2d pose) {
         return (prevState) -> {
-            SwerveDrive.setTargetPathPosition(new PathPosition(pose, 0.0));
+            DrivePath path = new DrivePath(pose, AutonomousManager::withinPositionTolerance);
+            SwerveDrive.setPath(path);
 
-            if (withinPositionTolerance(pose)) {
+            if (path.isCompleted()) {
                 return StepStatus.Done;
             }
 

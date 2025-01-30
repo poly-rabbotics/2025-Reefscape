@@ -23,9 +23,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import frc.robot.subsystems.Angle;
+import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.SwerveMode;
 import frc.robot.subsystems.SwerveModule;
-import frc.robot.subsystems.PathPosition;
 
 /*
  * Manages the swerve drive train.
@@ -120,15 +120,13 @@ public class SwerveDrive {
             TRAJECTORY_ROTATE_PID_D
         );
 
+
     // Controller for set angles, may be used on command by the driver while retaining full 
     // translation control. This controller is still available to the whole class, and so may be 
     // employed elsewhere.
     private static final PIDController setAngleController
         = new PIDController(SET_ANGLE_PID_P, SET_ANGLE_PID_I, SET_ANGLE_PID_D);
 
-    // For sidewalk paver, which simply sets the current point through an autonomous procedure.
-    private static PathPosition setPathPosition = null;
-    
     // Control curves for teleop run methods. The translation curve is two dimensional since both 
     // axes of the controller should be taken in context, rotation is simply one dimensional. The
     // intactive curves of either are for tracking what curve to return to when setting temporary
@@ -162,6 +160,9 @@ public class SwerveDrive {
     private static ChassisSpeeds chassisSpeedsOutput = new ChassisSpeeds();
     private static ChassisSpeeds chassisSpeedsCalculated = new ChassisSpeeds();
 
+    // A path for the `FOLLOW_PATH` drive mode.
+    private static DrivePath path = null;
+
     // Target angle of the drive. This can be set from elsewhere in code via a setter method and can
     // allow the driver to control the angle of the drive, rather than rotation speed.
     // NOTE: See set angle controller and relevant constants above.
@@ -172,11 +173,6 @@ public class SwerveDrive {
     private static double translationSpeedX = 0.0;
     private static double translationSpeedY = 0.0;
     private static double rotationSpeed = 0.0;
-
-    // Coefficiants for modifying trajectory following. Allows for the scaling and inverting of
-    // either axis.
-    private static double trajectoryCoefficiantX = 1.0;
-    private static double trajectoryCoefficiantY = 1.0;
 
     static {
         // Create swerve modules using device CAN IDs, encoder offsets, and physical positions.
@@ -482,8 +478,8 @@ public class SwerveDrive {
                 break;
             }
 
-            case SIDEWALK_WALK: {
-                if (setPathPosition == null) {
+            case FOLLOW_PATH: {
+                if (path == null || path.isCompleted()) {
                     // Break early if we have no path.
                     translationX = 0.0;
                     translationY = 0.0;
@@ -501,7 +497,9 @@ public class SwerveDrive {
                     break;
                 }
 
-                Pose2d setPosition = setPathPosition.pose;
+                // `path.currentTarget()` should never be empty here, as we have already determined
+                // that the path is not empty above.
+                Pose2d setPosition = path.currentTarget().get();
                 Pose2d position = PoseEstimator.estimate2d();
                 SwerveDrive.setAngle = Pigeon.getYaw();
 
@@ -593,26 +591,10 @@ public class SwerveDrive {
     }
 
     /**
-     * Sets the path position for the `SIDEWALK_WALK` mode.
+     * Sets the drive path for the `FOLLOW_PATH` mode.
      */
-    public static void setTargetPathPosition(PathPosition setPathPosition) {
-        PathPosition pose = new PathPosition(
-            new Pose2d(
-                setPathPosition.pose.getX() * trajectoryCoefficiantX, 
-                setPathPosition.pose.getY() * trajectoryCoefficiantY, 
-                trajectoryCoefficiantY < 0.0
-                    ? new Rotation2d(Angle.TAU - setPathPosition.pose.getRotation().getRadians())
-                    : setPathPosition.pose.getRotation()
-            ),
-            setPathPosition.timeSeconds
-        );
-
-        SwerveDrive.setPathPosition = pose;
-    }
-
-    public static void setTrajectoryCoefficiants(double x, double y) {
-        trajectoryCoefficiantX = x;
-        trajectoryCoefficiantY = y;
+    public static void setPath(DrivePath path) {
+        SwerveDrive.path = path;
     }
 
     /**
@@ -658,12 +640,6 @@ public class SwerveDrive {
         Logger.recordOutput("Swerve Module States Measured", measuredState);
         Logger.recordOutput("Swerve Module States", moduleStates);
 
-        if (setPathPosition != null) {
-            Logger.recordOutput("Swerve Drive Target Pose", setPathPosition.pose);
-        } else {
-            Logger.recordOutput("Swerve Drive Target Pose", new Pose2d());
-        }
-
         Logger.recordOutput("Swerve Average Motor Tempurature (celsius)", getAverageMotorTemp());
 
         Logger.recordOutput("Swerve Speed Rotation", rotationSpeed);
@@ -696,14 +672,7 @@ public class SwerveDrive {
             chassisSpeedsCalculated.omegaRadiansPerSecond
         );
 
-        Logger.recordOutput("Swerve Trajectory Coefficiant X", trajectoryCoefficiantX);
-        Logger.recordOutput("Swerve Trajectory Coefficiant Y", trajectoryCoefficiantY);
-
         Logger.recordOutput("Swerve Set Angle (Radians)", setAngle.radians());
         Logger.recordOutput("Swerve Set Angle (Degrees)", setAngle.degrees());
-
-        if (setPathPosition != null) {
-            Logger.recordOutput("Swerve Target Pose", setPathPosition.pose);
-        }
     }
 }

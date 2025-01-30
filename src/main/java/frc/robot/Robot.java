@@ -135,7 +135,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        SwerveDrive.setMode(SwerveMode.SIDEWALK_WALK);
+        SwerveDrive.setMode(SwerveMode.FOLLOW_PATH);
     }
 
     @Override
@@ -281,11 +281,8 @@ public class Robot extends LoggedRobot {
         );
 
         var setPose = new Pose2d(16.522, 4.745, new Rotation2d(Math.PI));
-        SwerveDrive.setTargetPathPosition(new PathPosition(setPose, 0.0));
-        SwerveDrive.conditionalTempMode(
-            SwerveMode.SIDEWALK_WALK,
-            controllerDriver.getAButton()
-        );
+        SwerveDrive.setPath(new DrivePath(setPose));
+        SwerveDrive.conditionalTempMode(SwerveMode.FOLLOW_PATH, controllerDriver.getAButton());
 
         SwerveDrive.run(
             -controllerDriver.getLeftY(),
