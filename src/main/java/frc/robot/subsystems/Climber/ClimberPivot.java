@@ -4,12 +4,12 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import frc.robot.subsystems.Angle;
 
 public class ClimberPivot {
-
     private static final double PID_P = 0.0;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
@@ -28,11 +28,16 @@ public class ClimberPivot {
     private double speed = 0.0;
     private Angle setAngle = null;
 
-    public ClimberPivot(int leftId, int rightId, boolean inverted) {
+    public ClimberPivot(int leftId, int rightId, boolean inverted, boolean encInverted) {
         motorLeader = new SparkMax(leftId, MotorType.kBrushless);
         motorFollower = new SparkMax(rightId, MotorType.kBrushless);
 
         SparkMaxConfig motorLeftConfig = new SparkMaxConfig();
+        AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
+
+        // Convert to degrees
+        encoderConfig.positionConversionFactor(360.0);
+        encoderConfig.inverted(encInverted);
         motorLeftConfig.inverted(inverted);
 
         motorLeader.configure(
@@ -55,8 +60,8 @@ public class ClimberPivot {
     public void run() {
         if (setAngle != null) {
             var angle = setAngle.clamp(MIN_ANGLE, MAX_ANGLE);
-            var pose = motorLeader.getEncoder().getPosition() * Angle.TAU;
-            speed = controller.calculate(angle.radians(), pose);
+            var pose = motorLeader.getAbsoluteEncoder().getPosition();
+            speed = controller.calculate(angle.degrees(), pose);
         }
 
         motorLeader.set(speed);

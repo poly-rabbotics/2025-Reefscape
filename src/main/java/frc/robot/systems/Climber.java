@@ -23,6 +23,7 @@ public class Climber {
         climberPivot = new ClimberPivot(
             CLIMBER_PIVOT_LEFT_ID,
             CLIMBER_PIVOT_RIGHT_ID,
+            false,
             false
         );
     }
