@@ -25,7 +25,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
  */
 public class SwerveModule {
     private static final double CONVERSION_FACTOR_ROTATION = Math.toRadians(150 / 7);
-    private static final double CONVERSION_FACTOR_MOVEMENT = 6.75 * 10/3;             // Rotations to meters.
+    private static final double CONVERSION_FACTOR_MOVEMENT = 6.75 * 10/3;
 
     private static final double PID_P = 0.70;
     private static final double PID_I = 0.0;
@@ -35,9 +35,9 @@ public class SwerveModule {
     private static final double ROCK_PID_I = 0.0;
     private static final double ROCK_PID_D = 0.0;
 
-    private final TalonFX rotationMotor;   // The motor responsible for rotating the module.
-    private final TalonFX movementMotor;   // The motor responsible for creating movement in the module.
-    private final CANcoder angularEncoder; // Cancoder responsible for tracking the angle of the module.
+    private final TalonFX rotationMotor;   // Motor responsible for rotating the module.
+    private final TalonFX movementMotor;   // Motor responsible for creating movement in the module.
+    private final CANcoder angularEncoder; // Cancoder tracking the angle of the module.
 
     private final PIDController rotationController;
     private final PIDController rockController;
