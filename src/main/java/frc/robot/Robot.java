@@ -155,25 +155,7 @@ public class Robot extends LoggedRobot {
         }
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
-            if (controllerOperator.getAButton()) {
-                CoralIntake.setIntakeState(IntakeState.INTAKING);
-            } else if (controllerOperator.getBButton()) {
-                CoralIntake.setIntakeState(IntakeState.OUTTAKING);
-            } else {
-                CoralIntake.setIntakeState(IntakeState.IDLE);
-            }
-
-            if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
-                Algae.run(
-                    controllerOperator.getYButtonPressed(),
-                    controllerOperator.getRawAxis(0)
-                );
-
-                Climber.run(
-                    controllerOperator.getXButtonPressed(),
-                    controllerOperator.getRawAxis(1) * 0.3
-                );
-            }
+            operatorTeleop();
         }
     }
 
@@ -289,6 +271,32 @@ public class Robot extends LoggedRobot {
             -controllerDriver.getLeftX(),
             -controllerDriver.getRightX()
         );
+    }
+
+    /**
+     * To be called periodically during teleop, this method handles all behavior that requires input
+     * from the operator's controller.
+     */
+    public void operatorTeleop() {
+        if (controllerOperator.getAButton()) {
+            CoralIntake.setIntakeState(IntakeState.INTAKING);
+        } else if (controllerOperator.getBButton()) {
+            CoralIntake.setIntakeState(IntakeState.OUTTAKING);
+        } else {
+            CoralIntake.setIntakeState(IntakeState.IDLE);
+        }
+
+        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
+            Algae.run(
+                controllerOperator.getYButtonPressed(),
+                controllerOperator.getRawAxis(0)
+            );
+
+            Climber.run(
+                controllerOperator.getXButtonPressed(),
+                controllerOperator.getRawAxis(1) * 0.3
+            );
+        }
     }
 
     XboxController simController = new XboxController(5);

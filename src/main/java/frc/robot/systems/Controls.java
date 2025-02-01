@@ -4,6 +4,7 @@
 
 package frc.robot.systems;
 
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -113,5 +114,69 @@ public class Controls {
         magnitude = magnitude + (magnitude * DEFAULT_PLATEAU);
         magnitude = magnitude > 1.0 ? 1.0 : magnitude;
         return curve.apply(x * magnitude, y * magnitude);
+    }
+
+    public class ClutchShiftControl<T> {
+        private final T defaultState;
+        private T value;
+        private boolean clutch = false;
+        private boolean lastClutch = false;
+
+        public ClutchShiftControl(T defaultState) {
+            this.defaultState = defaultState;
+            this.value = defaultState;
+        }
+
+        /**
+         * Update the control with the current value and state of the "clutch".
+         */
+        public void update(T value, boolean clutch) {
+            lastClutch = this.clutch;
+            this.clutch = clutch;
+
+            if (clutch) {
+                this.value = value;
+            }
+        }
+
+        /**
+         * Get the current value, being empty if the "clutch" is disenganged.
+         */
+        public Optional<T> get() {
+            if (clutch) {
+                return Optional.of(value);
+            }
+
+            return Optional.empty();
+        }
+
+        /**
+         * Get the current value, being the default given in the contructor if the "clutch" is false.
+         */
+        public T getOrDefault() {
+            if (clutch) {
+                return value;
+            }
+
+            return defaultState;
+        }
+
+        /**
+         * Get the last value set while the "clutch" was last true.
+         */
+        public T getState() {
+            return value;
+        }
+
+        /**
+         * Gets the current value if the clutch was released last update.
+         */
+        public Optional<T> getIfReleased() {
+            if (!clutch && lastClutch) {
+                return Optional.of(value);
+            }
+
+            return Optional.empty();
+        }
     }
 }
