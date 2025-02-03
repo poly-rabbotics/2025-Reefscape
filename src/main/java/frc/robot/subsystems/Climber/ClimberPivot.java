@@ -38,6 +38,7 @@ public class ClimberPivot {
         // Convert to degrees
         encoderConfig.positionConversionFactor(360.0);
         encoderConfig.inverted(encInverted);
+        motorLeftConfig.apply(encoderConfig);
         motorLeftConfig.inverted(inverted);
 
         motorLeader.configure(
