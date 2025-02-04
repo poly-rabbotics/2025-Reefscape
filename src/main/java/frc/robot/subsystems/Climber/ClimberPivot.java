@@ -60,7 +60,7 @@ public class ClimberPivot {
 
     public void run() {
         if (setAngle != null) {
-            var angle = setAngle.clamp(MIN_ANGLE, MAX_ANGLE).bound180();
+            var angle = setAngle.bound180();
             var pose = new Angle().setDegrees(motorLeader.getAbsoluteEncoder().getPosition());
             pose = pose.bound180();
             speed = controller.calculate(angle.degrees(), pose.degrees());
