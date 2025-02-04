@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
@@ -102,9 +101,7 @@ public class Robot extends LoggedRobot {
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             if (controllerDriver.getBackButtonReleased()) {
                 var pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
-                Pigeon.setFeildOrientation(
-                    new Angle().setRadians(pose.getRotation().getRadians())
-                );
+                Pigeon.setFeildOrientation(new Angle().setRadians(pose.getRotation().getRadians()));
                 PoseEstimator.reset();
 
                 // Prevents fast rotation when setting heading.
@@ -114,10 +111,7 @@ public class Robot extends LoggedRobot {
             }
 
             if (controllerDriver.getStartButtonReleased()) {
-                if (
-                    DriverStation.getAlliance().orElse(Alliance.Red) ==
-                    Alliance.Red
-                ) {
+                if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
                     Pigeon.setYaw(new Angle().setDegrees(0.0));
                 } else {
                     Pigeon.setYaw(new Angle().setDegrees(180.0));
@@ -178,18 +172,16 @@ public class Robot extends LoggedRobot {
     private void driverTeleop() {
         // Reset field oriented heading, based on alliance.
         if (controllerDriver.getStartButtonReleased()) {
-            if (
-                DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red
-            ) {
+            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
                 Pigeon.setYaw(new Angle().setDegrees(0.0));
             } else {
                 Pigeon.setYaw(new Angle().setDegrees(180.0));
             }
         }
 
-        boolean isFieldOriented =
-            SwerveDrive.getMode() == SwerveMode.HEADLESS ||
-            SwerveDrive.getMode() == SwerveMode.SET_ANGLE;
+        boolean isFieldOriented
+            = SwerveDrive.getMode() == SwerveMode.HEADLESS
+            || SwerveDrive.getMode() == SwerveMode.SET_ANGLE;
 
         // Left stick changes between headless and relative control modes.
         if (controllerDriver.getLeftStickButtonReleased()) {
@@ -231,8 +223,8 @@ public class Robot extends LoggedRobot {
 
         // If the driver tries to trun the robot, drop out of automated turn control.
         if (
-            Math.abs(controllerDriver.getRightX()) > 0.15 &&
-            SwerveDrive.getMode() == SwerveMode.SET_ANGLE
+            SwerveDrive.getMode() == SwerveMode.SET_ANGLE &&
+            Math.abs(controllerDriver.getRightX()) > 0.15
         ) {
             SwerveDrive.setMode(SwerveMode.HEADLESS);
         }
@@ -244,23 +236,15 @@ public class Robot extends LoggedRobot {
         SwerveDrive.conditionalTempTranslationCurve(
             (x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 3.0,
             controllerDriver.getRightBumperButton()
-        ); // Half translation speed.
+        ); // Lessen translation speed.
         SwerveDrive.conditionalTempTranslationCurve(
-            Controls.cardinalLock(
-                (x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 2.0
-            ),
+            Controls.cardinalLock((x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 3.0),
             controllerDriver.getRightBumperButton() &&
             controllerDriver.getXButton()
-        ); // Half translation speed.
+        ); // Lessen translation speed and lock cardinal directions.
 
-        SwerveDrive.conditionalTempMode(
-            SwerveMode.ROCK,
-            controllerDriver.getBButton()
-        );
-        SwerveDrive.conditionalTempMode(
-            SwerveMode.RELATIVE,
-            controllerDriver.getYButton()
-        );
+        SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerDriver.getBButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerDriver.getYButton());
 
         var setPose = new Pose2d(16.522, 4.745, new Rotation2d(Math.PI));
         SwerveDrive.setPath(new DrivePath(setPose));
@@ -278,6 +262,7 @@ public class Robot extends LoggedRobot {
      * from the operator's controller.
      */
     public void operatorTeleop() {
+        // Coral intake
         if (controllerOperator.getAButton()) {
             CoralIntake.setIntakeState(IntakeState.INTAKING);
         } else if (controllerOperator.getBButton()) {
@@ -286,59 +271,21 @@ public class Robot extends LoggedRobot {
             CoralIntake.setIntakeState(IntakeState.IDLE);
         }
 
-        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
-            Algae.run(
-                controllerOperator.getYButtonPressed(),
-                controllerOperator.getRawAxis(0)
-            );
+        CoralIntake.run();
 
-            Climber.run(
-                controllerOperator.getXButtonPressed(),
-                controllerOperator.getRawAxis(1) * 0.3
-            );
-        }
-    }
+        // TODO: Remove after testing.
+        CoralIntake._overridePivotSpeed(controllerOperator.getRightY());
 
-    XboxController simController = new XboxController(5);
-    Pose2d simPose = new Pose2d();
-    double simFrameTime = DriverStation.getMatchTime();
-    double simDeltaTime = 0;
-
-    @Override
-    public void simulationPeriodic() {
-        simDeltaTime = Math.abs(simFrameTime - DriverStation.getMatchTime());
-        simFrameTime = DriverStation.getMatchTime();
-        simFrameTime = 1 / 50;
-
-        double rotationSpeed = simController.getRightX();
-
-        if (Math.abs(rotationSpeed) < 0.1) {
-            rotationSpeed = 0;
-        }
-
-        double translationSpeedX = simController.getLeftX();
-
-        if (Math.abs(translationSpeedX) < 0.1) {
-            translationSpeedX = 0;
-        }
-
-        double translationSpeedY = simController.getLeftY();
-
-        if (Math.abs(translationSpeedY) < 0.1) {
-            translationSpeedY = 0;
-        }
-
-        double dx = translationSpeedX * simDeltaTime * 0.1;
-        double dy = -translationSpeedY * simDeltaTime * 0.1;
-        double dTheta = rotationSpeed * simDeltaTime * 0.1;
-
-        simPose = new Pose2d(
-            simPose.getX() + dx,
-            simPose.getY() + dy,
-            simPose.getRotation().plus(new Rotation2d(dTheta))
+        // Algae intake
+        Algae.run(
+            controllerOperator.getYButtonPressed(),
+            controllerOperator.getRawAxis(0)
         );
 
-        Logger.recordOutput("Simulation Pose", simPose);
-        Logger.recordOutput("Simulation Delta Time", simDeltaTime);
+        // Climber
+        Climber.run(
+            controllerOperator.getXButtonPressed(),
+            controllerOperator.getRawAxis(1) * 0.3
+        );
     }
 }

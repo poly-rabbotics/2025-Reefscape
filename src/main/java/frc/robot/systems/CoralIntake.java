@@ -94,6 +94,10 @@ public class CoralIntake {
         pivotMotor.set(pivotSpeed);
     }
 
+    public static void _overridePivotSpeed(double speed) {
+        pivotMotor.set(speed);
+    }
+
     private static Angle pivotAngle(IntakePivotPoint setPivot) {
         switch (setPivot) {
             case L1:
