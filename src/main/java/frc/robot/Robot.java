@@ -41,13 +41,14 @@ public class Robot extends LoggedRobot {
     private static final XboxController controllerOperator
         = new XboxController(CONTROLLER_PORT_OPERATOR);
 
+    private static PowerDistribution powerDistributionHub
+        = new PowerDistribution(1, ModuleType.kRev);
     private static boolean invertedTurn = false;
 
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
      */
-    @SuppressWarnings("resource") // Suppress warning about PDP instantiation.
     @Override
     public void robotInit() {
         Logger.recordMetadata("ProjectName", "7042 Prototype");
@@ -55,25 +56,19 @@ public class Robot extends LoggedRobot {
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
-            new PowerDistribution(1, ModuleType.kRev);
         } else {
             try {
                 // Try to replay from a log file.
                 String logPath = LogFileUtil.findReplayLog();
                 Logger.setReplaySource(new WPILOGReader(logPath));
-                Logger.addDataReceiver(
-                    new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))
-                );
+                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
                 setUseTiming(false);
 
-                System.out.println(
-                    "Replaying from '" + logPath + "' in simulation ..."
-                );
+                System.out.println("Replaying from '" + logPath + "' in simulation ...");
             } catch (Exception e) {
                 // Simulate if no log file exists.
                 Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());
-                new PowerDistribution(1, ModuleType.kRev);
 
                 System.out.println("Could not find log to replay from ...");
                 System.out.println("Starting non-replay simulation ...");
