@@ -2,6 +2,8 @@ package frc.robot.systems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -25,13 +27,14 @@ public class CoralIntake {
     private static final double PIVOT_PID_I = 0.0;
     private static final double PIVOT_PID_D = 0.0;
 
-    private static final SparkMax rightMotor = new SparkMax(13, MotorType.kBrushless);
-    private static final SparkMax leftMotor = new SparkMax(14, MotorType.kBrushless);
-    private static final SparkMax pivotMotor = new SparkMax(15, MotorType.kBrushless);
+    private static final SparkMax rightMotor = new SparkMax(14, MotorType.kBrushless);
+    private static final SparkMax leftMotor = new SparkMax(15, MotorType.kBrushless);
+    private static final SparkMax pivotMotor = new SparkMax(16, MotorType.kBrushless);
 
     private static final PIDController pivotController
         = new PIDController(PIVOT_PID_P, PIVOT_PID_I, PIVOT_PID_D);
 
+    private static IntakePivotPoint pivotSetPoint = IntakePivotPoint.STOW;
     private static Angle pivotSetAngle = PIVOT_POINT_STOW;
 
     public enum IntakeState {
@@ -82,6 +85,7 @@ public class CoralIntake {
     }
 
     public static void pivotTo(IntakePivotPoint setPivot) {
+        pivotSetPoint = setPivot;
         pivotSetAngle = pivotAngle(setPivot);
     }
 
@@ -92,6 +96,11 @@ public class CoralIntake {
         );
 
         pivotMotor.set(pivotSpeed);
+
+        Logger.recordOutput("Coral Intake Pivot Speed", pivotSpeed);
+        Logger.recordOutput("Coral Intake Set Angle (Degrees)", pivotSetAngle.degrees());
+        Logger.recordOutput("Coral Intake Set Point", pivotSetPoint);
+        Logger.recordOutput("Coral Intake Speed", leftMotor.get());
     }
 
     public static void _overridePivotSpeed(double speed) {

@@ -92,4 +92,12 @@ public class ClimberPivot {
     public double get() {
         return motorLeader.get();
     }
+
+    /**
+     * Gets the position reported by the absolute encoder.
+     */
+    public Angle getPosition() {
+        double enc = motorLeader.getAbsoluteEncoder().getPosition();
+        return new Angle().setDegrees(enc).bound180();
+    }
 }

@@ -34,7 +34,7 @@ public class Robot extends LoggedRobot {
     private static final int CONTROLLER_PORT_DRIVER = 0;
     private static final int CONTROLLER_PORT_OPERATOR = 1;
 
-    private static Compressor comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
+    private static Compressor comp = new Compressor(1, PneumaticsModuleType.REVPH);
 
     private static final XboxController controllerDriver
         = new XboxController(CONTROLLER_PORT_DRIVER);
@@ -278,7 +278,7 @@ public class Robot extends LoggedRobot {
         // Climber
         Climber.run(
             controllerOperator.getXButtonPressed(),
-            controllerOperator.getLeftY() * 0.3
+            controllerOperator.getLeftY()
         );
     }
 }

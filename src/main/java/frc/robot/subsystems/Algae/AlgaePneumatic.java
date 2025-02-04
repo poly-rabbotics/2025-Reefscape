@@ -16,7 +16,7 @@ public class AlgaePneumatic {
         // int reverseChannelTwo
     ) {
         algaeSolenoidOne = new DoubleSolenoid(
-            PneumaticsModuleType.CTREPCM,
+            PneumaticsModuleType.REVPH,
             forwardChannelOne,
             reverseChannelOne
         );

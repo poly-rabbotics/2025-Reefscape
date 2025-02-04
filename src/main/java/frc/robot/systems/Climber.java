@@ -1,5 +1,7 @@
 package frc.robot.systems;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.subsystems.Climber.*;
 
@@ -46,5 +48,8 @@ public class Climber {
 
         //Run all subsystems
         climberPivot.run();
+
+        Logger.recordOutput("Climber Piston State", climberPneumatic.get());
+        Logger.recordOutput("Climber Pivot Position (Degrees)", climberPivot.getPosition().degrees());
     }
 }

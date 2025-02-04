@@ -1,6 +1,7 @@
 package frc.robot.systems;
 
 import edu.wpi.first.math.controller.PIDController;
+import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class Elevator{
@@ -40,23 +41,24 @@ public class Elevator{
   
     public void run(){
         double setpoint = 0;
-        if(currrentPose == ElevatorPose.L1Scaoring){
+
+        if (currrentPose == ElevatorPose.L1Scaoring) {
             setpoint = L1Scaoring;
-
-        }
-        else if(currrentPose == ElevatorPose.L2Scaoring){
+        } else if (currrentPose == ElevatorPose.L2Scaoring) {
             setpoint = L2Scaoring;
+        } else if (currrentPose == ElevatorPose.L3Scaoring) {
+            setpoint = L3Scaoring;
+        } else if (currrentPose == ElevatorPose.L4Scaoring) {
+            setpoint = L4Scaoring;
         }
-        else if(currrentPose == ElevatorPose.L3Scaoring){
-                setpoint = L3Scaoring;
 
-        }
-        else if(currrentPose == ElevatorPose.L4Scaoring){
-        setpoint = L4Scaoring;
-        }
         var pose = elfKraken.getPosition().getValueAsDouble();
-
         speed = controller.calculate(pose, setpoint);
         elfKraken.set(speed);
+
+        Logger.recordOutput("Elevator Set Point", currrentPose);
+        Logger.recordOutput("Elevator Set Position", setpoint);
+        Logger.recordOutput("Elevator Position", elfKraken.getPosition().getValueAsDouble());
+        Logger.recordOutput("Elevator Speed", elfKraken.get());
     }
 }
