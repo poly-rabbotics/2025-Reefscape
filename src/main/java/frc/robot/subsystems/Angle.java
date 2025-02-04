@@ -49,6 +49,21 @@ public final class Angle implements Cloneable {
         return this.mul(1 / scalar);
     }
 
+    public Angle bound180() {
+        Angle ret = new Angle().setDegrees((degrees() % 360.0 + 360.0) % 360.0);
+
+        if (ret.degrees() > 180.0) {
+            ret = ret.setDegrees(ret.degrees() - 360.0);
+        }
+
+        ret = ret.setDegrees(degrees());
+
+        assert ret.degrees() <= 180.0;
+        assert ret.degrees() > -180.0;
+
+        return ret;
+    }
+
     public Angle clamp(Angle a, Angle b) {
         if (dec < a.dec && dec < b.dec) {
             return a.clone();
