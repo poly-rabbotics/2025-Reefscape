@@ -4,12 +4,11 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.subsystems.Climber.*;
 
 public class Climber {
+    private static final int CLIMBER_PNEUMATIC_FORWARD_CHANNEL = 8;
+    private static final int CLIMBER_PNEUMATIC_REVERSE_CHANNEL = 9;
 
-    private static final int CLIMBER_PNEUMATIC_FORWARD_CHANNEL = 0;
-    private static final int CLIMBER_PNEUMATIC_REVERSE_CHANNEL = 1;
-
-    private static final int CLIMBER_PIVOT_LEFT_ID = 0;
-    private static final int CLIMBER_PIVOT_RIGHT_ID = 1;
+    private static final int CLIMBER_PIVOT_LEFT_ID = 2;
+    private static final int CLIMBER_PIVOT_RIGHT_ID = 3;
 
     private static ClimberPneumatic climberPneumatic;
     private static ClimberPivot climberPivot;

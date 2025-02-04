@@ -1,7 +1,6 @@
 package frc.robot.systems;
 
 import edu.wpi.first.math.controller.PIDController;
-import frc.robot.subsystems.Angle;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class Elevator{

@@ -5,10 +5,10 @@ import frc.robot.subsystems.Algae.*;
 
 public class Algae {
 
-    private static final int ALGAE_PNEUMATIC_ONE_FORWARD_CHANNEL = 0;
-    private static final int ALGAE_PNEUMATIC_ONE_REVERSE_CHANNEL = 1;
-    private static final int ALGAE_PNEUMATIC_TWO_FORWARD_CHANNEL = 0;
-    private static final int ALGAE_PNEUMATIC_TWO_REVERSE_CHANNEL = 1;
+    private static final int ALGAE_PNEUMATIC_ONE_FORWARD_CHANNEL = 6;
+    private static final int ALGAE_PNEUMATIC_ONE_REVERSE_CHANNEL = 7;
+    // private static final int ALGAE_PNEUMATIC_TWO_FORWARD_CHANNEL = 2;
+    // private static final int ALGAE_PNEUMATIC_TWO_REVERSE_CHANNEL = 3;
 
     private static final int ALGAE_INTAKE_MOTOR_ID = 0;
 
@@ -18,9 +18,9 @@ public class Algae {
     static {
         algaePneumatic = new AlgaePneumatic(
             ALGAE_PNEUMATIC_ONE_FORWARD_CHANNEL,
-            ALGAE_PNEUMATIC_ONE_REVERSE_CHANNEL,
-            ALGAE_PNEUMATIC_TWO_FORWARD_CHANNEL,
-            ALGAE_PNEUMATIC_TWO_REVERSE_CHANNEL
+            ALGAE_PNEUMATIC_ONE_REVERSE_CHANNEL
+            // ALGAE_PNEUMATIC_TWO_FORWARD_CHANNEL,
+            // ALGAE_PNEUMATIC_TWO_REVERSE_CHANNEL
         );
 
         algaeIntake = new AlgaeIntake(ALGAE_INTAKE_MOTOR_ID);
