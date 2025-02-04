@@ -156,6 +156,10 @@ public class Robot extends LoggedRobot {
         SwerveDrive.recordState();
         Pigeon.recordState();
         PoseEstimator.recordState();
+
+        Elevator.recordState();
+        CoralIntake.recordState();
+        Climber.recordState();
     }
 
     /**

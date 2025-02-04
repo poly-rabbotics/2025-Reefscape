@@ -55,9 +55,10 @@ public class Elevator{
         var pose = elfKraken.getPosition().getValueAsDouble();
         speed = controller.calculate(pose, setpoint);
         elfKraken.set(speed);
+    }
 
+    public static void recordState() {
         Logger.recordOutput("Elevator Set Point", currrentPose);
-        Logger.recordOutput("Elevator Set Position", setpoint);
         Logger.recordOutput("Elevator Position", elfKraken.getPosition().getValueAsDouble());
         Logger.recordOutput("Elevator Speed", elfKraken.get());
     }

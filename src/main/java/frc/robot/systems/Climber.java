@@ -48,7 +48,9 @@ public class Climber {
 
         //Run all subsystems
         climberPivot.run();
+    }
 
+    public static void recordState() {
         Logger.recordOutput("Climber Piston State", climberPneumatic.get());
         Logger.recordOutput("Climber Pivot Position (Degrees)", climberPivot.getPosition().degrees());
     }

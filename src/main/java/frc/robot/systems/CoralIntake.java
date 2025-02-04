@@ -96,11 +96,6 @@ public class CoralIntake {
         );
 
         pivotMotor.set(pivotSpeed);
-
-        Logger.recordOutput("Coral Intake Pivot Speed", pivotSpeed);
-        Logger.recordOutput("Coral Intake Set Angle (Degrees)", pivotSetAngle.degrees());
-        Logger.recordOutput("Coral Intake Set Point", pivotSetPoint);
-        Logger.recordOutput("Coral Intake Speed", leftMotor.get());
     }
 
     public static void _overridePivotSpeed(double speed) {
@@ -121,6 +116,13 @@ public class CoralIntake {
             default:
                 return PIVOT_POINT_STOW;
         }
+    }
+
+    public static void recordState() {
+        Logger.recordOutput("Coral Intake Pivot Speed", pivotMotor.get());
+        Logger.recordOutput("Coral Intake Set Angle (Degrees)", pivotSetAngle.degrees());
+        Logger.recordOutput("Coral Intake Set Point", pivotSetPoint);
+        Logger.recordOutput("Coral Intake Speed", leftMotor.get());
     }
 }
 
