@@ -34,14 +34,13 @@ public class Robot extends LoggedRobot {
     private static final int CONTROLLER_PORT_DRIVER = 0;
     private static final int CONTROLLER_PORT_OPERATOR = 1;
 
-    private static Compressor comp;
+    private static Compressor comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
 
-    private static final XboxController controllerDriver = new XboxController(
-        CONTROLLER_PORT_DRIVER
-    );
-    private static final XboxController controllerOperator = new XboxController(
-        CONTROLLER_PORT_OPERATOR
-    );
+    private static final XboxController controllerDriver
+        = new XboxController(CONTROLLER_PORT_DRIVER);
+    private static final XboxController controllerOperator
+        = new XboxController(CONTROLLER_PORT_OPERATOR);
+
     private static boolean invertedTurn = false;
 
     /**
@@ -90,7 +89,6 @@ public class Robot extends LoggedRobot {
         Pigeon.setYaw(new Angle().setDegrees(0.0));
 
         //Compressor stuffs
-        comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
         comp.enableDigital();
     }
 
@@ -279,13 +277,13 @@ public class Robot extends LoggedRobot {
         // Algae intake
         Algae.run(
             controllerOperator.getYButtonPressed(),
-            controllerOperator.getRawAxis(0)
+            controllerOperator.getRightTriggerAxis() - controllerOperator.getLeftTriggerAxis()
         );
 
         // Climber
         Climber.run(
             controllerOperator.getXButtonPressed(),
-            controllerOperator.getRawAxis(1) * 0.3
+            controllerOperator.getLeftY() * 0.3
         );
     }
 }
