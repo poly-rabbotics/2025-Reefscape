@@ -32,9 +32,9 @@ import frc.robot.subsystems.SwerveModule;
  */
 public class SwerveDrive {
     // CAN IDs of drive motors and encoders.
-    private static final int MODULE_MOVEMENT_CAN_IDS[] = { 1,   2,   3,   4  };
-    private static final int MODULE_ROTATION_CAN_IDS[] = { 5,   6,   7,   8  };
-    private static final int MODULE_CANCODER_CAN_IDS[] = { 9,   10,  11,  12 };
+    private static final int[] MODULE_MOVEMENT_CAN_IDS = { 1,   2,   3,   4  };
+    private static final int[] MODULE_ROTATION_CAN_IDS = { 5,   6,   7,   8  };
+    private static final int[] MODULE_CANCODER_CAN_IDS = { 9,   10,  11,  12 };
     
     // Side length of the drive. Assumes a square drive.
     private static final double CHASSIS_SIDE_LENGTH = 0.6604; // ~26"
@@ -42,7 +42,7 @@ public class SwerveDrive {
     // Offsets of each absolute encoder (in this case CANCoders) from zero, where we take an angle
     // of zero to be forward. By adding an offset to the corosponding encoder's reported angle, we
     // should be given the actual angle of the swerve module's wheel.
-    private static final Angle MODULE_CANCODER_OFFSETS[] = {
+    private static final Angle[] MODULE_CANCODER_OFFSETS = {
         new Angle().setRadians(-4.800), 
         new Angle().setRadians(-2.827), 
         new Angle().setRadians(-5.380), 
@@ -50,7 +50,7 @@ public class SwerveDrive {
     };
 
     // Positions for each wheel in "Rock Mode".
-    private static final Angle MODULE_ROCK_MODE_POSITIONS[] = { 
+    private static final Angle[] MODULE_ROCK_MODE_POSITIONS = { 
         new Angle().setRadians( -Angle.TAU / 8  ), 
         new Angle().setRadians(  Angle.TAU / 8  ), 
         new Angle().setRadians( -Angle.TAU / 8  ), 
@@ -59,11 +59,17 @@ public class SwerveDrive {
 
     // The physical positions of the drive's modules from the drive's center, in meters. The drive's
     // center need not be the robot's center.
-    private static final Translation2d MODULE_PHYSICAL_POSITIONS[] = {
+    private static final Translation2d[] MODULE_PHYSICAL_POSITIONS = {
         new Translation2d(  CHASSIS_SIDE_LENGTH / 2,  -CHASSIS_SIDE_LENGTH / 2),
         new Translation2d( -CHASSIS_SIDE_LENGTH / 2,  -CHASSIS_SIDE_LENGTH / 2),
         new Translation2d( -CHASSIS_SIDE_LENGTH / 2,   CHASSIS_SIDE_LENGTH / 2),
         new Translation2d(  CHASSIS_SIDE_LENGTH / 2,   CHASSIS_SIDE_LENGTH / 2),
+    };
+
+    // Human readable names for module positions, useful for logging and more easily understanding
+    // the drives state quickly.
+    private static final String[] MODULE_PHYSICAL_POSITION_NAMES = {
+        "FR", "BR", "BL", "FL"
     };
 
     // PID parameter constants for following autonomous trajectories. These are used to follow a
@@ -147,18 +153,13 @@ public class SwerveDrive {
     private static SwerveMode displayMode = SwerveMode.HEADLESS;
 
     // Drive state objects. Module states represent the state of each module as independent items,
-    // they are used as input to each modules and allow us to control them within code. The two 
-    // chassis state objects are for the desired state of the drive and the state we measure via the
-    // encoders on each modules. Chassis states may be displayed with the "swerve" widget in 
-    // AdvantageScope, which is very helpful when debugging drive related issues.
+    // they are used as input to each modules and allow us to control them within code.
     private static SwerveModuleState[] moduleStates = {
         new SwerveModuleState(),
         new SwerveModuleState(),
         new SwerveModuleState(),
         new SwerveModuleState()
     };
-    private static ChassisSpeeds chassisSpeedsOutput = new ChassisSpeeds();
-    private static ChassisSpeeds chassisSpeedsCalculated = new ChassisSpeeds();
 
     // A path for the `FOLLOW_PATH` drive mode.
     private static DrivePath path = null;
@@ -635,12 +636,37 @@ public class SwerveDrive {
 
         for (int i = 0; i < modules.length; i++) {
             measuredState[i] = modules[i].getActualState();
+
+            Logger.recordOutput(
+                "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Movement Current",
+                modules[i].getMovementTorqueCurrent()
+            );
+            Logger.recordOutput(
+                "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Rotation Current",
+                modules[i].getRotationTorqueCurrent()
+            );
+            Logger.recordOutput(
+                "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Movement Voltage",
+                modules[i].getMovementVoltage()
+            );
+            Logger.recordOutput(
+                "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Rotation Voltage",
+                modules[i].getRotationVoltage()
+            );
+            Logger.recordOutput(
+                "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Movement Temp (Celsius)",
+                modules[i].getMovementMotorTemp()
+            );
+            Logger.recordOutput(
+                "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Rotation Temp (Celsius)",
+                modules[i].getRotationMotorTemp()
+            );
         }
 
-        Logger.recordOutput("Swerve Module States Measured", measuredState);
-        Logger.recordOutput("Swerve Module States", moduleStates);
+        Logger.recordOutput("Swerve Module States (Set)", moduleStates);
+        Logger.recordOutput("Swerve Module States (Measured)", measuredState);
 
-        Logger.recordOutput("Swerve Average Motor Tempurature (celsius)", getAverageMotorTemp());
+        Logger.recordOutput("Swerve Average Motor Tempurature (Celsius)", getAverageMotorTemp());
 
         Logger.recordOutput("Swerve Speed Rotation", rotationSpeed);
         Logger.recordOutput("Swerve Speed Translation X", translationSpeedX);
@@ -648,29 +674,6 @@ public class SwerveDrive {
 
         Logger.recordOutput("Swerve Drive Mode", getMode());
         Logger.recordOutput("Swerve Display Mode", getDisplayMode());
-
-        Logger.recordOutput("Swerve Chassis Speeds Output Vx", chassisSpeedsOutput.vxMetersPerSecond);
-        Logger.recordOutput("Swerve Chassis Speeds Output Vy", chassisSpeedsOutput.vyMetersPerSecond);
-
-        Logger.recordOutput(
-            "Swerve Chassis Speeds Output Tau",
-            chassisSpeedsOutput.omegaRadiansPerSecond
-        );
-
-        Logger.recordOutput(
-            "Swerve Chassis Speeds Calculated Vx",
-            chassisSpeedsCalculated.vxMetersPerSecond
-        );
-
-        Logger.recordOutput(
-            "Swerve Chassis Speeds Calculated Vy",
-            chassisSpeedsCalculated.vyMetersPerSecond
-        );
-
-        Logger.recordOutput(
-            "Swerve Chassis Speeds Calculated Tau",
-            chassisSpeedsCalculated.omegaRadiansPerSecond
-        );
 
         Logger.recordOutput("Swerve Set Angle (Radians)", setAngle.radians());
         Logger.recordOutput("Swerve Set Angle (Degrees)", setAngle.degrees());

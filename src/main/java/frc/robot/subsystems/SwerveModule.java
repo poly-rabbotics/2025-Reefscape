@@ -226,6 +226,36 @@ public class SwerveModule {
      * Gets the reported tempurature of the movement motor in celsius.
      */
     public double getMovementMotorTemp() {
-        return movementMotor.getDeviceTemp().getValue().magnitude();
+        return movementMotor.getDeviceTemp().getValueAsDouble();
+    }
+
+    /**
+     * Gets the reported torque current, proportional to the motor's output torque, of the movement
+     * motor. Value is in amps and may be negative, where sign indicates forward/backward.
+     */
+    public double getMovementTorqueCurrent() {
+        return movementMotor.getTorqueCurrent().getValueAsDouble();
+    }
+
+    /**
+     * Gets the reported torque current, proportional to the motor's output torque, of the rotation
+     * motor. Value is in amps and may be negative, where sign indicates forward/backward.
+     */
+    public double getRotationTorqueCurrent() {
+        return rotationMotor.getTorqueCurrent().getValueAsDouble();
+    }
+
+    /**
+     * Gets the reported motor voltage of the movement motor. Value is in volts, may be negative.
+     */
+    public double getMovementVoltage() {
+        return movementMotor.getMotorVoltage().getValueAsDouble();
+    }
+
+    /**
+     * Gets the reported motor voltage of the rotation motor. Value is in volts, may be negative.
+     */
+    public double getRotationVoltage() {
+        return rotationMotor.getMotorVoltage().getValueAsDouble();
     }
 }
