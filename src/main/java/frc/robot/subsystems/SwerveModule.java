@@ -45,8 +45,6 @@ public class SwerveModule {
     private final Angle canCoderOffset;
 
     private SwerveModuleState desiredState;
-    private SwerveModuleState actualState;
-    private SwerveModulePosition position;
 
     // Set to NaN if not in rock mode, NaN does not equal itself by definition
     // (see some IEEE standard or something) and so this is how rock mode is 
@@ -64,16 +62,6 @@ public class SwerveModule {
     
         movementMotor.set(propulsionSpeed);
         rotationMotor.set(rotationSpeed);
-
-        actualState = new SwerveModuleState(
-            movementMotor.getVelocity().getValueAsDouble(),
-            new Rotation2d(getAngle().radians())
-        );
-        
-        position = new SwerveModulePosition(
-            movementMotor.getPosition().getValueAsDouble(), 
-            new Rotation2d(getAngle().radians())
-        );
     }
     
     public SwerveModule(
@@ -138,13 +126,7 @@ public class SwerveModule {
         rockController = new PIDController(ROCK_PID_P, ROCK_PID_I, ROCK_PID_D);
         rockController.setTolerance(1);
 
-        position = new SwerveModulePosition(
-            movementMotor.getPosition().getValueAsDouble(), 
-            new Rotation2d(getAngle().radians())
-        );
-
         desiredState = new SwerveModuleState();
-        actualState = new SwerveModuleState();
     }
 
     /**
@@ -164,7 +146,10 @@ public class SwerveModule {
      * encoders.
      */
     public SwerveModuleState getActualState() {
-        return actualState;
+        return new SwerveModuleState(
+            movementMotor.getVelocity().getValueAsDouble(),
+            new Rotation2d(getAngle().radians())
+        );
     }
 
     /**
@@ -178,7 +163,10 @@ public class SwerveModule {
      * Gets the position of the module. 
      */
     public SwerveModulePosition getPosition() {
-        return position;
+        return new SwerveModulePosition(
+            movementMotor.getPosition().getValueAsDouble(), 
+            new Rotation2d(getAngle().radians())
+        );
     }
 
     /**

@@ -43,10 +43,10 @@ public class SwerveDrive {
     // of zero to be forward. By adding an offset to the corosponding encoder's reported angle, we
     // should be given the actual angle of the swerve module's wheel.
     private static final Angle[] MODULE_CANCODER_OFFSETS = {
-        new Angle().setRadians(-4.800), 
-        new Angle().setRadians(-2.827), 
-        new Angle().setRadians(-5.380), 
-        new Angle().setRadians(-5.018)  
+        new Angle().setDegrees(-251.98),
+        new Angle().setDegrees(-39.20),
+        new Angle().setDegrees(-212.61),
+        new Angle().setDegrees(-108.98)
     };
 
     // Positions for each wheel in "Rock Mode".
@@ -83,14 +83,14 @@ public class SwerveDrive {
     private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.0;
 
     private static final double TRAJECTORY_ROTATE_PID_P = 0.75;
-    private static final double TRAJECTORY_ROTATE_PID_I = 0.01;
+    private static final double TRAJECTORY_ROTATE_PID_I = 0.0;
     private static final double TRAJECTORY_ROTATE_PID_D = 0.0;
 
     // Set angle constants. Use in teleop for "snap angles" available to the driver, or any other
     // controls function in teleop in which the driver may determine a desired angle, rather than
     // controlling the speed ot rotation itself.
     private static final double SET_ANGLE_PID_P = 0.75;
-    private static final double SET_ANGLE_PID_I = 0.01;
+    private static final double SET_ANGLE_PID_I = 0.0;
     private static final double SET_ANGLE_PID_D = 0.0;
 
     // Module objects. Stores the module objects themselves which allow us to interface with them.
