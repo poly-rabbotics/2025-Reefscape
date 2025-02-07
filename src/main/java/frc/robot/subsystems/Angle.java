@@ -62,8 +62,6 @@ public final class Angle implements Cloneable {
         assert ret.degrees() <= 180.0;
         assert ret.degrees() > -180.0;
 
-        System.out.println(ret.degrees());
-
         return ret;
     }
 

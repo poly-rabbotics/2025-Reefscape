@@ -271,7 +271,10 @@ public class Robot extends LoggedRobot {
         CoralIntake.run();
 
         // TODO: Remove after testing.
-        CoralIntake._overridePivotSpeed(controllerOperator.getRightY());
+        CoralIntake._overridePivotSpeed(
+            Math.abs(controllerOperator.getRightY()) > 0.15 ?
+                controllerOperator.getRightY() : 0.0
+        );
 
         // Algae intake
         Algae.run(
@@ -282,7 +285,8 @@ public class Robot extends LoggedRobot {
         // Climber
         Climber.run(
             controllerOperator.getXButtonPressed(),
-            controllerOperator.getLeftY()
+            Math.abs(controllerOperator.getLeftY()) > 0.15 ?
+                controllerOperator.getLeftY() : 0.0
         );
     }
 }

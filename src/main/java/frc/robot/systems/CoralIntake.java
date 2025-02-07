@@ -14,8 +14,8 @@ import edu.wpi.first.math.controller.PIDController;
 import frc.robot.subsystems.Angle;
 
 public class CoralIntake {
-    private static final double INTAKE_SPEED = 0.75;
-    private static final double OUTTAKE_SPEED = -0.75;
+    private static final double INTAKE_SPEED = -0.75;
+    private static final double OUTTAKE_SPEED = 0.75;
 
     private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
@@ -27,9 +27,9 @@ public class CoralIntake {
     private static final double PIVOT_PID_I = 0.0;
     private static final double PIVOT_PID_D = 0.0;
 
-    private static final SparkMax rightMotor = new SparkMax(14, MotorType.kBrushless);
-    private static final SparkMax leftMotor = new SparkMax(15, MotorType.kBrushless);
-    private static final SparkMax pivotMotor = new SparkMax(16, MotorType.kBrushless);
+    private static final SparkMax rightMotor = new SparkMax(7, MotorType.kBrushless);
+    private static final SparkMax leftMotor = new SparkMax(11, MotorType.kBrushless);
+    private static final SparkMax pivotMotor = new SparkMax(5, MotorType.kBrushless);
 
     private static final PIDController pivotController
         = new PIDController(PIVOT_PID_P, PIVOT_PID_I, PIVOT_PID_D);
@@ -99,7 +99,7 @@ public class CoralIntake {
     }
 
     public static void _overridePivotSpeed(double speed) {
-        pivotMotor.set(speed);
+        pivotMotor.set(speed / 10.0);
     }
 
     private static Angle pivotAngle(IntakePivotPoint setPivot) {
