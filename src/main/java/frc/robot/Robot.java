@@ -289,4 +289,47 @@ public class Robot extends LoggedRobot {
                 controllerOperator.getLeftY() : 0.0
         );
     }
+
+    XboxController simController = new XboxController(5);
+    Pose2d simPose = new Pose2d();
+    double simFrameTime = DriverStation.getMatchTime();
+    double simDeltaTime = 0;
+
+    @Override
+    public void simulationPeriodic() {
+        simDeltaTime = Math.abs(simFrameTime - DriverStation.getMatchTime());
+        simFrameTime = DriverStation.getMatchTime();
+        simFrameTime = 1 / 50;
+
+        double rotationSpeed = simController.getRightX();
+
+        if (Math.abs(rotationSpeed) < 0.1) {
+            rotationSpeed = 0;
+        }
+
+        double translationSpeedX = simController.getLeftX();
+
+        if (Math.abs(translationSpeedX) < 0.1) {
+            translationSpeedX = 0;
+        }
+
+        double translationSpeedY = simController.getLeftY();
+
+        if (Math.abs(translationSpeedY) < 0.1) {
+            translationSpeedY = 0;
+        }
+
+        double dx = translationSpeedX * simDeltaTime * 0.1;
+        double dy = -translationSpeedY * simDeltaTime * 0.1;
+        double dTheta = rotationSpeed * simDeltaTime * 0.1;
+
+        simPose = new Pose2d(
+            simPose.getX() + dx,
+            simPose.getY() + dy,
+            simPose.getRotation().plus(new Rotation2d(dTheta))
+        );
+
+        Logger.recordOutput("Simulation Pose", simPose);
+        Logger.recordOutput("Simulation Delta Time", simDeltaTime);
+    }
 }
