@@ -31,7 +31,6 @@ public class ClimberPivot {
     public ClimberPivot(int leftId, int rightId, boolean inverted, boolean encInverted) {
         motorLeader = new SparkMax(leftId, MotorType.kBrushless);
         motorFollower = new SparkMax(rightId, MotorType.kBrushless);
-
         SparkMaxConfig motorLeftConfig = new SparkMaxConfig();
         AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
 

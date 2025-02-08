@@ -17,8 +17,9 @@ public class CoralIntake {
     private static final double INTAKE_SPEED = -0.75;
     private static final double OUTTAKE_SPEED = 0.75;
 
-    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(0.0);
-    private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(110.0);
+    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(210.0);
     private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(0.0);
@@ -123,6 +124,7 @@ public class CoralIntake {
         Logger.recordOutput("Coral Intake Set Angle (Degrees)", pivotSetAngle.degrees());
         Logger.recordOutput("Coral Intake Set Point", pivotSetPoint);
         Logger.recordOutput("Coral Intake Speed", leftMotor.get());
+        Logger.recordOutput("Coral Intake Pivot Position", pivotMotor.getAbsoluteEncoder().getPosition());
     }
 }
 
