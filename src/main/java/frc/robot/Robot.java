@@ -289,6 +289,7 @@ public class Robot extends LoggedRobot {
                 controllerOperator.getLeftY() : 0.0
         );
     }
+
     XboxController simController = new XboxController(5);
     Pose2d simPose = new Pose2d();
     double simFrameTime = DriverStation.getMatchTime();
