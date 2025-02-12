@@ -17,6 +17,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 import frc.robot.systems.*;
 import frc.robot.systems.CoralIntake.IntakeState;
+
+import java.util.ArrayList;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -83,8 +86,9 @@ public class Robot extends LoggedRobot {
 
         Pigeon.setYaw(new Angle().setDegrees(0.0));
 
-        //Compressor stuffs
+        // Compressor stuffs
         comp.enableDigital();
+        comp.disable();
     }
 
     @Override
@@ -132,6 +136,13 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+        
+        ArrayList<Pose2d> setPose = new ArrayList<>();
+        setPose.add(new Pose2d(1.0, 0.5, new Rotation2d(Math.PI)));
+        setPose.add(new Pose2d(2.0, 0.5, new Rotation2d(Math.PI)));
+        setPose.add(new Pose2d(3.0, -0.5, new Rotation2d(Math.PI)));
+        SwerveDrive.setPath(new DrivePath(setPose));
+        
         SwerveDrive.setMode(SwerveMode.HEADLESS);
     }
 
@@ -243,8 +254,6 @@ public class Robot extends LoggedRobot {
         SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerDriver.getBButton());
         SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerDriver.getYButton());
 
-        var setPose = new Pose2d(16.522, 4.745, new Rotation2d(Math.PI));
-        SwerveDrive.setPath(new DrivePath(setPose));
         SwerveDrive.conditionalTempMode(SwerveMode.FOLLOW_PATH, controllerDriver.getAButton());
 
         SwerveDrive.run(
