@@ -56,11 +56,7 @@ public class DrivePath {
      * function, given in the contructor, returns true.
      */
     public Optional<Pose2d> currentTarget() {
-        if (targetReached.apply(points.get(0))) {
-            points.remove(0);
-        }
-
-        if (points.isEmpty()) {
+        if (isCompleted()) {
             return Optional.empty();
         }
 
@@ -71,6 +67,14 @@ public class DrivePath {
      * Returns `true` if all targets have been reached and no more target points remain.
      */
     public boolean isCompleted() {
+        if (points.isEmpty()) {
+            return true;
+        }
+
+        if (targetReached.apply(points.get(0))) {
+            points.remove(0);
+        }
+
         return points.isEmpty();
     }
 
@@ -81,7 +85,7 @@ public class DrivePath {
         var currentPose = PoseEstimator.estimate2d();
 
         var distX = currentPose.getX() - targetPose.getX();
-        var distY = currentPose.getY() - targetPose.getX();
+        var distY = currentPose.getY() - targetPose.getY();
         var distance = Math.sqrt(distX * distX + distY * distY);
 
         var arc = currentPose.getRotation().getDegrees() - targetPose.getRotation().getDegrees();
