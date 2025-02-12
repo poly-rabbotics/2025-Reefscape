@@ -4,6 +4,7 @@
 
 package frc.robot.systems;
 
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -74,24 +75,24 @@ public class SwerveDrive {
 
     // PID parameter constants for following autonomous trajectories. These are used to follow a
     // setpoint given as a two dimensional point and a rotation.
-    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.5;
+    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.75;
     private static final double TRAJECTORY_STRAFE_X_PID_I = 0.0;
     private static final double TRAJECTORY_STRAFE_X_PID_D = 0.0;
 
-    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.5;
+    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.75;
     private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.0;
     private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.0;
 
-    private static final double TRAJECTORY_ROTATE_PID_P = 0.75;
+    private static final double TRAJECTORY_ROTATE_PID_P = 0.9;
     private static final double TRAJECTORY_ROTATE_PID_I = 0.0;
-    private static final double TRAJECTORY_ROTATE_PID_D = 0.0;
+    private static final double TRAJECTORY_ROTATE_PID_D = 0.015;
 
     // Set angle constants. Use in teleop for "snap angles" available to the driver, or any other
     // controls function in teleop in which the driver may determine a desired angle, rather than
     // controlling the speed ot rotation itself.
-    private static final double SET_ANGLE_PID_P = 0.0;
+    private static final double SET_ANGLE_PID_P = 0.9;
     private static final double SET_ANGLE_PID_I = 0.0;
-    private static final double SET_ANGLE_PID_D = 0.0;
+    private static final double SET_ANGLE_PID_D = 0.015;
 
     // Module objects. Stores the module objects themselves which allow us to interface with them.
     private static final SwerveModule modules[] = new SwerveModule[MODULE_MOVEMENT_CAN_IDS.length];
@@ -515,8 +516,8 @@ public class SwerveDrive {
 
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
-                        -translationSpeedX,
-                        -translationSpeedY,
+                        translationSpeedX,
+                        translationSpeedY,
                         rotationSpeed, 
                         new Rotation2d(Pigeon.getYaw().radians())
                     )
@@ -677,5 +678,13 @@ public class SwerveDrive {
 
         Logger.recordOutput("Swerve Set Angle (Radians)", setAngle.radians());
         Logger.recordOutput("Swerve Set Angle (Degrees)", setAngle.degrees());
+
+        Logger.recordOutput(
+            "Swerve Drive Set Pose", 
+            Optional
+                .ofNullable(path)
+                .flatMap((path) -> path.currentTarget())
+                .orElse(new Pose2d())
+        );
     }
 }
