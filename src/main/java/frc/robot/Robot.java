@@ -126,6 +126,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        AutonomousManager.reset();
         SwerveDrive.setMode(SwerveMode.FOLLOW_PATH);
     }
 
