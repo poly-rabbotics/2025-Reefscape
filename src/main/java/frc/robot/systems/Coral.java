@@ -1,5 +1,6 @@
 package frc.robot.systems;
 
+import frc.robot.subsystems.Coral.*;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import org.littletonrobotics.junction.Logger;
@@ -13,7 +14,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import frc.robot.subsystems.Angle;
 
-public class CoralIntake {
+public class Coral {
     private static final double INTAKE_SPEED = -0.75;
     private static final double OUTTAKE_SPEED = 0.75;
 
@@ -28,9 +29,10 @@ public class CoralIntake {
     private static final double PIVOT_PID_I = 0.0;
     private static final double PIVOT_PID_D = 0.0;
 
-    private static final SparkMax rightMotor = new SparkMax(7, MotorType.kBrushless);
-    private static final SparkMax leftMotor = new SparkMax(11, MotorType.kBrushless);
     private static final SparkMax pivotMotor = new SparkMax(5, MotorType.kBrushless);
+
+    private static CoralIntake coralIntake;
+    private static IntakeState intakeState = IntakeState.IDLE;
 
     private static final PIDController pivotController
         = new PIDController(PIVOT_PID_P, PIVOT_PID_I, PIVOT_PID_D);
@@ -43,28 +45,12 @@ public class CoralIntake {
     }
 
     public enum IntakePivotPoint {
-        L1, L2, L3, L4, STOW
+        L1, L2, L3, L4, STOW, INTAKE
     }
 
     static {
-        SparkMaxConfig leftMotorConfig = new SparkMaxConfig();
-        SparkMaxConfig rightMotorConfig = new SparkMaxConfig();
         SparkMaxConfig pivotMotorConfig = new SparkMaxConfig();
         AbsoluteEncoderConfig pivotEncoderConfig = new AbsoluteEncoderConfig();
-
-        rightMotorConfig.follow(leftMotor, true);
-
-        leftMotor.configure(
-            leftMotorConfig,
-            ResetMode.kResetSafeParameters,
-            PersistMode.kNoPersistParameters
-        );
-
-        rightMotor.configure(
-            rightMotorConfig,
-            ResetMode.kResetSafeParameters,
-            PersistMode.kNoPersistParameters
-        );
 
         pivotEncoderConfig.positionConversionFactor(360.0);
         pivotMotorConfig.apply(pivotEncoderConfig);
@@ -73,16 +59,11 @@ public class CoralIntake {
             ResetMode.kResetSafeParameters,
             PersistMode.kNoPersistParameters
         );
+
+        coralIntake = new CoralIntake(7, 11);
     }
 
     public static void setIntakeState(IntakeState state) {
-        if (state == IntakeState.INTAKING) {
-            leftMotor.set(INTAKE_SPEED);
-        } else if (state == IntakeState.OUTTAKING) {
-            leftMotor.set(OUTTAKE_SPEED);
-        } else if (state == IntakeState.IDLE){
-            leftMotor.set(0);
-        }
     }
 
     public static void pivotTo(IntakePivotPoint setPivot) {
@@ -90,13 +71,47 @@ public class CoralIntake {
         pivotSetAngle = pivotAngle(setPivot);
     }
 
-    public static void run() {
+    public static void run(boolean intake, boolean outtake, boolean stowedPose, boolean coralStationPose, boolean level1Pose, boolean level2Pose, boolean level3Pose, boolean level4Pose) {
+        // SET PIVOT POINT
+        if(stowedPose) {
+            pivotTo(IntakePivotPoint.STOW);
+        } else if(coralStationPose) {
+            pivotTo(IntakePivotPoint.INTAKE);
+        } else if(level1Pose) {
+            pivotTo(IntakePivotPoint.L1);
+        }  else if(level2Pose) {
+            pivotTo(IntakePivotPoint.L2);
+        }  else if(level3Pose) {
+            pivotTo(IntakePivotPoint.L3);
+        }  else if(level4Pose) {
+            pivotTo(IntakePivotPoint.L4);
+        } 
+
+        // SET INTAKE MODE
+        if(intake) {
+            intakeState = IntakeState.INTAKING;
+        } else if(outtake) {
+            intakeState = IntakeState.OUTTAKING;
+        } else {
+            intakeState = IntakeState.IDLE;
+        }
+
+        // SET INTAKE SPEED
+        if (intakeState == IntakeState.INTAKING) {
+            coralIntake.set(INTAKE_SPEED);
+        } else if (intakeState == IntakeState.OUTTAKING) {
+            coralIntake.set(OUTTAKE_SPEED);
+        } else {
+            coralIntake.set(0);
+        }
+        
         double pivotSpeed = pivotController.calculate(
             pivotMotor.getEncoder().getPosition(),
             pivotSetAngle.degrees()
         );
 
         pivotMotor.set(pivotSpeed);
+
     }
 
     public static void _overridePivotSpeed(double speed) {
@@ -114,6 +129,9 @@ public class CoralIntake {
             case L4:
                 return PIVOT_POINT_L4;
             case STOW:
+                return PIVOT_POINT_STOW;
+            case INTAKE:
+                return PIVOT_POINT_INTAKE;
             default:
                 return PIVOT_POINT_STOW;
         }
@@ -123,7 +141,7 @@ public class CoralIntake {
         Logger.recordOutput("Coral Intake Pivot Speed", pivotMotor.get());
         Logger.recordOutput("Coral Intake Set Angle (Degrees)", pivotSetAngle.degrees());
         Logger.recordOutput("Coral Intake Set Point", pivotSetPoint);
-        Logger.recordOutput("Coral Intake Speed", leftMotor.get());
+        Logger.recordOutput("Coral Intake Speed", coralIntake.get());
         Logger.recordOutput("Coral Intake Pivot Position", pivotMotor.getAbsoluteEncoder().getPosition());
     }
 }

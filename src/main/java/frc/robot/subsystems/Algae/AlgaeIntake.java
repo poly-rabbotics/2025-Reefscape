@@ -10,6 +10,7 @@ public class AlgaeIntake {
     private double speed;
 
     public AlgaeIntake(int intakeMotorID) {
+        
         intakeMotor = new SparkMax(intakeMotorID, MotorType.kBrushless);
     }
 
@@ -21,3 +22,4 @@ public class AlgaeIntake {
         this.speed = speed;
     }
 }
+

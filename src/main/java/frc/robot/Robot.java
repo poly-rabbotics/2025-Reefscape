@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 import frc.robot.systems.*;
-import frc.robot.systems.CoralIntake.IntakeState;
+import frc.robot.systems.Coral.IntakeState;
+
+import static edu.wpi.first.units.Units.Kilo;
 
 import java.util.ArrayList;
 
@@ -169,7 +171,7 @@ public class Robot extends LoggedRobot {
         PoseEstimator.recordState();
 
         Elevator.recordState();
-        CoralIntake.recordState();
+        Coral.recordState();
         Climber.recordState();
     }
 
@@ -270,17 +272,26 @@ public class Robot extends LoggedRobot {
     public void operatorTeleop() {
         // Coral intake
         if (controllerOperator.getAButton()) {
-            CoralIntake.setIntakeState(IntakeState.INTAKING);
+            Coral.setIntakeState(IntakeState.INTAKING);
         } else if (controllerOperator.getBButton()) {
-            CoralIntake.setIntakeState(IntakeState.OUTTAKING);
+            Coral.setIntakeState(IntakeState.OUTTAKING);
         } else {
-            CoralIntake.setIntakeState(IntakeState.IDLE);
+            Coral.setIntakeState(IntakeState.IDLE);
         }
 
-        CoralIntake.run();
+        Coral.run(
+            controllerOperator.getAButton(),
+            controllerOperator.getBButton(),
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        );
 
         // TODO: Remove after testing.
-        CoralIntake._overridePivotSpeed(
+        Coral._overridePivotSpeed(
             Math.abs(controllerOperator.getRightY()) > 0.15 ?
                 controllerOperator.getRightY() : 0.0
         );
