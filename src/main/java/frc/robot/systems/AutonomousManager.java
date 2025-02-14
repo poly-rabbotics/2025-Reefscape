@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Timer;
@@ -184,6 +185,19 @@ public class AutonomousManager {
             .and(makeTimedStep(5.0))
             .and(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120.0/ 180.0 * Math.Pi))));
             
+        procedures[3] = new AutonomousProcedure()
+            .andThen(makeDriveStep(new pose2d(12.5, 3, new Rotation2d(60 / 180 * Math.PI))))
+            .and(makeElevatorStep(ElevatorPose.ScoringL4))
+            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL4))
+            .andThen(maketimedStep(5.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
+            .andThen(makeStep( ()-> CoralIntake.SetIntakeState(IntakeState.IDLE)))
+            .and(makeElevatorStep(ElevatorPose.Intaking))
+            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .and(makeDriveStep(new Pose2d(14.3, 4, new Rotation2d(180 / 180 * Math.PI))));
 
+        procedures[4] = new AutonomousProcedure()
+            
+
+            
     }
 }
