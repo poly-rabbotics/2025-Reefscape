@@ -17,6 +17,8 @@ public class CoralIntake {
     private static final double INTAKE_SPEED = -0.75;
     private static final double OUTTAKE_SPEED = 0.75;
 
+    private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(2.5);
+
     private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(110.0);
     private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(210.0);
@@ -35,15 +37,15 @@ public class CoralIntake {
     private static final PIDController pivotController
         = new PIDController(PIVOT_PID_P, PIVOT_PID_I, PIVOT_PID_D);
 
-    private static IntakePivotPoint pivotSetPoint = IntakePivotPoint.STOW;
+    private static IntakePivotPoint pivotSetPoint = IntakePivotPoint.Stowed;
     private static Angle pivotSetAngle = PIVOT_POINT_STOW;
 
     public enum IntakeState {
-        INTAKING, OUTTAKING, IDLE
+        Intaking, Outtaking, Idle
     }
 
     public enum IntakePivotPoint {
-        L1, L2, L3, L4, STOW
+        ScoringL1, ScoringL2, ScoringL3, ScoringL4, Stowed, Intaking
     }
 
     static {
@@ -66,7 +68,7 @@ public class CoralIntake {
             PersistMode.kNoPersistParameters
         );
 
-        pivotEncoderConfig.positionConversionFactor(360.0);
+        pivotEncoderConfig.positionConversionFactor(360.0 / 9.0);
         pivotMotorConfig.apply(pivotEncoderConfig);
         pivotMotor.configure(
             pivotMotorConfig,
@@ -76,18 +78,29 @@ public class CoralIntake {
     }
 
     public static void setIntakeState(IntakeState state) {
-        if (state == IntakeState.INTAKING) {
+        if (state == IntakeState.Intaking) {
             leftMotor.set(INTAKE_SPEED);
-        } else if (state == IntakeState.OUTTAKING) {
+        } else if (state == IntakeState.Outtaking) {
             leftMotor.set(OUTTAKE_SPEED);
-        } else if (state == IntakeState.IDLE){
+        } else if (state == IntakeState.Idle){
             leftMotor.set(0);
         }
     }
 
+    /**
+     * Sets the pivot's set position.
+     */
     public static void pivotTo(IntakePivotPoint setPivot) {
         pivotSetPoint = setPivot;
         pivotSetAngle = pivotAngle(setPivot);
+    }
+
+    /**
+     * Returns true if the current position is within tolerance of the set position of the pivot.
+     */
+    public static boolean atPivotPoint() {
+        return Math.abs(pivotMotor.getEncoder().getPosition() - pivotSetAngle.degrees())
+            < PIVOT_TOLERANCE.degrees();
     }
 
     public static void run() {
@@ -105,15 +118,15 @@ public class CoralIntake {
 
     private static Angle pivotAngle(IntakePivotPoint setPivot) {
         switch (setPivot) {
-            case L1:
+            case ScoringL1:
                 return PIVOT_POINT_L1;
-            case L2:
+            case ScoringL2:
                 return PIVOT_POINT_L2;
-            case L3:
+            case ScoringL3:
                 return PIVOT_POINT_L3;
-            case L4:
+            case ScoringL4:
                 return PIVOT_POINT_L4;
-            case STOW:
+            case Stowed:
             default:
                 return PIVOT_POINT_STOW;
         }

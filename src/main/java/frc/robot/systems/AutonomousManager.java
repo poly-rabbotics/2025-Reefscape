@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.geometry.Pose2d;
-
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
+import frc.robot.systems.CoralIntake.IntakePivotPoint;
+import frc.robot.systems.CoralIntake.IntakeState;
+import frc.robot.systems.Elevator.ElevatorPose;
 
 public class AutonomousManager {
     private static final int AUTO_SWITCH_COUNT = 4;
@@ -54,11 +56,39 @@ public class AutonomousManager {
         return mode;
     }
 
-    public static void log(boolean... switches) {
-        Logger.recordOutput("Auto Manager Selection", getSwitchSelection(switches));
-        Logger.recordOutput("Auto Manager Modes Length", procedures.length);
+    private static Function<StepStatus, StepStatus> makeStep(Runnable fn) {
+        return (prevState) -> {
+            fn.run();
+            
+            if (prevState == StepStatus.Done) {
+                return StepStatus.Done;
+            }
+
+            return StepStatus.Running;
+        };
     }
 
+    private static Function<StepStatus, StepStatus> makeTimedStep(double time, Runnable fn) {
+        Timer stepTimer = new Timer();
+
+        return (prevState) -> {
+            if (!stepTimer.isRunning()) {
+                stepTimer.start();
+            }
+
+            fn.run();
+
+            if (stepTimer.get() >= time && prevState == StepStatus.Done) {
+                return StepStatus.Done;
+            }
+
+            return StepStatus.Running;
+        };
+    }
+
+    /**
+     * Makes a step for running the drive.
+     */
     private static Function<StepStatus, StepStatus> makeDriveStep(Pose2d... poses) {
         ArrayList<Pose2d> listPoses = new ArrayList<Pose2d>();
 
@@ -70,11 +100,14 @@ public class AutonomousManager {
         return makeDriveStep(path);
     }
 
+    /**
+     * Makes a step for running the drive.
+     */
     private static Function<StepStatus, StepStatus> makeDriveStep(DrivePath path) {
         return (prevState) -> {
             SwerveDrive.setPath(path);
 
-            if (path.isCompleted()) {
+            if (path.isCompleted() && prevState == StepStatus.Done) {
                 return StepStatus.Done;
             }
 
@@ -100,8 +133,42 @@ public class AutonomousManager {
             && Math.abs(measuredAngle - setAngle) < TOLERANCE_THETA;
     }
 
+    public static Function<StepStatus, StepStatus> makeElevatorStep(ElevatorPose pose) {
+        return (prevState) -> {
+            Elevator.setPose(pose);
+
+            if (Elevator.atPose() && prevState == StepStatus.Done) {
+                return StepStatus.Done;
+            }
+
+            return StepStatus.Running;
+        };
+    }
+
+    public static Function<StepStatus, StepStatus> makeIntakePivotStep(IntakePivotPoint point) {
+        return (prevState) -> {
+            CoralIntake.pivotTo(point);
+
+            if (CoralIntake.atPivotPoint() && prevState == StepStatus.Done) {
+                return StepStatus.Done;
+            }
+
+            return StepStatus.Running;
+        };
+    }
+
     private static void buildProcedures() {
         // Does nothing, assumes starting forward.
         procedures[0] = new AutonomousProcedure();
+
+        procedures[1] = new AutonomousProcedure()
+            .andThen(makeDriveStep(new Pose2d(12.5, 5.0, new Rotation2d(-60.0 / 180.0 * Math.PI))))
+            .and(makeElevatorStep(ElevatorPose.ScoringL4))
+            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL4))
+            .andThen(makeTimedStep(5.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
+            .andThen(makeStep(() -> CoralIntake.setIntakeState(IntakeState.Idle)))
+            .and(makeElevatorStep(ElevatorPose.Intaking))
+            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .and(makeDriveStep(new Pose2d(16.0, 7.4, new Rotation2d(54.0 / 180.0 * Math.PI))));
     }
 }
