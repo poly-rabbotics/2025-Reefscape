@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
@@ -170,5 +171,19 @@ public class AutonomousManager {
             .and(makeElevatorStep(ElevatorPose.Intaking))
             .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
             .and(makeDriveStep(new Pose2d(16.0, 7.4, new Rotation2d(54.0 / 180.0 * Math.PI))));
+
+        procedures[2] = new AutonomousProcedure()    
+            .andThen(makeDriveStep(new Pose2d(14.3,4, new Rotation2d(180.0 / 180.0 * Math.PI))))
+            .and(makeElevatorStep(ElevatorPose.ScoringL2))
+            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+            .andThen(makeTimedStep(5.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
+            .andThen(makestep(() -> CoralIntake.setIntakeState(IntakeState.Intaking)))
+            .and(makeElevatorStep(ElevatorPose.Intaking))
+            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .and(makeDriveStep(new Pose2d(16.0, 0.6, new Rotation2d(-54 / 180 * Math.PI))))
+            .and(makeTimedStep(5.0))
+            .and(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120.0/ 180.0 * Math.Pi))));
+            
+
     }
 }
