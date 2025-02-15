@@ -212,7 +212,7 @@ public class AutonomousManager {
 
         procedures[4] = new AutonomousProcedure()
             .andThen(makeDriveStep(new Pose2d(12, 4, new Rotation2d(0 / 180 * Math.PI))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL2));
+            .and(makeElevatorStep(ElevatorPose.ScoringL2))
             .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
             .andThen(maketimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
             .andThen(makestep(() -> CoralIntake.setIntake(IntakeState.Intaking)))
