@@ -149,9 +149,9 @@ public class SwerveDrive {
     // Drive mode fields. Inactive mode works the same as an inactive curve, and tracks the drive
     // mode to return to when setting temporary modes. The display mode is used only for display,
     // and is useful when displaying aspects of the drive on something like LED lights.
-    private static SwerveMode mode = SwerveMode.HEADLESS;
+    private static SwerveMode mode = SwerveMode.Headless;
     private static SwerveMode inactiveMode = null;
-    private static SwerveMode displayMode = SwerveMode.HEADLESS;
+    private static SwerveMode displayMode = SwerveMode.Headless;
 
     // Drive state objects. Module states represent the state of each module as independent items,
     // they are used as input to each modules and allow us to control them within code.
@@ -427,7 +427,7 @@ public class SwerveDrive {
         boolean holdPos = false;
 
         switch (mode) {
-            case HEADLESS: {
+            case Headless: {
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         translationSpeedX,
@@ -439,7 +439,7 @@ public class SwerveDrive {
                 break;
             }
 
-            case RELATIVE: {
+            case Relative: {
                 moduleStates = kinematics.toSwerveModuleStates(
                     new ChassisSpeeds(
                         translationSpeedX,
@@ -450,7 +450,7 @@ public class SwerveDrive {
                 break;
             }
 
-            case ROCK: {
+            case Rock: {
                 assert moduleStates.length == modules.length;
                 holdPos = true;
 
@@ -466,7 +466,7 @@ public class SwerveDrive {
                 break;
             }
 
-            case SET_ANGLE: {
+            case SetAngle: {
                 rotationSpeed = setAngleController.calculate(Pigeon.getYaw().radians(), setAngle.radians());
 
                 moduleStates = kinematics.toSwerveModuleStates(
@@ -480,7 +480,7 @@ public class SwerveDrive {
                 break;
             }
 
-            case FOLLOW_PATH: {
+            case FollowPath: {
                 if (path == null || path.isCompleted()) {
                     // Break early if we have no path.
                     translationX = 0.0;

@@ -30,7 +30,7 @@ public class LEDLights {
         if (DriverStation.isDisabled()) {
             // Rainbow if disabled.
             setPattern = new Rainbow(100, 2.0);
-        } else if (SwerveDrive.getDisplayMode() == SwerveMode.ROCK) {
+        } else if (SwerveDrive.getDisplayMode() == SwerveMode.Rock) {
             // If in rock mode make wyvern scary >:D
             setPattern = new FadeIn(new Color(1.0, 0.0, 0.0), 2.0);
         }

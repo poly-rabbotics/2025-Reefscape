@@ -9,27 +9,27 @@ public enum SwerveMode {
      * Moves relative to the driver station, pressing the joystick away from
      * you should always move the robot away from you.
      */
-    HEADLESS,
+    Headless,
 
     /**
      * Pressing the joystick forward moves the robot froward, regardless of 
      * position relative to driver.
      */
-    RELATIVE,
+    Relative,
 
     /**
      * Rock mode, resists movement and holds position.
      */
-    ROCK,
+    Rock,
 
     /**
      * Operates as though in `HEADLESS` but runs rotation off of a setpoint 
      * rather than by manual speed input.
      */
-    SET_ANGLE,
+    SetAngle,
 
     /**
      * Follow a given drive path autonomously.
      */
-    FOLLOW_PATH,
+    FollowPath,
 }
