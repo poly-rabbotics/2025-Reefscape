@@ -100,7 +100,7 @@ public class Controls {
     /**
      * Plateaus the given value and runs it through the given curve.
      */
-    public static double plateau(double x, Function<Double, Double> curve) {
+    public static double plateau(double x, , Double> curve) {
         x = x + (x * DEFAULT_PLATEAU);
         x = x > 1.0 ? 1.0 : x;
         return curve.apply(x);

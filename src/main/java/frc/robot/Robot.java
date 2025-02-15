@@ -19,6 +19,7 @@ import frc.robot.systems.*;
 import frc.robot.systems.CoralIntake.IntakeState;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -46,6 +47,9 @@ public class Robot extends LoggedRobot {
 
     private static PowerDistribution powerDistributionHub
         = new PowerDistribution(1, ModuleType.kRev);
+
+    private static Optional<AutonomousProcedure> autonomousProcedure;
+    
     private static boolean invertedTurn = false;
 
     /**
@@ -126,12 +130,24 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        AutonomousManager.reset();
         SwerveDrive.setMode(SwerveMode.FOLLOW_PATH);
+
+        autonomousProcedure = AutonomousManager.getProcedureFromSwitches(
+            // insert switch gets
+        );
     }
 
     @Override
     public void autonomousPeriodic() {
+        autonomousProcedure.ifPresent(proc -> {
+            proc.run();
+            proc.recordState();
+        });
+        
         SwerveDrive.run();
+        Elevator.run();
+        CoralIntake.run();
     }
 
     @Override
@@ -270,11 +286,11 @@ public class Robot extends LoggedRobot {
     public void operatorTeleop() {
         // Coral intake
         if (controllerOperator.getAButton()) {
-            CoralIntake.setIntakeState(IntakeState.INTAKING);
+            CoralIntake.setIntakeState(IntakeState.Intaking);
         } else if (controllerOperator.getBButton()) {
-            CoralIntake.setIntakeState(IntakeState.OUTTAKING);
+            CoralIntake.setIntakeState(IntakeState.Outtaking);
         } else {
-            CoralIntake.setIntakeState(IntakeState.IDLE);
+            CoralIntake.setIntakeState(IntakeState.Idle);
         }
 
         CoralIntake.run();
