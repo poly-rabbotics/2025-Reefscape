@@ -306,10 +306,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void simulationPeriodic() {
-        simDeltaTime = Math.abs(simFrameTime - DriverStation.getMatchTime());
-        simFrameTime = DriverStation.getMatchTime();
-        simFrameTime = 1 / 50;
-
         double rotationSpeed = simController.getRightX();
 
         if (Math.abs(rotationSpeed) < 0.1) {
@@ -328,9 +324,9 @@ public class Robot extends LoggedRobot {
             translationSpeedY = 0;
         }
 
-        double dx = translationSpeedX * simDeltaTime * 0.1;
-        double dy = -translationSpeedY * simDeltaTime * 0.1;
-        double dTheta = rotationSpeed * simDeltaTime * 0.1;
+        double dx = Math.pow(translationSpeedX, 3) * 0.1;
+        double dy = Math.pow(-translationSpeedY, 3) * 0.1;
+        double dTheta = Math.pow(-rotationSpeed, 5) * 0.1;
 
         simPose = new Pose2d(
             simPose.getX() + dx,
