@@ -15,8 +15,9 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Coral.Elevator;
 import frc.robot.systems.*;
-import frc.robot.systems.CoralIntake.IntakeState;
+import frc.robot.systems.Coral.IntakeState;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -146,8 +147,7 @@ public class Robot extends LoggedRobot {
         });
         
         SwerveDrive.run();
-        Elevator.run();
-        CoralIntake.run();
+        Coral.run();
     }
 
     @Override
@@ -183,9 +183,8 @@ public class Robot extends LoggedRobot {
         SwerveDrive.recordState();
         Pigeon.recordState();
         PoseEstimator.recordState();
-
-        Elevator.recordState();
-        CoralIntake.recordState();
+        
+        Coral.recordState();
         Climber.recordState();
     }
 
@@ -286,17 +285,25 @@ public class Robot extends LoggedRobot {
     public void operatorTeleop() {
         // Coral intake
         if (controllerOperator.getAButton()) {
-            CoralIntake.setIntakeState(IntakeState.Intaking);
+            Coral.setIntakeState(IntakeState.Intaking);
         } else if (controllerOperator.getBButton()) {
-            CoralIntake.setIntakeState(IntakeState.Outtaking);
+            Coral.setIntakeState(IntakeState.Outtaking);
         } else {
-            CoralIntake.setIntakeState(IntakeState.Idle);
+            Coral.setIntakeState(IntakeState.Idle);
         }
 
-        CoralIntake.run();
+        Coral.run(
+            controllerOperator.getAButton(), 
+            controllerOperator.getBButton(), 
+            false, 
+            false, 
+            false ,
+            false ,
+            false, 
+            false);
 
         // TODO: Remove after testing.
-        CoralIntake._overridePivotSpeed(
+        Coral._overridePivotSpeed(
             Math.abs(controllerOperator.getRightY()) > 0.15 ?
                 controllerOperator.getRightY() : 0.0
         );
@@ -308,11 +315,11 @@ public class Robot extends LoggedRobot {
         );
 
         // Climber
-        Climber.run(
+        /* Climber.run(
             controllerOperator.getXButtonPressed(),
             Math.abs(controllerOperator.getLeftY()) > 0.15 ?
                 controllerOperator.getLeftY() : 0.0
-        );
+        ); */
     }
 
     XboxController simController = new XboxController(5);

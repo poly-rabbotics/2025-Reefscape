@@ -11,9 +11,10 @@ import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import frc.robot.subsystems.Coral.*;
 import frc.robot.subsystems.Angle;
 
-public class CoralIntake {
+public class Coral {
     private static final double INTAKE_SPEED = -0.75;
     private static final double OUTTAKE_SPEED = 0.75;
 
@@ -26,18 +27,18 @@ public class CoralIntake {
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(0.0);
 
+    private static final SparkMax pivotMotor = new SparkMax(5, MotorType.kBrushless);
+    private static final CoralIntake coralIntake = new CoralIntake(7, 11);
+    private static final Elevator elevator = new Elevator(14);
+
     private static final double PIVOT_PID_P = 0.0;
     private static final double PIVOT_PID_I = 0.0;
     private static final double PIVOT_PID_D = 0.0;
 
-    private static final SparkMax rightMotor = new SparkMax(7, MotorType.kBrushless);
-    private static final SparkMax leftMotor = new SparkMax(11, MotorType.kBrushless);
-    private static final SparkMax pivotMotor = new SparkMax(5, MotorType.kBrushless);
-
     private static final PIDController pivotController
         = new PIDController(PIVOT_PID_P, PIVOT_PID_I, PIVOT_PID_D);
 
-    private static IntakePivotPoint pivotSetPoint = IntakePivotPoint.Stowed;
+    private static IntakePivotPoint currentScoringPoint = IntakePivotPoint.Stowed;
     private static Angle pivotSetAngle = PIVOT_POINT_STOW;
 
     public enum IntakeState {
@@ -49,24 +50,8 @@ public class CoralIntake {
     }
 
     static {
-        SparkMaxConfig leftMotorConfig = new SparkMaxConfig();
-        SparkMaxConfig rightMotorConfig = new SparkMaxConfig();
         SparkMaxConfig pivotMotorConfig = new SparkMaxConfig();
         AbsoluteEncoderConfig pivotEncoderConfig = new AbsoluteEncoderConfig();
-
-        rightMotorConfig.follow(leftMotor, true);
-
-        leftMotor.configure(
-            leftMotorConfig,
-            ResetMode.kResetSafeParameters,
-            PersistMode.kNoPersistParameters
-        );
-
-        rightMotor.configure(
-            rightMotorConfig,
-            ResetMode.kResetSafeParameters,
-            PersistMode.kNoPersistParameters
-        );
 
         pivotEncoderConfig.positionConversionFactor(360.0 / 9.0);
         pivotMotorConfig.apply(pivotEncoderConfig);
@@ -79,11 +64,11 @@ public class CoralIntake {
 
     public static void setIntakeState(IntakeState state) {
         if (state == IntakeState.Intaking) {
-            leftMotor.set(INTAKE_SPEED);
+            coralIntake.set(INTAKE_SPEED);
         } else if (state == IntakeState.Outtaking) {
-            leftMotor.set(OUTTAKE_SPEED);
+            coralIntake.set(OUTTAKE_SPEED);
         } else if (state == IntakeState.Idle){
-            leftMotor.set(0);
+            coralIntake.set(0);
         }
     }
 
@@ -91,7 +76,7 @@ public class CoralIntake {
      * Sets the pivot's set position.
      */
     public static void pivotTo(IntakePivotPoint setPivot) {
-        pivotSetPoint = setPivot;
+        currentScoringPoint = setPivot;
         pivotSetAngle = pivotAngle(setPivot);
     }
 
@@ -103,13 +88,67 @@ public class CoralIntake {
             < PIVOT_TOLERANCE.degrees();
     }
 
+    /**
+     * To be run from teleop
+     * @param intaking
+     * @param outtaking
+     * @param stowedPose
+     * @param intakePose
+     * @param l1Pose
+     * @param l2Pose
+     * @param l3Pose
+     * @param l4Pose
+     */
+    public static void run(boolean intaking, boolean outtaking, boolean stowedPose, boolean intakePose, boolean l1Pose, boolean l2Pose, boolean l3Pose, boolean l4Pose) {
+        
+        // Coral intake
+        if (intaking) {
+            setIntakeState(IntakeState.Intaking);
+        } else if (outtaking) {
+            setIntakeState(IntakeState.Outtaking);
+        } else {
+            setIntakeState(IntakeState.Idle);
+        }
+
+        if(stowedPose) {
+            currentScoringPoint = IntakePivotPoint.Stowed;
+        } else if(intakePose) {
+            currentScoringPoint = IntakePivotPoint.Intaking;
+        } else if(l1Pose) {
+            currentScoringPoint = IntakePivotPoint.ScoringL1;
+        } else if(l2Pose) {
+            currentScoringPoint = IntakePivotPoint.ScoringL2;
+        } else if(l3Pose) {
+            currentScoringPoint = IntakePivotPoint.ScoringL3;
+        } else if(l4Pose) {
+            currentScoringPoint = IntakePivotPoint.ScoringL4;
+        }
+
+        pivotAngle(currentScoringPoint);
+        elevator.set(currentScoringPoint);
+        
+        double pivotSpeed = pivotController.calculate(
+            pivotMotor.getEncoder().getPosition(),
+            pivotSetAngle.degrees()
+        );
+
+        coralIntake.run();
+        pivotMotor.set(pivotSpeed);
+        elevator.run();
+    }
+
+    /**
+     * Overload of run function for autos & stuffs
+     */
     public static void run() {
         double pivotSpeed = pivotController.calculate(
             pivotMotor.getEncoder().getPosition(),
             pivotSetAngle.degrees()
         );
 
+        coralIntake.run();
         pivotMotor.set(pivotSpeed);
+        elevator.run();
     }
 
     public static void _overridePivotSpeed(double speed) {
@@ -133,11 +172,20 @@ public class CoralIntake {
     }
 
     public static void recordState() {
-        Logger.recordOutput("Coral Intake Pivot Speed", pivotMotor.get());
-        Logger.recordOutput("Coral Intake Set Angle (Degrees)", pivotSetAngle.degrees());
-        Logger.recordOutput("Coral Intake Set Point", pivotSetPoint);
-        Logger.recordOutput("Coral Intake Speed", leftMotor.get());
-        Logger.recordOutput("Coral Intake Pivot Position", pivotMotor.getAbsoluteEncoder().getPosition());
+        Logger.recordOutput("Coral Intake Speed", coralIntake.get());
+        Logger.recordOutput("Coral Intake Current", coralIntake.getCurrent());
+
+        Logger.recordOutput("Coral Pivot Speed", pivotMotor.get());
+        Logger.recordOutput("Coral Pivot Set Angle (Degrees)", pivotSetAngle.degrees());
+        Logger.recordOutput("Coral Pivot Setpoint", currentScoringPoint);
+        Logger.recordOutput("Coral Pivot Position", pivotMotor.getAbsoluteEncoder().getPosition());
+
+        
+        Logger.recordOutput("Elevator Set Point", elevator.getSetpointEnum());
+        Logger.recordOutput("Elevator Set Point (Meters)", elevator.getSetpoint());
+        Logger.recordOutput("Elevator Position", elevator.getPosition());
+        Logger.recordOutput("Elevator At Pose", elevator.atPosition());
+        Logger.recordOutput("Elevator Speed", elevator.getSpeed());
     }
 }
 
