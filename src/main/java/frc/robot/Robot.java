@@ -106,8 +106,8 @@ public class Robot extends LoggedRobot {
                 PoseEstimator.reset();
 
                 // Prevents fast rotation when setting heading.
-                if (SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
-                    SwerveDrive.setMode(SwerveMode.HEADLESS);
+                if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
+                    SwerveDrive.setMode(SwerveMode.Headless);
                 }
             }
 
@@ -119,8 +119,8 @@ public class Robot extends LoggedRobot {
                 }
 
                 // Prevents fast rotation when setting heading.
-                if (SwerveDrive.getMode() == SwerveMode.SET_ANGLE) {
-                    SwerveDrive.setMode(SwerveMode.HEADLESS);
+                if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
+                    SwerveDrive.setMode(SwerveMode.Headless);
                 }
             }
         }
@@ -131,7 +131,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         AutonomousManager.reset();
-        SwerveDrive.setMode(SwerveMode.FOLLOW_PATH);
+        SwerveDrive.setMode(SwerveMode.FollowPath);
 
         autonomousProcedure = AutonomousManager.getProcedureFromSwitches(
             // insert switch gets
@@ -159,7 +159,7 @@ public class Robot extends LoggedRobot {
         setPose.add(new Pose2d(3.0, -0.5, new Rotation2d(Math.PI)));
         SwerveDrive.setPath(new DrivePath(setPose));
         
-        SwerveDrive.setMode(SwerveMode.HEADLESS);
+        SwerveDrive.setMode(SwerveMode.Headless);
     }
 
     @Override
@@ -204,13 +204,13 @@ public class Robot extends LoggedRobot {
         }
 
         boolean isFieldOriented
-            = SwerveDrive.getMode() == SwerveMode.HEADLESS
-            || SwerveDrive.getMode() == SwerveMode.SET_ANGLE;
+            = SwerveDrive.getMode() == SwerveMode.Headless
+            || SwerveDrive.getMode() == SwerveMode.SetAngle;
 
         // Left stick changes between headless and relative control modes.
         if (controllerDriver.getLeftStickButtonReleased()) {
             SwerveDrive.setMode(
-                isFieldOriented ? SwerveMode.RELATIVE : SwerveMode.HEADLESS
+                isFieldOriented ? SwerveMode.Relative : SwerveMode.Headless
             );
         }
 
@@ -231,26 +231,26 @@ public class Robot extends LoggedRobot {
         if (pov != -1 && isFieldOriented) {
             Angle angle = new Angle().setDegrees(-(double) pov);
 
-            SwerveDrive.setMode(SwerveMode.SET_ANGLE);
+            SwerveDrive.setMode(SwerveMode.SetAngle);
             SwerveDrive.setTargetAngle(angle);
         }
 
         // If the driver is not actively turning the robot, enable automated turn control to
         // compensate for drift.
         if (
-            SwerveDrive.getMode() == SwerveMode.HEADLESS &&
+            SwerveDrive.getMode() == SwerveMode.Headless &&
             Math.abs(controllerDriver.getRightX()) < 0.15
         ) {
             SwerveDrive.setTargetAngle(Pigeon.getYaw());
-            SwerveDrive.setMode(SwerveMode.SET_ANGLE);
+            SwerveDrive.setMode(SwerveMode.SetAngle);
         }
 
         // If the driver tries to trun the robot, drop out of automated turn control.
         if (
-            SwerveDrive.getMode() == SwerveMode.SET_ANGLE &&
+            SwerveDrive.getMode() == SwerveMode.SetAngle &&
             Math.abs(controllerDriver.getRightX()) > 0.15
         ) {
-            SwerveDrive.setMode(SwerveMode.HEADLESS);
+            SwerveDrive.setMode(SwerveMode.Headless);
         }
 
         SwerveDrive.conditionalTempTranslationCurve(
@@ -267,10 +267,10 @@ public class Robot extends LoggedRobot {
             controllerDriver.getXButton()
         ); // Lessen translation speed and lock cardinal directions.
 
-        SwerveDrive.conditionalTempMode(SwerveMode.ROCK, controllerDriver.getBButton());
-        SwerveDrive.conditionalTempMode(SwerveMode.RELATIVE, controllerDriver.getYButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.Rock, controllerDriver.getBButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.Relative, controllerDriver.getYButton());
 
-        SwerveDrive.conditionalTempMode(SwerveMode.FOLLOW_PATH, controllerDriver.getAButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.FollowPath, controllerDriver.getAButton());
 
         SwerveDrive.run(
             -controllerDriver.getLeftY(),
