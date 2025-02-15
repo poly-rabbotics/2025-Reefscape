@@ -165,6 +165,8 @@ public class Coral {
                 return PIVOT_POINT_L3;
             case ScoringL4:
                 return PIVOT_POINT_L4;
+            case Intaking:
+                return PIVOT_POINT_INTAKE;
             case Stowed:
             default:
                 return PIVOT_POINT_STOW;

@@ -70,6 +70,21 @@ public class AutonomousManager {
         };
     }
 
+    private static Function<StepStatus, StepStatus> makeTimedStep(double time) {
+        Timer stepTimer = new Timer();
+
+        return (prevState) -> {
+            if (!stepTimer.isRunning()) {
+                stepTimer.start();
+            }
+
+            if (stepTimer.get() >= time && prevState == StepStatus.Done) {
+                return StepStatus.Done;
+            }
+
+            return StepStatus.Running;
+        };
+    }
     private static Function<StepStatus, StepStatus> makeTimedStep(double time, Runnable fn) {
         Timer stepTimer = new Timer();
 
@@ -167,7 +182,7 @@ public class AutonomousManager {
             .andThen(makeDriveStep(new Pose2d(12.5, 5.0, new Rotation2d(-60.0 / 180.0 * Math.PI))))
             .and(makeElevatorStep(ElevatorPose.ScoringL4))
             .and(makeIntakePivotStep(IntakePivotPoint.ScoringL4))
-            .andThen(makeTimedStep(5.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
+            .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
             .andThen(makeStep(() -> CoralIntake.setIntakeState(IntakeState.Idle)))
             .and(makeElevatorStep(ElevatorPose.Intaking))
             .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
@@ -177,27 +192,61 @@ public class AutonomousManager {
             .andThen(makeDriveStep(new Pose2d(14.3,4, new Rotation2d(180.0 / 180.0 * Math.PI))))
             .and(makeElevatorStep(ElevatorPose.ScoringL2))
             .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
-            .andThen(makeTimedStep(5.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makestep(() -> CoralIntake.setIntakeState(IntakeState.Intaking)))
+            .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
+            .andThen(makeStep(() -> CoralIntake.setIntakeState(IntakeState.Intaking)))
             .and(makeElevatorStep(ElevatorPose.Intaking))
             .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
-            .and(makeDriveStep(new Pose2d(16.0, 0.6, new Rotation2d(-54 / 180 * Math.PI))))
-            .and(makeTimedStep(5.0))
-            .and(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120.0/ 180.0 * Math.Pi))));
+            .andThen(makeDriveStep(new Pose2d(16.0, 0.6, new Rotation2d(-54 / 180 * Math.PI))))
+            .andThen(makeTimedStep(5.0))
+            .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120.0/ 180.0 * Math.Pi))));
             
         procedures[3] = new AutonomousProcedure()
-            .andThen(makeDriveStep(new pose2d(12.5, 3, new Rotation2d(60 / 180 * Math.PI))))
+            .andThen(makeDriveStep(new Pose2d(12.5, 3, new Rotation2d(60 / 180 * Math.PI))))
             .and(makeElevatorStep(ElevatorPose.ScoringL4))
             .and(makeIntakePivotStep(IntakePivotPoint.ScoringL4))
-            .andThen(maketimedStep(5.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeStep( ()-> CoralIntake.SetIntakeState(IntakeState.IDLE)))
-            .and(makeElevatorStep(ElevatorPose.Intaking))
+            .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
+            .andThen(makeStep( ()-> CoralIntake.SetIntakeState(IntakeState.Idle)))
+            .and(makeElevatorStep(ElevatorPose.Stowed))
             .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
             .and(makeDriveStep(new Pose2d(14.3, 4, new Rotation2d(180 / 180 * Math.PI))));
 
         procedures[4] = new AutonomousProcedure()
-            
+           .andThen(makeDriveStep(new Pose2d(12, 4, new Rotation2d(0 / 180 * Math.PI))))
+           .and(makeElevatorStep(ElevatorPose.ScoringL2));
+           .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+           .andThen(maketimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
+           .andThen(makestep(() -> CoralIntake.setIntake(IntakeState.Intaking)))
+           .and(makeElevatorStep(ElevatorPose.Intaking))
+           .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+           .and(makeDriveStep(new Pose2d(16, 7.4, new Rotation2d( 54 / 180 * Math.PI))))
+           .andThen(makeTimedStep(5.0))
+           .andThen(makestep(() -> CoralIntake.setIntake(IntakeState.Idle)))
+           .and(makeDriveStep(new Pose2d(13.7, 5.1, new Rotation2d( -120 / 180 * Math.PI))))
+           .and(makeElevatorStep(ElevatorPose.ScoringL2))
+           .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+           .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
+           .andThen(makeElevatorStep(ElevatorPose.Stowed))
+           .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+           .and(makeStep( ()-> CoralIntake.SetIntakeState(IntakeState.Idle)));
 
-            
+        procedures[5] = new AutonomousProcedure()
+           .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120 / 180 * Math.PI))))
+           .and(makeElevatorStep(ElevatorPose.ScoringL3))
+           .and(makeIntakePivotStep(IntakePivotPoint.ScoringL3))
+           .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
+           .andThen(makeElevatorStep(ElevatorPose.intaking))
+           .and(makeIntakePivotStep(IntakePivotPoint.intaking))
+           .and(makestep(() -> CoralIntake.setIntake(IntakeState.Intaking)))
+           .and(makeDriveStep(new Pose2d(16, 0.6, new Rotation2d( -54 / 180 * Math.Pi))))
+           .and(makeTimedStep(5.0))
+           .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d( 120 / 180 * Math.Pi))))
+           .and(makeElevatorStep(ElevatorPose.ScoringL2))
+           .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+           .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
+           .andThen(makeElevatorStep(ElevatorPose.Stowed))
+           .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+           .and(makeStep( ()-> CoralIntake.SetIntakeState(IntakeState.Idle)));
+
+        
     }
 }
