@@ -38,14 +38,14 @@ public class Coral {
     private static final PIDController pivotController
         = new PIDController(PIVOT_PID_P, PIVOT_PID_I, PIVOT_PID_D);
 
-    private static IntakePivotPoint currentScoringPoint = IntakePivotPoint.Stowed;
+    private static ScoringPoint currentScoringPoint = ScoringPoint.Stowed;
     private static Angle pivotSetAngle = PIVOT_POINT_STOW;
 
     public enum IntakeState {
         Intaking, Outtaking, Idle
     }
 
-    public enum IntakePivotPoint {
+    public enum ScoringPoint {
         ScoringL1, ScoringL2, ScoringL3, ScoringL4, Stowed, Intaking
     }
 
@@ -75,7 +75,7 @@ public class Coral {
     /**
      * Sets the pivot's set position.
      */
-    public static void pivotTo(IntakePivotPoint setPivot) {
+    public static void pivotTo(ScoringPoint setPivot) {
         currentScoringPoint = setPivot;
         pivotSetAngle = pivotAngle(setPivot);
     }
@@ -111,17 +111,17 @@ public class Coral {
         }
 
         if(stowedPose) {
-            currentScoringPoint = IntakePivotPoint.Stowed;
+            currentScoringPoint = ScoringPoint.Stowed;
         } else if(intakePose) {
-            currentScoringPoint = IntakePivotPoint.Intaking;
+            currentScoringPoint = ScoringPoint.Intaking;
         } else if(l1Pose) {
-            currentScoringPoint = IntakePivotPoint.ScoringL1;
+            currentScoringPoint = ScoringPoint.ScoringL1;
         } else if(l2Pose) {
-            currentScoringPoint = IntakePivotPoint.ScoringL2;
+            currentScoringPoint = ScoringPoint.ScoringL2;
         } else if(l3Pose) {
-            currentScoringPoint = IntakePivotPoint.ScoringL3;
+            currentScoringPoint = ScoringPoint.ScoringL3;
         } else if(l4Pose) {
-            currentScoringPoint = IntakePivotPoint.ScoringL4;
+            currentScoringPoint = ScoringPoint.ScoringL4;
         }
 
         pivotAngle(currentScoringPoint);
@@ -155,7 +155,7 @@ public class Coral {
         pivotMotor.set(speed / 10.0);
     }
 
-    private static Angle pivotAngle(IntakePivotPoint setPivot) {
+    private static Angle pivotAngle(ScoringPoint setPivot) {
         switch (setPivot) {
             case ScoringL1:
                 return PIVOT_POINT_L1;

@@ -13,9 +13,9 @@ import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
-import frc.robot.systems.CoralIntake.IntakePivotPoint;
+import frc.robot.systems.CoralIntake.ScoringPoint;
 import frc.robot.systems.CoralIntake.IntakeState;
-import frc.robot.systems.Elevator.ElevatorPose;
+import frc.robot.systems.Elevator.ScoringPoint;
 
 public class AutonomousManager {
     private static final int AUTO_SWITCH_COUNT = 4;
@@ -150,7 +150,7 @@ public class AutonomousManager {
             && Math.abs(measuredAngle - setAngle) < TOLERANCE_THETA;
     }
 
-    public static Function<StepStatus, StepStatus> makeElevatorStep(ElevatorPose pose) {
+    public static Function<StepStatus, StepStatus> makeElevatorStep(ScoringPoint pose) {
         return (prevState) -> {
             Elevator.setPose(pose);
 
@@ -162,7 +162,7 @@ public class AutonomousManager {
         };
     }
 
-    public static Function<StepStatus, StepStatus> makeIntakePivotStep(IntakePivotPoint point) {
+    public static Function<StepStatus, StepStatus> makeIntakePivotStep(ScoringPoint point) {
         return (prevState) -> {
             CoralIntake.pivotTo(point);
 
@@ -180,89 +180,89 @@ public class AutonomousManager {
 
         procedures[1] = new AutonomousProcedure()
             .andThen(makeDriveStep(new Pose2d(12.5, 5.0, new Rotation2d(-60.0 / 180.0 * Math.PI))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL4))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL4))
+            .and(makeElevatorStep(ScoringPoint.ScoringL4))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL4))
             .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
             .andThen(makeStep(() -> CoralIntake.setIntakeState(IntakeState.Idle)))
-            .and(makeElevatorStep(ElevatorPose.Intaking))
-            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .and(makeElevatorStep(ScoringPoint.Intaking))
+            .and(makeIntakePivotStep(ScoringPoint.Intaking))
             .and(makeDriveStep(new Pose2d(16.0, 7.4, new Rotation2d(54.0 / 180.0 * Math.PI))));
 
         procedures[2] = new AutonomousProcedure()    
             .andThen(makeDriveStep(new Pose2d(14.3,4, new Rotation2d(180.0 / 180.0 * Math.PI))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL2))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+            .and(makeElevatorStep(ScoringPoint.ScoringL2))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL2))
             .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
             .andThen(makeStep(() -> CoralIntake.setIntakeState(IntakeState.Intaking)))
-            .and(makeElevatorStep(ElevatorPose.Intaking))
-            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .and(makeElevatorStep(ScoringPoint.Intaking))
+            .and(makeIntakePivotStep(ScoringPoint.Intaking))
             .andThen(makeDriveStep(new Pose2d(16.0, 0.6, new Rotation2d(-54 / 180 * Math.PI))))
             .andThen(makeTimedStep(5.0))
             .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120.0/ 180.0 * Math.Pi))));
             
         procedures[3] = new AutonomousProcedure()
             .andThen(makeDriveStep(new Pose2d(12.5, 3, new Rotation2d(60 / 180 * Math.PI))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL4))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL4))
+            .and(makeElevatorStep(ScoringPoint.ScoringL4))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL4))
             .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
             .andThen(makeStep( ()-> CoralIntake.SetIntakeState(IntakeState.Idle)))
-            .and(makeElevatorStep(ElevatorPose.Stowed))
-            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .and(makeElevatorStep(ScoringPoint.Stowed))
+            .and(makeIntakePivotStep(ScoringPoint.Intaking))
             .and(makeDriveStep(new Pose2d(14.3, 4, new Rotation2d(180 / 180 * Math.PI))));
 
         procedures[4] = new AutonomousProcedure()
             .andThen(makeDriveStep(new Pose2d(12, 4, new Rotation2d(0 / 180 * Math.PI))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL2))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+            .and(makeElevatorStep(ScoringPoint.ScoringL2))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL2))
             .andThen(maketimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
             .andThen(makestep(() -> CoralIntake.setIntake(IntakeState.Intaking)))
-            .and(makeElevatorStep(ElevatorPose.Intaking))
-            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .and(makeElevatorStep(ScoringPoint.Intaking))
+            .and(makeIntakePivotStep(ScoringPoint.Intaking))
             .and(makeDriveStep(new Pose2d(16, 7.4, new Rotation2d( 54 / 180 * Math.PI))))
             .andThen(makeTimedStep(5.0))
             .andThen(makestep(() -> CoralIntake.setIntake(IntakeState.Idle)))
             .and(makeDriveStep(new Pose2d(13.7, 5.1, new Rotation2d( -120 / 180 * Math.PI))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL2))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+            .and(makeElevatorStep(ScoringPoint.ScoringL2))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL2))
             .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ElevatorPose.Stowed))
-            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .andThen(makeElevatorStep(ScoringPoint.Stowed))
+            .and(makeIntakePivotStep(ScoringPoint.Intaking))
             .and(makeStep( ()-> CoralIntake.SetIntakeState(IntakeState.Idle)));
 
         procedures[5] = new AutonomousProcedure()
             .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120 / 180 * Math.PI))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL3))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL3))
+            .and(makeElevatorStep(ScoringPoint.ScoringL3))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL3))
             .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ElevatorPose.intaking))
-            .and(makeIntakePivotStep(IntakePivotPoint.intaking))
+            .andThen(makeElevatorStep(ScoringPoint.intaking))
+            .and(makeIntakePivotStep(ScoringPoint.intaking))
             .and(makestep(() -> CoralIntake.setIntake(IntakeState.Intaking)))
             .and(makeDriveStep(new Pose2d(16, 0.6, new Rotation2d( -54 / 180 * Math.Pi))))
             .and(makeTimedStep(5.0))
             .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d( 120 / 180 * Math.Pi))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL2))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+            .and(makeElevatorStep(ScoringPoint.ScoringL2))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL2))
             .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ElevatorPose.Stowed))
-            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .andThen(makeElevatorStep(ScoringPoint.Stowed))
+            .and(makeIntakePivotStep(ScoringPoint.Intaking))
             .and(makeStep(() -> CoralIntake.SetIntakeState(IntakeState.Idle)));
 
         procedures[6] = new AutonomousProcedure()
             .andThen(makeDriveStep(new Pose2d(11.8, 4, new Rotation2d(0 / 180 * Math.PI))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL3))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL3))
+            .and(makeElevatorStep(ScoringPoint.ScoringL3))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL3))
             .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ElevatorPose.intaking))
-            .and(makeIntakePivotStep(IntakePivotPoint.intaking))
+            .andThen(makeElevatorStep(ScoringPoint.intaking))
+            .and(makeIntakePivotStep(ScoringPoint.intaking))
             .and(makestep(() -> CoralIntake.setIntake(IntakeState.Intaking)))
             .and(makeDriveStep(new Pose2d(16, 7.4, new Rotation2d( 54 / 180 * Math.Pi))))
             .and(makeTimedStep(5.0))
             .andThen(makeDriveStep(new Pose2d(13.7, 5.1, new Rotation2d( -120 / 180 * Math.Pi))))
-            .and(makeElevatorStep(ElevatorPose.ScoringL2))
-            .and(makeIntakePivotStep(IntakePivotPoint.ScoringL2))
+            .and(makeElevatorStep(ScoringPoint.ScoringL2))
+            .and(makeIntakePivotStep(ScoringPoint.ScoringL2))
             .andThen(makeTimedStep(3.0, () -> CoralIntake.setIntake(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ElevatorPose.Stowed))
-            .and(makeIntakePivotStep(IntakePivotPoint.Intaking))
+            .andThen(makeElevatorStep(ScoringPoint.Stowed))
+            .and(makeIntakePivotStep(ScoringPoint.Intaking))
             .and(makeStep(() -> CoralIntake.SetIntakeState(IntakeState.Idle)));
     }
 }

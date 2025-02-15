@@ -1,7 +1,7 @@
 package frc.robot.subsystems.Coral;
 
 import edu.wpi.first.math.controller.PIDController;
-import frc.robot.systems.Coral.IntakePivotPoint;
+import frc.robot.systems.Coral.ScoringPoint;
 
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -21,19 +21,10 @@ public class Elevator{
 
     private final double POSE_TOLERANCE = 0.0;
 
-    private IntakePivotPoint setPose = IntakePivotPoint.Stowed;
+    private ScoringPoint setPose = ScoringPoint.Stowed;
     private double currentSetpoint = 0;
 
     private final TalonFX elfKraken;
-
-    public enum ElevatorPose {
-        Stowed,
-        Intaking,
-        ScoringL1,
-        ScoringL2,
-        ScoringL3,
-        ScoringL4
-    }
 
     private final PIDController controller = new PIDController(
         PID_P,
@@ -49,7 +40,7 @@ public class Elevator{
     /**
      * Set the desired position of the elevator.
      */
-    public void set(IntakePivotPoint pose){
+    public void set(ScoringPoint pose){
         setPose = pose;
 
         switch (setPose) {
@@ -107,7 +98,7 @@ public class Elevator{
     /**
      * Returns the setpoint enum of the elevator
      */
-    public IntakePivotPoint getSetpointEnum() {
+    public ScoringPoint getSetpointEnum() {
         return setPose;
     }
 
