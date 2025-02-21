@@ -3,10 +3,11 @@ package frc.robot.subsystems.Coral;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.math.controller.PIDController;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import frc.robot.systems.Coral.ScoringPoint;
@@ -51,7 +52,13 @@ public class Elevator {
         // Use `TalonFX.getPosition()`, not `TalonFX.getRotorPosition()` for elevator position.
         TalonFXConfiguration config = new TalonFXConfiguration()
             .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(INCHES_PER_ROTATION))
-            .withMotorOutput(new MotorOutputConfigs().withInverted(inverted));
+            .withMotorOutput(new MotorOutputConfigs().withInverted(inverted))
+            .withTorqueCurrent(new TorqueCurrentConfigs()
+                // These can potentially be used to reduce the maximum torque the motor exerts,
+                // which may be useful to limit chain skipping as well as force on the elevator.
+                .withPeakForwardTorqueCurrent(30.0)
+                .withPeakReverseTorqueCurrent(-30.0)
+            );
         elfKraken.getConfigurator().apply(config);
     }
 
