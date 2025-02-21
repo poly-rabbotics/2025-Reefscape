@@ -4,9 +4,15 @@ import edu.wpi.first.math.controller.PIDController;
 import frc.robot.systems.Coral.ScoringPoint;
 
 import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.wpilibj.DigitalInput;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class Elevator{
+
+    private final double MIN_HEIGHT = 0;
+    private final double MAX_HEIGHT = 51; // In inches
+
+    private final double TICKS_PER_INCH = 1; // Constant representing the number of motor encoder ticks per inch of vertical translation on the elevator.
 
     private final double PID_P = 0.0;
     private final double PID_I = 0.0;
@@ -23,6 +29,9 @@ public class Elevator{
 
     private ScoringPoint setPose = ScoringPoint.Stowed;
     private double currentSetpoint = 0;
+
+    private final DigitalInput bottomSwitch = new DigitalInput(1);
+    private final DigitalInput topSwitch = new DigitalInput(1);
 
     private final TalonFX elfKraken;
 
@@ -72,6 +81,13 @@ public class Elevator{
      * Run the elevator's devices according to its current state.
      */
     public void run(){
+        if(bottomSwitch.get()) {
+            elfKraken.setPosition(MIN_HEIGHT * TICKS_PER_INCH);
+        } else if(topSwitch.get()) {
+            elfKraken.setPosition(MAX_HEIGHT * TICKS_PER_INCH)
+        }
+
+
         elfKraken.set(controller.calculate(getPosition(), currentSetpoint));
     }
 
