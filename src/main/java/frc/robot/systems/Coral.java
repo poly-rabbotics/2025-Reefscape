@@ -40,7 +40,6 @@ public class Coral {
         = new PIDController(PIVOT_PID_P, PIVOT_PID_I, PIVOT_PID_D);
 
     private static ScoringPoint currentScoringPoint = ScoringPoint.Stowed;
-    private static Angle pivotSetAngle = PIVOT_POINT_STOW;
 
     public enum IntakeState {
         Intaking, Outtaking, Idle
@@ -78,14 +77,13 @@ public class Coral {
      */
     public static void pivotTo(ScoringPoint setPivot) {
         currentScoringPoint = setPivot;
-        pivotSetAngle = pivotAngle(setPivot);
     }
 
     /**
      * Returns true if the current position is within tolerance of the set position of the pivot.
      */
     public static boolean atPivotPoint() {
-        return Math.abs(pivotMotor.getEncoder().getPosition() - pivotSetAngle.degrees())
+        return Math.abs(pivotMotor.getEncoder().getPosition() - pivotAngle(currentScoringPoint).degrees())
             < PIVOT_TOLERANCE.degrees();
     }
 
@@ -129,7 +127,7 @@ public class Coral {
         
         double pivotSpeed = pivotController.calculate(
             pivotMotor.getEncoder().getPosition(),
-            pivotSetAngle.degrees()
+            pivotAngle(currentScoringPoint).degrees()
         );
 
         coralIntake.run();
@@ -143,7 +141,7 @@ public class Coral {
     public static void run() {
         double pivotSpeed = pivotController.calculate(
             pivotMotor.getEncoder().getPosition(),
-            pivotSetAngle.degrees()
+            pivotAngle(currentScoringPoint).degrees()
         );
 
         coralIntake.run();
@@ -178,7 +176,7 @@ public class Coral {
         Logger.recordOutput("Coral Intake Current", coralIntake.getCurrent());
 
         Logger.recordOutput("Coral Pivot Speed", pivotMotor.get());
-        Logger.recordOutput("Coral Pivot Set Angle (Degrees)", pivotSetAngle.degrees());
+        Logger.recordOutput("Coral Pivot Set Angle (Degrees)", pivotAngle(currentScoringPoint).degrees());
         Logger.recordOutput("Coral Pivot Setpoint", currentScoringPoint);
         Logger.recordOutput("Coral Pivot Position", pivotMotor.getAbsoluteEncoder().getPosition());
 
