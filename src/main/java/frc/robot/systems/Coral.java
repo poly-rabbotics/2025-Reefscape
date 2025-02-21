@@ -4,6 +4,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -29,7 +30,7 @@ public class Coral {
 
     private static final SparkMax pivotMotor = new SparkMax(5, MotorType.kBrushless);
     private static final CoralIntake coralIntake = new CoralIntake(7, 11);
-    private static final Elevator elevator = new Elevator(14);
+    private static final Elevator elevator = new Elevator(14, InvertedValue.CounterClockwise_Positive);
 
     private static final double PIVOT_PID_P = 0.0;
     private static final double PIVOT_PID_I = 0.0;
@@ -100,7 +101,6 @@ public class Coral {
      * @param l4Pose
      */
     public static void run(boolean intaking, boolean outtaking, boolean stowedPose, boolean intakePose, boolean l1Pose, boolean l2Pose, boolean l3Pose, boolean l4Pose) {
-        
         // Coral intake
         if (intaking) {
             setIntakeState(IntakeState.Intaking);
