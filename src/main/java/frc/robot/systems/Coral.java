@@ -30,7 +30,7 @@ public class Coral {
 
     private static final SparkMax pivotMotor = new SparkMax(5, MotorType.kBrushless);
     private static final CoralIntake coralIntake = new CoralIntake(7, 11);
-    private static final Elevator elevator = new Elevator(14, InvertedValue.CounterClockwise_Positive);
+    private static final Elevator elevator = new Elevator(14, InvertedValue.Clockwise_Positive);
 
     private static final double PIVOT_PID_P = 0.0;
     private static final double PIVOT_PID_I = 0.0;
