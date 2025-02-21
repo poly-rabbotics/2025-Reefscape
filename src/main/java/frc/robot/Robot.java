@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Coral.Elevator;
 import frc.robot.systems.*;
 import frc.robot.systems.Coral.IntakeState;
 

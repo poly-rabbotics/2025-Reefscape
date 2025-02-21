@@ -1,7 +1,5 @@
 package frc.robot.systems;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.subsystems.Algae.*;
 
