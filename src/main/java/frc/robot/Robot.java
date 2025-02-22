@@ -294,12 +294,13 @@ public class Robot extends LoggedRobot {
         Coral.run(
             controllerOperator.getAButton(), 
             controllerOperator.getBButton(), 
-            false, 
-            false, 
-            false ,
-            false ,
-            false, 
-            false);
+            controllerOperator.getYButtonReleased(), // Stow
+            controllerOperator.getXButtonReleased(), // Intake
+            false,
+            controllerOperator.getLeftBumperButtonReleased(),  // L2
+            controllerOperator.getRightBumperButtonReleased(), // L3
+            controllerOperator.getRightTriggerAxis() > 0.5     // L4
+        );
 
         // Algae intake
         Algae.run(
