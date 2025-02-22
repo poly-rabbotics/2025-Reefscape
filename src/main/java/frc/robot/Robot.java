@@ -301,12 +301,6 @@ public class Robot extends LoggedRobot {
             false, 
             false);
 
-        // TODO: Remove after testing.
-        Coral._overridePivotSpeed(
-            Math.abs(controllerOperator.getRightY()) > 0.15 ?
-                controllerOperator.getRightY() : 0.0
-        );
-
         // Algae intake
         Algae.run(
             controllerOperator.getYButtonPressed(),

@@ -14,9 +14,6 @@ public class ClimberPivot {
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
-    private static final Angle MAX_ANGLE = new Angle().setDegrees(180.0);
-    private static final Angle MIN_ANGLE = new Angle().setDegrees(0.0);
-
     private final SparkMax motorLeader;
     private final SparkMax motorFollower;
     private final PIDController controller = new PIDController(

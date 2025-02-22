@@ -7,6 +7,9 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class CoralIntake {
+    private static final double INTAKE_SPEED = -0.75;
+    private static final double OUTTAKE_SPEED = 0.75;
+
     private SparkMax rightMotor;
     private SparkMax leftMotor;
 

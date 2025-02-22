@@ -151,21 +151,9 @@ public class AutonomousManager {
 
     public static Function<StepStatus, StepStatus> makeElevatorStep(ScoringPoint pose) {
         return (prevState) -> {
-            Coral.elevator.set(pose);
+            Coral.setScoringPoint(pose);
 
-            if (Coral.elevator.atPosition() && prevState == StepStatus.Done) {
-                return StepStatus.Done;
-            }
-
-            return StepStatus.Running;
-        };
-    }
-
-    public static Function<StepStatus, StepStatus> makeIntakePivotStep(ScoringPoint point) {
-        return (prevState) -> {
-            Coral.pivotTo(point);
-
-            if (Coral.atPivotPoint() && prevState == StepStatus.Done) {
+            if (Coral.atScoringPoint() && prevState == StepStatus.Done) {
                 return StepStatus.Done;
             }
 
