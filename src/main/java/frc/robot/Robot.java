@@ -309,11 +309,11 @@ public class Robot extends LoggedRobot {
         );
 
         // Climber
-        /* Climber.run(
+        Climber.run(
             controllerOperator.getXButtonPressed(),
             Math.abs(controllerOperator.getLeftY()) > 0.15 ?
                 controllerOperator.getLeftY() : 0.0
-        ); */
+        );
     }
 
     XboxController simController = new XboxController(5);

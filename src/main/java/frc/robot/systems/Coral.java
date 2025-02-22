@@ -105,12 +105,15 @@ public class Coral {
         Logger.recordOutput("Coral Pivot Set Angle (Degrees)", pivot.getSetAngle().degrees());
         Logger.recordOutput("Coral Pivot Position (Degrees)", pivot.getAngle().degrees());
         Logger.recordOutput("Coral Pivot Setpoint", pivot.getSetPoint());
+        Logger.recordOutput("Coral Pivot Velocity", pivot.getVelocity());
+
         
         Logger.recordOutput("Elevator Set Point", elevator.getSetpointEnum());
         Logger.recordOutput("Elevator Set Point (Meters)", elevator.getSetpoint());
         Logger.recordOutput("Elevator Position", elevator.getPosition());
         Logger.recordOutput("Elevator At Pose", elevator.atPosition());
         Logger.recordOutput("Elevator Speed", elevator.getSpeed());
+        Logger.recordOutput("Elevator Velocity", elevator.getVelocity());
     }
 }
 

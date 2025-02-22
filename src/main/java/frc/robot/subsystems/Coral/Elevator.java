@@ -51,7 +51,6 @@ public class Elevator {
         // Configure motor to give position feedback in inches extension.
         // Use `TalonFX.getPosition()`, not `TalonFX.getRotorPosition()` for elevator position.
         TalonFXConfiguration config = new TalonFXConfiguration()
-            .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(INCHES_PER_ROTATION))
             .withMotorOutput(new MotorOutputConfigs().withInverted(inverted))
             .withTorqueCurrent(new TorqueCurrentConfigs()
                 // These can potentially be used to reduce the maximum torque the motor exerts,
@@ -67,9 +66,9 @@ public class Elevator {
      */
     public void run(){
         if (bottomSwitch.get()) {
-            elfKraken.setPosition(MIN_HEIGHT_INCHES);
+            setPosition(MIN_HEIGHT_INCHES);
         } else if (topSwitch.get()) {
-            elfKraken.setPosition(MAX_HEIGHT_INCHES);
+            setPosition(MAX_HEIGHT_INCHES);
         }
 
         elfKraken.set(controller.calculate(getPosition(), getSetpoint()));
@@ -100,7 +99,11 @@ public class Elevator {
      * position may be easily changed between being an internal or external sensor.
      */
     public double getPosition() {
-        return elfKraken.getPosition().getValueAsDouble();
+        return elfKraken.getPosition().getValueAsDouble() * INCHES_PER_ROTATION;
+    }
+
+    public void setPosition(double pose) {
+        elfKraken.setPosition(pose / INCHES_PER_ROTATION);
     }
 
     /**
@@ -121,6 +124,9 @@ public class Elevator {
         return elfKraken.get();
     }
 
+    public double getVelocity() {
+        return elfKraken.getVelocity().getValueAsDouble();
+    }
     /**
      * Get an extension, in inches, based on the given `ScoringPoint`.
      */

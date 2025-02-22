@@ -14,13 +14,14 @@ import frc.robot.systems.Coral.ScoringPoint;
 
 public class CoralPivot {
     private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(2.5);
+    private static final Angle PIVOT_OFFSET = new Angle().setDegrees(262.0);
 
     private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(0.0);
-    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(45.0);
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
-    private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-35.0);
-    private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-35.0);
-    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-20.0);
+    private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-20.0);
+    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-30.0);
 
     private static final double PID_P = 0.0;
     private static final double PID_I = 0.0;
@@ -37,7 +38,7 @@ public class CoralPivot {
         SparkMaxConfig motorConfig = new SparkMaxConfig();
         AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
 
-        encoderConfig.positionConversionFactor(360.0 / 9.0);
+        encoderConfig.positionConversionFactor(360.0);
         motorConfig.apply(encoderConfig);
         motor.configure(
             motorConfig,
@@ -77,7 +78,9 @@ public class CoralPivot {
     }
 
     public Angle getAngle() {
-        return new Angle().setDegrees(360.0 * motor.getAbsoluteEncoder().getPosition());
+        return new Angle()
+            .setDegrees(-motor.getAbsoluteEncoder().getPosition())
+            .sub(PIVOT_OFFSET);
     }
 
     public Angle getSetAngle() {
@@ -86,6 +89,10 @@ public class CoralPivot {
 
     public ScoringPoint getSetPoint() {
         return scoringPoint;
+    }
+
+    public double getVelocity() {
+        return motor.getEncoder().getVelocity();
     }
 
     /**
