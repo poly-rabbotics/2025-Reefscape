@@ -97,6 +97,14 @@ public class Coral {
         return elevator.atPosition() && pivot.atPivotPoint();
     }
 
+    public static void _setPivotSpeed(double pivotSpeed) {
+        pivot._setSpeed(pivotSpeed);
+    }
+
+    public static void _setElevatorSpeed(double elevatorSpeed) {
+        elevator._setSpeed(elevatorSpeed);
+    }
+
     public static void recordState() {
         Logger.recordOutput("Coral Intake Speed", coralIntake.get());
         Logger.recordOutput("Coral Intake Current", coralIntake.getCurrent());

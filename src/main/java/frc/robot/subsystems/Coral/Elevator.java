@@ -123,6 +123,10 @@ public class Elevator {
         return elfKraken.get();
     }
 
+    public void _setSpeed(double speed) {
+        elfKraken.set(speed);
+    }
+
     public double getVelocity() {
         return elfKraken.getVelocity().getValueAsDouble();
     }

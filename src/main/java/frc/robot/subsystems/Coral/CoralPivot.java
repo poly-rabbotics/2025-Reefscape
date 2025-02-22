@@ -95,6 +95,10 @@ public class CoralPivot {
         return motor.getEncoder().getVelocity();
     }
 
+    public void _setSpeed(double speed) {
+        motor.set(speed);
+    }
+    
     /**
      * Gives the pivot `Angle` associated with the given `ScoringPoint`.
      */

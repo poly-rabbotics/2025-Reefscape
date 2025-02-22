@@ -282,7 +282,6 @@ public class Robot extends LoggedRobot {
      * from the operator's controller.
      */
     public void operatorTeleop() {
-
         Coral.run(
             (controllerOperator.getLeftTriggerAxis() > 0.5), //Intaking
             (controllerOperator.getRightTriggerAxis() > 0.5), //Outtaking
@@ -302,10 +301,21 @@ public class Robot extends LoggedRobot {
 
         // Climber
         Climber.run(
-            controllerOperator.getRightStickButtonPressed(),
+            controllerOperator.getLeftBumperButtonPressed(),
             Math.abs(controllerOperator.getLeftY()) > 0.15 ?
                 controllerOperator.getRightY() : 0.0
         );
+
+        double pivotSpeed = controllerOperator.getRightX();
+        double elevatorSpeed = controllerOperator.getRightY();
+
+        if (Math.abs(pivotSpeed) > 0.15) {
+            Coral._setPivotSpeed(pivotSpeed);
+        }
+
+        if (Math.abs(elevatorSpeed) > 0.15) {
+            Coral._setElevatorSpeed(elevatorSpeed);
+        }
     }
 
     XboxController simController = new XboxController(5);
