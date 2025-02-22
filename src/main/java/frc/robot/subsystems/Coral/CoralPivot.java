@@ -15,11 +15,11 @@ import frc.robot.systems.Coral.ScoringPoint;
 public class CoralPivot {
     private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(2.5);
 
-    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(110.0);
+    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(0.0);
-    private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(210.0);
-    private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(0.0);
-    private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-35.0);
+    private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-35.0);
     private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(0.0);
 
     private static final double PID_P = 0.0;
