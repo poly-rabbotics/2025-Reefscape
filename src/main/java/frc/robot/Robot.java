@@ -282,37 +282,29 @@ public class Robot extends LoggedRobot {
      * from the operator's controller.
      */
     public void operatorTeleop() {
-        // Coral intake
-        if (controllerOperator.getAButton()) {
-            Coral.setIntakeState(IntakeState.Intaking);
-        } else if (controllerOperator.getBButton()) {
-            Coral.setIntakeState(IntakeState.Outtaking);
-        } else {
-            Coral.setIntakeState(IntakeState.Idle);
-        }
 
         Coral.run(
-            controllerOperator.getAButton(), 
-            controllerOperator.getBButton(), 
-            controllerOperator.getYButtonReleased(), // Stow
-            controllerOperator.getXButtonReleased(), // Intake
+            (controllerOperator.getLeftTriggerAxis() > 0.5), //Intaking
+            (controllerOperator.getRightTriggerAxis() > 0.5), //Outtaking
+            controllerOperator.getRightBumperButtonPressed(), // Stow
+            controllerOperator.getAButtonPressed(), // Intake
             false,
-            controllerOperator.getLeftBumperButtonReleased(),  // L2
-            controllerOperator.getRightBumperButtonReleased(), // L3
-            controllerOperator.getRightTriggerAxis() > 0.5     // L4
+            controllerOperator.getXButtonPressed(),  // L2
+            controllerOperator.getBButtonPressed(), // L3
+            controllerOperator.getYButtonPressed()     // L4
         );
 
         // Algae intake
-        Algae.run(
+        /* Algae.run(
             controllerOperator.getYButtonPressed(),
             controllerOperator.getRightTriggerAxis() - controllerOperator.getLeftTriggerAxis()
-        );
+        ); */
 
         // Climber
         Climber.run(
-            controllerOperator.getXButtonPressed(),
+            controllerOperator.getRightStickButtonPressed(),
             Math.abs(controllerOperator.getLeftY()) > 0.15 ?
-                controllerOperator.getLeftY() : 0.0
+                controllerOperator.getRightY() : 0.0
         );
     }
 
