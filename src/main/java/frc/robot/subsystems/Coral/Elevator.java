@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.math.controller.PIDController;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
@@ -18,7 +17,7 @@ public class Elevator {
 
     private static final double GEAR_RATIO = 1.0 / (9.0 * 5.0);
     private static final double SPROCKET_DIAMETER_INCHES = 2;
-    private static final double INCHES_PER_ROTATION = GEAR_RATIO * 2 * Math.PI * SPROCKET_DIAMETER_INCHES;
+    private static final double INCHES_PER_ROTATION = GEAR_RATIO * Math.PI * SPROCKET_DIAMETER_INCHES;
 
     private static final double PID_P = 0.0;
     private static final double PID_I = 0.0;
