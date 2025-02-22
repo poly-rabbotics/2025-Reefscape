@@ -27,7 +27,7 @@ public class Elevator {
     private static final double POSE_INTAKING = 0.0;
     private static final double POSE_SCORING_L1 = 0.0;
     private static final double POSE_SCORING_L2 = 0.0;
-    private static final double POSE_SCORING_L3 = 0.0;
+    private static final double POSE_SCORING_L3 = 5.5;
     private static final double POSE_SCORING_L4 = 48.0;
 
     private static final double POSE_TOLERANCE = 0.0;

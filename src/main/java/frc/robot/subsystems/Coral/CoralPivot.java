@@ -16,12 +16,12 @@ public class CoralPivot {
     private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(2.5);
     private static final Angle PIVOT_OFFSET = new Angle().setDegrees(262.0);
 
-    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(0.0);
-    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(45.0);
+    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(90.0);
+    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(42.0);
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
-    private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-20.0);
+    private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-20.0);
-    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-30.0);
+    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-25.0);
 
     private static final double PID_P = 0.0;
     private static final double PID_I = 0.0;
