@@ -64,7 +64,7 @@ public class Elevator {
     /**
      * Run the elevator's devices according to its current state.
      */
-    public void run(boolean algae) {
+    public void run(boolean l2Algae, boolean l3Algae) {
         if (!bottomSwitch.get()) {
             setPosition(MIN_HEIGHT_INCHES);
         } else if (!topSwitch.get()) {
@@ -75,9 +75,9 @@ public class Elevator {
             elfKraken.setPosition(0);
         }
 
-        if (algae && setPose == ScoringPoint.ScoringL2) {
+        if (l2Algae) {
             elfKraken.set(controller.calculate(getPosition(), POSE_SCORING_L3 - 6.0));
-        } else if (algae && setPose == ScoringPoint.ScoringL3) {
+        } else if (l3Algae) {
             elfKraken.set(controller.calculate(getPosition(), POSE_SCORING_L3 + 3.0));
         } else {
             elfKraken.set(controller.calculate(getPosition(), getSetpoint()));

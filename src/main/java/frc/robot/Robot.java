@@ -9,14 +9,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
-import frc.robot.systems.*;
-import frc.robot.systems.Coral.IntakeState;
+import frc.robot.systems.*;    
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -37,6 +37,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
     private static final int CONTROLLER_PORT_DRIVER = 0;
     private static final int CONTROLLER_PORT_OPERATOR = 1;
+    private static final int CONTROL_PANEL_PORT_ELEVATOR = 2; // CONTROLLER PANEL WITH ELEVATOR SETPOINTS
+    private static final int CONTROL_PANEL_PORT_CLIMB = 3; // CONTROLLER PANEL WITH SWITCHES, INTAKE, & CLIMB
 
     private static Compressor comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
 
@@ -44,6 +46,10 @@ public class Robot extends LoggedRobot {
         = new XboxController(CONTROLLER_PORT_DRIVER);
     private static final XboxController controllerOperator
         = new XboxController(CONTROLLER_PORT_OPERATOR);
+    private static final Joystick controlPanelElevator
+        = new Joystick(CONTROL_PANEL_PORT_ELEVATOR);
+    private static final Joystick controlPanelClimb
+        = new Joystick(CONTROL_PANEL_PORT_CLIMB);
 
     private static PowerDistribution powerDistributionHub
         = new PowerDistribution(1, ModuleType.kRev);
@@ -145,7 +151,7 @@ public class Robot extends LoggedRobot {
         });
         
         SwerveDrive.run();
-        Coral.run(false);
+        Coral.run(false, false);
     }
 
     @Override
@@ -290,27 +296,19 @@ public class Robot extends LoggedRobot {
         }
 
         Coral.run(
-            (controllerOperator.getLeftTriggerAxis() > 0.5), //Intaking
-            (controllerOperator.getRightTriggerAxis() > 0.5), //Outtaking
-            controllerOperator.getRightBumperButtonPressed(), // Stow
-            controllerOperator.getAButtonPressed(), // Intake
-            false,
-            controllerOperator.getXButtonPressed(),  // L2
-            controllerOperator.getBButtonPressed(), // L3
-            false, //controllerOperator.getYButtonPressed()     // L4
+            controlPanelClimb.getRawButton(10), //Intaking
+            controlPanelClimb.getRawButton(9), //Outtaking
+            false, // Stow
+            controlPanelElevator.getRawButton(8), // Intake
+            controlPanelElevator.getRawButton(1),
+            controlPanelElevator.getRawButton(2),  // L2
+            controlPanelElevator.getRawButton(3), // L3
+            false, //controlPanelElevator.getRawButton(4),     // L4
             algaeSpeed,
-            controllerOperator.getBackButton()
+            controlPanelElevator.getRawButton(6),
+            controlPanelElevator.getRawButton(5)
         );
-
-        // Climber
-        Climber.run(
-            controllerOperator.getLeftBumperButtonPressed(),
-            controllerOperator.getPOV() == 270,
-            (Math.abs(controllerOperator.getLeftY()) > 0.15) ?
-                (controllerOperator.getLeftY()) : 0.0,
-            controllerOperator.getPOV() == 90
-        );
-
+        
         double pivotSpeed = controllerOperator.getRightX();
         double elevatorSpeed = controllerOperator.getRightY();
 
@@ -322,7 +320,7 @@ public class Robot extends LoggedRobot {
             Coral._setElevatorSpeed(-elevatorSpeed);
         }
 
-        if (controllerOperator.getStartButtonReleased()) {
+        if (controlPanelElevator.getRawButton(8)) {
             Coral._setElevatorPose(0.0);
         }
     }

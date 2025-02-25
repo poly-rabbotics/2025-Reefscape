@@ -34,7 +34,7 @@ public class Coral {
      * @param l3Pose
      * @param l4Pose
      */
-    public static void run(boolean intaking, boolean outtaking, boolean stowedPose, boolean intakePose, boolean l1Pose, boolean l2Pose, boolean l3Pose, boolean l4Pose, double algaeSpeed, boolean isAlgae) {
+    public static void run(boolean intaking, boolean outtaking, boolean stowedPose, boolean intakePose, boolean l1Pose, boolean l2Pose, boolean l3Pose, boolean l4Pose, double algaeSpeed, boolean l2Algae, boolean l3Algae) {
         // Coral intake
         if (intaking) {
             setIntakeState(IntakeState.Intaking);
@@ -44,8 +44,8 @@ public class Coral {
             setIntakeState(IntakeState.Idle);
         }
 
-        if (stowedPose) {
-            currentScoringPoint = ScoringPoint.Stowed;
+        if (l4Pose) {
+            currentScoringPoint = ScoringPoint.ScoringL4;
         } else if (intakePose) {
             currentScoringPoint = ScoringPoint.Intaking;
         } else if (l1Pose) {
@@ -54,24 +54,24 @@ public class Coral {
             currentScoringPoint = ScoringPoint.ScoringL2;
         } else if (l3Pose) {
             currentScoringPoint = ScoringPoint.ScoringL3;
-        } else if (l4Pose) {
-            currentScoringPoint = ScoringPoint.ScoringL4;
+        } else {
+            currentScoringPoint = ScoringPoint.Stowed;
         }
 
         elevator.set(currentScoringPoint);
         pivot.pivotTo(currentScoringPoint);
         algae.run(algaeSpeed);
         
-        run(isAlgae);
+        run(l2Algae, l3Algae);
     }
 
     /**
      * Overload of run function for autos & stuffs
      */
-    public static void run(boolean isAlgae) {
-        pivot.run(isAlgae);
+    public static void run(boolean l2Algae, boolean l3Algae) {
+        pivot.run(l2Algae, l3Algae);
         coralIntake.run();
-        elevator.run(isAlgae);
+        elevator.run(l2Algae, l3Algae);
     }
 
     public static void setIntakeState(IntakeState state) {
