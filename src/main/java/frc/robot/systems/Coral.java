@@ -11,6 +11,7 @@ public class Coral {
     private static final CoralIntake coralIntake = new CoralIntake(7, 11);
     private static final CoralPivot pivot = new CoralPivot(5);
     private static final Elevator elevator = new Elevator(14, InvertedValue.Clockwise_Positive);
+    private static final CoralIntakesLittleBrother algae = new CoralIntakesLittleBrother(0);
 
     private static ScoringPoint currentScoringPoint = ScoringPoint.Stowed;
 
@@ -33,7 +34,7 @@ public class Coral {
      * @param l3Pose
      * @param l4Pose
      */
-    public static void run(boolean intaking, boolean outtaking, boolean stowedPose, boolean intakePose, boolean l1Pose, boolean l2Pose, boolean l3Pose, boolean l4Pose) {
+    public static void run(boolean intaking, boolean outtaking, boolean stowedPose, boolean intakePose, boolean l1Pose, boolean l2Pose, boolean l3Pose, boolean l4Pose, double algaeSpeed, boolean isAlgae) {
         // Coral intake
         if (intaking) {
             setIntakeState(IntakeState.Intaking);
@@ -59,17 +60,18 @@ public class Coral {
 
         elevator.set(currentScoringPoint);
         pivot.pivotTo(currentScoringPoint);
+        algae.run(algaeSpeed);
         
-        run();
+        run(isAlgae);
     }
 
     /**
      * Overload of run function for autos & stuffs
      */
-    public static void run() {
-        pivot.run();
+    public static void run(boolean isAlgae) {
+        pivot.run(isAlgae);
         coralIntake.run();
-        elevator.run();
+        elevator.run(isAlgae);
     }
 
     public static void setIntakeState(IntakeState state) {
@@ -103,6 +105,10 @@ public class Coral {
 
     public static void _setElevatorSpeed(double elevatorSpeed) {
         elevator._setSpeed(elevatorSpeed);
+    }
+
+    public static void _setElevatorPose(double pose) {
+        elevator.setPosition(pose);
     }
 
     public static void recordState() {

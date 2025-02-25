@@ -17,9 +17,9 @@ public class Elevator {
 
     private static final double GEAR_RATIO = 1.0 / (9.0 * 5.0);
     private static final double SPROCKET_DIAMETER_INCHES = 2;
-    private static final double INCHES_PER_ROTATION = GEAR_RATIO * Math.PI * SPROCKET_DIAMETER_INCHES;
+    private static final double INCHES_PER_ROTATION = GEAR_RATIO * Math.PI * SPROCKET_DIAMETER_INCHES * 3;
 
-    private static final double PID_P = 0.0;
+    private static final double PID_P = 0.75;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
@@ -27,7 +27,7 @@ public class Elevator {
     private static final double POSE_INTAKING = 0.0;
     private static final double POSE_SCORING_L1 = 0.0;
     private static final double POSE_SCORING_L2 = 0.0;
-    private static final double POSE_SCORING_L3 = 5.5;
+    private static final double POSE_SCORING_L3 = 33.44; //28.0;
     private static final double POSE_SCORING_L4 = 48.0;
 
     private static final double POSE_TOLERANCE = 0.0;
@@ -58,19 +58,30 @@ public class Elevator {
                 .withPeakReverseTorqueCurrent(-30.0)
             );
         elfKraken.getConfigurator().apply(config);
+        elfKraken.setPosition(0.0);
     }
 
     /**
      * Run the elevator's devices according to its current state.
      */
-    public void run(){
-        if (bottomSwitch.get()) {
+    public void run(boolean algae) {
+        if (!bottomSwitch.get()) {
             setPosition(MIN_HEIGHT_INCHES);
-        } else if (topSwitch.get()) {
+        } else if (!topSwitch.get()) {
             setPosition(MAX_HEIGHT_INCHES);
         }
 
-        elfKraken.set(controller.calculate(getPosition(), getSetpoint()));
+        if(elfKraken.getPosition().getValueAsDouble() < 0) {
+            elfKraken.setPosition(0);
+        }
+
+        if (algae && setPose == ScoringPoint.ScoringL2) {
+            elfKraken.set(controller.calculate(getPosition(), POSE_SCORING_L3 - 6.0));
+        } else if (algae && setPose == ScoringPoint.ScoringL3) {
+            elfKraken.set(controller.calculate(getPosition(), POSE_SCORING_L3 + 3.0));
+        } else {
+            elfKraken.set(controller.calculate(getPosition(), getSetpoint()));
+        }
     }
 
     /**
@@ -86,11 +97,6 @@ public class Elevator {
      */
     public boolean atPosition() {
         return Math.abs(getPosition() - extensionFromScoringPose(setPose)) < POSE_TOLERANCE;
-    }
-
-    //TODO: REMOVE THIS FOR MANUAL/PID MODE CONTROL
-    public  void _overrideElevatorSpeed(double speed) {
-        elfKraken.set(speed);
     }
 
     /**

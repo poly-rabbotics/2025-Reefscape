@@ -10,12 +10,15 @@ import edu.wpi.first.math.controller.PIDController;
 import frc.robot.subsystems.Angle;
 
 public class ClimberPivot {
-    private static final double PID_P = 0.0;
+    private static final double CLIMB_HIGH_POINT = 60.02;
+    private static final double CLIMB_LOW_POINT = 39.66;
+    private static final double GRABBING_POINT = 91.7;
+
+    private static final double PID_P = 0.5;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
-    private final SparkMax motorLeader;
-    private final SparkMax motorFollower;
+    private final SparkMax motor;
     private final PIDController controller = new PIDController(
         PID_P,
         PID_I,
@@ -25,9 +28,8 @@ public class ClimberPivot {
     private double speed = 0.0;
     private Angle setAngle = null;
 
-    public ClimberPivot(int leftId, int rightId, boolean inverted, boolean encInverted) {
-        motorLeader = new SparkMax(leftId, MotorType.kBrushless);
-        motorFollower = new SparkMax(rightId, MotorType.kBrushless);
+    public ClimberPivot(int id, boolean inverted, boolean encInverted) {
+        motor = new SparkMax(id, MotorType.kBrushless);
         SparkMaxConfig motorLeftConfig = new SparkMaxConfig();
         AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
 
@@ -37,32 +39,22 @@ public class ClimberPivot {
         motorLeftConfig.apply(encoderConfig);
         motorLeftConfig.inverted(inverted);
 
-        motorLeader.configure(
+        motor.configure(
             motorLeftConfig,
-            ResetMode.kResetSafeParameters,
-            PersistMode.kNoPersistParameters
-        );
-
-        // Invert because motors are flipped from one another.
-        SparkMaxConfig motorRightConfig = new SparkMaxConfig();
-        motorRightConfig.follow(motorLeader, true);
-
-        motorFollower.configure(
-            motorRightConfig,
             ResetMode.kResetSafeParameters,
             PersistMode.kNoPersistParameters
         );
     }
 
-    public void run() {
-        if (setAngle != null) {
+    public void run(boolean runPID) {
+        if (setAngle != null && runPID) {
             var angle = setAngle.bound180();
-            var pose = new Angle().setDegrees(motorLeader.getAbsoluteEncoder().getPosition());
+            var pose = new Angle().setDegrees(motor.getAbsoluteEncoder().getPosition());
             pose = pose.bound180();
             speed = controller.calculate(angle.degrees(), pose.degrees());
-        }
+        } 
 
-        motorLeader.set(speed);
+        motor.set(speed);
     }
 
     /**
@@ -86,14 +78,14 @@ public class ClimberPivot {
      * internal to this class.
      */
     public double get() {
-        return motorLeader.get();
+        return motor.get();
     }
 
     /**
      * Gets the position reported by the absolute encoder.
      */
     public Angle getPosition() {
-        double enc = motorLeader.getAbsoluteEncoder().getPosition();
+        double enc = motor.getAbsoluteEncoder().getPosition();
         return new Angle().setDegrees(enc).bound180();
     }
 }

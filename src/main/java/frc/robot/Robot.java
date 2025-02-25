@@ -38,7 +38,7 @@ public class Robot extends LoggedRobot {
     private static final int CONTROLLER_PORT_DRIVER = 0;
     private static final int CONTROLLER_PORT_OPERATOR = 1;
 
-    private static Compressor comp = new Compressor(1, PneumaticsModuleType.REVPH);
+    private static Compressor comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
 
     private static final XboxController controllerDriver
         = new XboxController(CONTROLLER_PORT_DRIVER);
@@ -92,7 +92,6 @@ public class Robot extends LoggedRobot {
 
         // Compressor stuffs
         comp.enableDigital();
-        comp.disable();
     }
 
     @Override
@@ -146,7 +145,7 @@ public class Robot extends LoggedRobot {
         });
         
         SwerveDrive.run();
-        Coral.run();
+        Coral.run(false);
     }
 
     @Override
@@ -282,6 +281,14 @@ public class Robot extends LoggedRobot {
      * from the operator's controller.
      */
     public void operatorTeleop() {
+        double algaeSpeed = 0.0;
+
+        if (controllerOperator.getPOV() == 180) {
+            algaeSpeed = -1.0;
+        } else {
+            algaeSpeed = 1.0;
+        }
+
         Coral.run(
             (controllerOperator.getLeftTriggerAxis() > 0.5), //Intaking
             (controllerOperator.getRightTriggerAxis() > 0.5), //Outtaking
@@ -290,20 +297,18 @@ public class Robot extends LoggedRobot {
             false,
             controllerOperator.getXButtonPressed(),  // L2
             controllerOperator.getBButtonPressed(), // L3
-            controllerOperator.getYButtonPressed()     // L4
+            false, //controllerOperator.getYButtonPressed()     // L4
+            algaeSpeed,
+            controllerOperator.getBackButton()
         );
-
-        // Algae intake
-        /* Algae.run(
-            controllerOperator.getYButtonPressed(),
-            controllerOperator.getRightTriggerAxis() - controllerOperator.getLeftTriggerAxis()
-        ); */
 
         // Climber
         Climber.run(
             controllerOperator.getLeftBumperButtonPressed(),
-            Math.abs(controllerOperator.getLeftY()) > 0.15 ?
-                controllerOperator.getRightY() : 0.0
+            controllerOperator.getPOV() == 270,
+            (Math.abs(controllerOperator.getLeftY()) > 0.15) ?
+                (controllerOperator.getLeftY()) : 0.0,
+            controllerOperator.getPOV() == 90
         );
 
         double pivotSpeed = controllerOperator.getRightX();
@@ -314,7 +319,11 @@ public class Robot extends LoggedRobot {
         }
 
         if (Math.abs(elevatorSpeed) > 0.15) {
-            Coral._setElevatorSpeed(elevatorSpeed);
+            Coral._setElevatorSpeed(-elevatorSpeed);
+        }
+
+        if (controllerOperator.getStartButtonReleased()) {
+            Coral._setElevatorPose(0.0);
         }
     }
 

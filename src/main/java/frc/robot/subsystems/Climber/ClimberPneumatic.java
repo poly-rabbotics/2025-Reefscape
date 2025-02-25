@@ -10,12 +10,12 @@ public class ClimberPneumatic {
 
     public ClimberPneumatic(int forwardChannel, int reverseChannel) {
         climberSolenoid = new DoubleSolenoid(
-            PneumaticsModuleType.REVPH,
+            PneumaticsModuleType.CTREPCM,
             forwardChannel,
             reverseChannel
         );
 
-        climberSolenoid.set(Value.kForward);
+        climberSolenoid.set(Value.kReverse);
     }
 
     public void set(Value val) {
