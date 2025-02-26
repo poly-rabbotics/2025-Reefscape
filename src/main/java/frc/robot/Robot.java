@@ -65,7 +65,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-        Logger.recordMetadata("ProjectName", "7042 Prototype");
+        Logger.recordMetadata("ProjectName", "7042 Theseus");
 
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter());
