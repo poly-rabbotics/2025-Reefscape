@@ -24,6 +24,8 @@ public class CoralPivot {
     private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-7.0);
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-20.0);
     private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-25.0);
+    private static final Angle PIVOT_POINT_ALGAE_L2 = new Angle().setDegrees(-60.0);
+    private static final Angle PIVOT_POINT_ALGAE_L3 = new Angle().setDegrees(-60.0);
 
     private static final double PID_P = 0.015;
     private static final double PID_I = 0.0;
@@ -34,6 +36,9 @@ public class CoralPivot {
     private final SparkMax motor;
     private ScoringPoint scoringPoint = ScoringPoint.Stowed;
 
+    /**
+     * Instantiate a coral pivot on the given Spark Max ID.
+     */
     public CoralPivot(int motorId) {
         motor = new SparkMax(5, MotorType.kBrushless);
 
@@ -50,13 +55,12 @@ public class CoralPivot {
         controller.setTolerance(PIVOT_OFFSET.degrees());
     }
 
-    public void run(boolean algae) {
+    /**
+     * Run the pivot given its set state. Should be the last action performed in a single frame,
+     * overrides not withstanding.
+     */
+    public void run() {
         double setAngle = pivotAngle(scoringPoint).degrees() % 360.0;
-
-        if (algae) {
-            setAngle = 53.0;
-        }
-
         double speed = controller.calculate(
             getAngle().degrees() % 360.0,
             setAngle % 360.0
@@ -72,7 +76,7 @@ public class CoralPivot {
         Logger.recordOutput("Coral Pivot Set Neo Speed", speed);
     }
 
-    /**6
+    /**
      * Sets the pivot's set position.
      */
     public void pivotTo(ScoringPoint setPivot) {
@@ -93,6 +97,9 @@ public class CoralPivot {
         return motor.get();
     }
 
+    /**
+     * Gets the curret angle of the pivot, as measured by a through-bore encoder.
+     */
     public Angle getAngle() {
         return new Angle()
             .setDegrees(
@@ -100,18 +107,30 @@ public class CoralPivot {
             );
     }
 
+    /**
+     * Gets the current set angle.
+     */
     public Angle getSetAngle() {
         return pivotAngle(scoringPoint);
     }
 
+    /**
+     * Gets the current set point.
+     */
     public ScoringPoint getSetPoint() {
         return scoringPoint;
     }
 
+    /**
+     * Gets the motor velocity.
+     */
     public double getVelocity() {
         return motor.getEncoder().getVelocity();
     }
 
+    /**
+     * Overrides the speed, do not use unless absolutely needed.
+     */
     public void _setSpeed(double speed) {
         motor.set(speed);
     }
@@ -129,6 +148,10 @@ public class CoralPivot {
                 return PIVOT_POINT_L3;
             case ScoringL4:
                 return PIVOT_POINT_L4;
+            case DealgaeficateL2:
+                return PIVOT_POINT_ALGAE_L2;
+            case DealgaeficateL3:
+                return PIVOT_POINT_ALGAE_L3;
             case Intaking:
                 return PIVOT_POINT_INTAKE;
             case Stowed:

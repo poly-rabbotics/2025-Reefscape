@@ -13,7 +13,6 @@ import frc.robot.systems.Coral.ScoringPoint;
 
 public class Elevator {
     private static final double MIN_HEIGHT_INCHES = 0;
-    private static final double MAX_HEIGHT_INCHES = 51;
 
     private static final double GEAR_RATIO = 1.0 / (9.0 * 5.0);
     private static final double SPROCKET_DIAMETER_INCHES = 2;
@@ -27,13 +26,14 @@ public class Elevator {
     private static final double POSE_INTAKING = 0.0;
     private static final double POSE_SCORING_L1 = 0.0;
     private static final double POSE_SCORING_L2 = 0.0;
-    private static final double POSE_SCORING_L3 = 33.44; //28.0;
+    private static final double POSE_SCORING_L3 = 28.0;
     private static final double POSE_SCORING_L4 = 48.0;
+    private static final double POSE_DEALGAEFICATE_L2 = 0.0;
+    private static final double POSE_DEALGAEFICATE_L3 = 0.0;
 
     private static final double POSE_TOLERANCE = 0.0;
 
     private final DigitalInput bottomSwitch = new DigitalInput(0);
-    private final DigitalInput topSwitch = new DigitalInput(1);
     private final TalonFX elfKraken;
 
     private final PIDController controller = new PIDController(
@@ -64,24 +64,12 @@ public class Elevator {
     /**
      * Run the elevator's devices according to its current state.
      */
-    public void run(boolean l2Algae, boolean l3Algae) {
-        if (!bottomSwitch.get()) {
+    public void run() {
+        if (atLowerLimit()) {
             setPosition(MIN_HEIGHT_INCHES);
-        } else if (!topSwitch.get()) {
-            setPosition(MAX_HEIGHT_INCHES);
         }
 
-        if(elfKraken.getPosition().getValueAsDouble() < 0) {
-            elfKraken.setPosition(0);
-        }
-
-        if (l2Algae) {
-            elfKraken.set(controller.calculate(getPosition(), POSE_SCORING_L3 - 6.0));
-        } else if (l3Algae) {
-            elfKraken.set(controller.calculate(getPosition(), POSE_SCORING_L3 + 3.0));
-        } else {
-            elfKraken.set(controller.calculate(getPosition(), getSetpoint()));
-        }
+        elfKraken.set(controller.calculate(getPosition(), getSetpoint()));
     }
 
     /**
@@ -125,21 +113,38 @@ public class Elevator {
         return setPose;
     }
 
+    /**
+     * Gets the set speed of the elevator's motor.
+     */
     public double getSpeed() {
         return elfKraken.get();
     }
 
+    /**
+     * Gets the velocity of the elevator.
+     */
+    public double getVelocity() {
+        return elfKraken.getVelocity().getValueAsDouble();
+    }
+
+    /**
+     * True if the lower limit switch is flipped.
+     */
+    public boolean atLowerLimit() {
+        return !bottomSwitch.get();
+    }
+    
+    /**
+     * Manually overrides the speed of the elevator's motor, do not use unless absolutely required.
+     */
     public void _setSpeed(double speed) {
         elfKraken.set(speed);
     }
 
-    public double getVelocity() {
-        return elfKraken.getVelocity().getValueAsDouble();
-    }
     /**
      * Get an extension, in inches, based on the given `ScoringPoint`.
      */
-    public static double extensionFromScoringPose(ScoringPoint pose) {
+    private static double extensionFromScoringPose(ScoringPoint pose) {
         switch (pose) {
             case Intaking:
                 return POSE_INTAKING;
@@ -151,6 +156,10 @@ public class Elevator {
                 return POSE_SCORING_L3;
             case ScoringL4:
                 return POSE_SCORING_L4;
+            case DealgaeficateL2:
+                return POSE_DEALGAEFICATE_L2;
+            case DealgaeficateL3:
+                return POSE_DEALGAEFICATE_L3;
             case Stowed:
             default:
                 return POSE_STOWED;

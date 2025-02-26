@@ -15,10 +15,10 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
+
 import frc.robot.subsystems.*;
 import frc.robot.systems.*;    
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.LogFileUtil;
@@ -51,6 +51,7 @@ public class Robot extends LoggedRobot {
     private static final Joystick controlPanelClimb
         = new Joystick(CONTROL_PANEL_PORT_CLIMB);
 
+    @SuppressWarnings("unused")
     private static PowerDistribution powerDistributionHub
         = new PowerDistribution(1, ModuleType.kRev);
 
@@ -151,18 +152,11 @@ public class Robot extends LoggedRobot {
         });
         
         SwerveDrive.run();
-        Coral.run(false, false);
+        Coral.run();
     }
 
     @Override
     public void teleopInit() {
-        
-        ArrayList<Pose2d> setPose = new ArrayList<>();
-        setPose.add(new Pose2d(1.0, 0.5, new Rotation2d(Math.PI)));
-        setPose.add(new Pose2d(2.0, 0.5, new Rotation2d(Math.PI)));
-        setPose.add(new Pose2d(3.0, -0.5, new Rotation2d(Math.PI)));
-        SwerveDrive.setPath(new DrivePath(setPose));
-        
         SwerveDrive.setMode(SwerveMode.Headless);
     }
 
@@ -301,7 +295,7 @@ public class Robot extends LoggedRobot {
             false, // Stow
             controlPanelElevator.getRawButton(8), // Intake
             controlPanelElevator.getRawButton(1),
-            controlPanelElevator.getRawButton(2),  // L2
+            controlPanelElevator.getRawButton(2), // L2
             controlPanelElevator.getRawButton(3), // L3
             false, //controlPanelElevator.getRawButton(4),     // L4
             algaeSpeed,
@@ -310,14 +304,14 @@ public class Robot extends LoggedRobot {
         );
         
         double pivotSpeed = controllerOperator.getRightX();
-        double elevatorSpeed = controllerOperator.getRightY();
+        double elevatorSpeed = -controllerOperator.getRightY();
 
         if (Math.abs(pivotSpeed) > 0.15) {
             Coral._setPivotSpeed(pivotSpeed);
         }
 
         if (Math.abs(elevatorSpeed) > 0.15) {
-            Coral._setElevatorSpeed(-elevatorSpeed);
+            Coral._setElevatorSpeed(elevatorSpeed);
         }
 
         if (controlPanelElevator.getRawButton(8)) {

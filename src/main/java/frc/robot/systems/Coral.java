@@ -20,7 +20,9 @@ public class Coral {
     }
 
     public enum ScoringPoint {
-        ScoringL1, ScoringL2, ScoringL3, ScoringL4, Stowed, Intaking
+        ScoringL1, ScoringL2, ScoringL3, ScoringL4,
+        DealgaeficateL2, DealgaeficateL3,
+        Stowed, Intaking
     }
 
     /**
@@ -44,9 +46,7 @@ public class Coral {
             setIntakeState(IntakeState.Idle);
         }
 
-        if (l4Pose) {
-            currentScoringPoint = ScoringPoint.ScoringL4;
-        } else if (intakePose) {
+        if (intakePose) {
             currentScoringPoint = ScoringPoint.Intaking;
         } else if (l1Pose) {
             currentScoringPoint = ScoringPoint.ScoringL1;
@@ -54,6 +54,12 @@ public class Coral {
             currentScoringPoint = ScoringPoint.ScoringL2;
         } else if (l3Pose) {
             currentScoringPoint = ScoringPoint.ScoringL3;
+        } else if (l4Pose) {
+            currentScoringPoint = ScoringPoint.ScoringL4;
+        } else if (l2Algae) {
+            currentScoringPoint = ScoringPoint.DealgaeficateL2;
+        } else if (l3Algae) {
+            currentScoringPoint = ScoringPoint.DealgaeficateL3;
         } else {
             currentScoringPoint = ScoringPoint.Stowed;
         }
@@ -62,16 +68,16 @@ public class Coral {
         pivot.pivotTo(currentScoringPoint);
         algae.run(algaeSpeed);
         
-        run(l2Algae, l3Algae);
+        run();
     }
 
     /**
      * Overload of run function for autos & stuffs
      */
-    public static void run(boolean l2Algae, boolean l3Algae) {
-        pivot.run(l2Algae, l3Algae);
+    public static void run() {
+        pivot.run();
         coralIntake.run();
-        elevator.run(l2Algae, l3Algae);
+        elevator.run();
     }
 
     public static void setIntakeState(IntakeState state) {
@@ -121,13 +127,15 @@ public class Coral {
         Logger.recordOutput("Coral Pivot Setpoint", pivot.getSetPoint());
         Logger.recordOutput("Coral Pivot Velocity", pivot.getVelocity());
 
-        
         Logger.recordOutput("Elevator Set Point", elevator.getSetpointEnum());
         Logger.recordOutput("Elevator Set Point (Meters)", elevator.getSetpoint());
         Logger.recordOutput("Elevator Position", elevator.getPosition());
         Logger.recordOutput("Elevator At Pose", elevator.atPosition());
         Logger.recordOutput("Elevator Speed", elevator.getSpeed());
         Logger.recordOutput("Elevator Velocity", elevator.getVelocity());
+        Logger.recordOutput("Elevator At Lower Limit", elevator.atLowerLimit());
+
+        Logger.recordOutput("Algae Intake Speed", algae.get());
     }
 }
 
