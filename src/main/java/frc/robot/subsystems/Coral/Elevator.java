@@ -24,6 +24,7 @@ public class Elevator {
 
     private static final double POSE_STOWED = 0.0;
     private static final double POSE_INTAKING = 0.0;
+    private static final double POSE_HANDOFF = 0.0;
     private static final double POSE_SCORING_L1 = 0.0;
     private static final double POSE_SCORING_L2 = 0.0;
     private static final double POSE_SCORING_L3 = 28.0;
@@ -148,6 +149,8 @@ public class Elevator {
         switch (pose) {
             case Intaking:
                 return POSE_INTAKING;
+            case Handoff:
+                return POSE_HANDOFF;
             case ScoringL1:
                 return POSE_SCORING_L1;
             case ScoringL2:

@@ -2,10 +2,10 @@ package frc.robot.subsystems.Coral;
 
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
-public class CoralIntakesLittleBrother {
+public class Dealgaeficator {
     VictorSP motor;
 
-    public CoralIntakesLittleBrother(int channel) {
+    public Dealgaeficator(int channel) {
         motor = new VictorSP(channel);
     }
 

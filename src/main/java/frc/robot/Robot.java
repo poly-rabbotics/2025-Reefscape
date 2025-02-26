@@ -17,7 +17,8 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 
 import frc.robot.subsystems.*;
-import frc.robot.systems.*;    
+import frc.robot.systems.*;
+import frc.robot.systems.Algae.AlgaePose;
 
 import java.util.Optional;
 
@@ -183,7 +184,7 @@ public class Robot extends LoggedRobot {
         PoseEstimator.recordState();
         
         Coral.recordState();
-        Climber.recordState();
+        Algae.recordState();
     }
 
     /**
@@ -302,6 +303,10 @@ public class Robot extends LoggedRobot {
             controlPanelElevator.getRawButton(6),
             controlPanelElevator.getRawButton(5)
         );
+
+        Algae.setIntakeSpeed(0.0);
+        Algae.setPose(AlgaePose.Stow);
+        Algae.run();
         
         double pivotSpeed = controllerOperator.getRightX();
         double elevatorSpeed = -controllerOperator.getRightY();

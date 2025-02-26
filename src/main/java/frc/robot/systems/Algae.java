@@ -1,49 +1,37 @@
 package frc.robot.systems;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
+import org.littletonrobotics.junction.Logger;
+
 import frc.robot.subsystems.Algae.*;
 
 public class Algae {
-
-    private static final int ALGAE_PNEUMATIC_ONE_FORWARD_CHANNEL = 6;
-    private static final int ALGAE_PNEUMATIC_ONE_REVERSE_CHANNEL = 7;
-    // private static final int ALGAE_PNEUMATIC_TWO_FORWARD_CHANNEL = 2;
-    // private static final int ALGAE_PNEUMATIC_TWO_REVERSE_CHANNEL = 3;
-
+    private static final int ALGAE_PIVOT_MOTOR_ID = 45;
     private static final int ALGAE_INTAKE_MOTOR_ID = 13;
 
-    private static AlgaePneumatic algaePneumatic;
-    private static AlgaeIntake algaeIntake;
+    private static AlgaeIntake algaeIntake
+        = new AlgaeIntake(ALGAE_INTAKE_MOTOR_ID, ALGAE_PIVOT_MOTOR_ID);
 
-    static {
-        algaePneumatic = new AlgaePneumatic(
-            ALGAE_PNEUMATIC_ONE_FORWARD_CHANNEL,
-            ALGAE_PNEUMATIC_ONE_REVERSE_CHANNEL
-            // ALGAE_PNEUMATIC_TWO_FORWARD_CHANNEL,
-            // ALGAE_PNEUMATIC_TWO_REVERSE_CHANNEL
-        );
-
-        algaeIntake = new AlgaeIntake(ALGAE_INTAKE_MOTOR_ID);
+    public enum AlgaePose {
+        Handoff, Processor, Intake, Stow
     }
 
-    public static void run(boolean pneumaticButtonPressed, double intakeSpeed) {
-        // Set intake speed
-        algaeIntake.set(intakeSpeed);
-
-        // Toggle the algae pneumatic when the button is pressed
-        if (pneumaticButtonPressed) {
-            switch (algaePneumatic.get()) {
-                case kForward:
-                    algaePneumatic.set(DoubleSolenoid.Value.kReverse);
-                    break;
-                case kReverse:
-                    algaePneumatic.set(DoubleSolenoid.Value.kForward);
-                    break;
-                default:
-                    break;
-            }
-        }
-
+    public static void run() {
         algaeIntake.run();
+    }
+
+    public static void setIntakeSpeed(double speed) {
+        algaeIntake.setSpeed(speed);
+    }
+
+    public static void setPose(AlgaePose pose) {
+        algaeIntake.setPose(pose);
+    }
+    
+    public static void recordState() {
+        Logger.recordOutput("Algae Intake Pivot Speed", algaeIntake.getPivotSpeed());
+        Logger.recordOutput("Algae Intake Speed", algaeIntake.getIntakeSpeed());
+        Logger.recordOutput("Algae Intake Set Pose", algaeIntake.getSetPose());
+        Logger.recordOutput("Algae Intake Angle (Degrees)", algaeIntake.getAngle().degrees());
+        Logger.recordOutput("Algae Intake Set Angle (Degrees)", algaeIntake.getSetAngle().degrees());
     }
 }
