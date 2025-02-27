@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 import frc.robot.systems.*;
 import frc.robot.systems.Algae.AlgaePose;
+import frc.robot.systems.Coral.IntakeState;
+import frc.robot.systems.Coral.ScoringPoint;
 
 import java.util.Optional;
 
@@ -38,8 +40,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
     private static final int CONTROLLER_PORT_DRIVER = 0;
     private static final int CONTROLLER_PORT_OPERATOR = 1;
-    private static final int CONTROL_PANEL_PORT_ELEVATOR = 2; // CONTROLLER PANEL WITH ELEVATOR SETPOINTS
-    private static final int CONTROL_PANEL_PORT_CLIMB = 3; // CONTROLLER PANEL WITH SWITCHES, INTAKE, & CLIMB
+    private static final int CONTROL_PANEL_PORT_CORAL = 2; // Elevator
+    private static final int CONTROL_PANEL_PORT_ALGAE = 3; // Algae and switches
 
     private static Compressor comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
 
@@ -47,10 +49,10 @@ public class Robot extends LoggedRobot {
         = new XboxController(CONTROLLER_PORT_DRIVER);
     private static final XboxController controllerOperator
         = new XboxController(CONTROLLER_PORT_OPERATOR);
-    private static final Joystick controlPanelElevator
-        = new Joystick(CONTROL_PANEL_PORT_ELEVATOR);
-    private static final Joystick controlPanelClimb
-        = new Joystick(CONTROL_PANEL_PORT_CLIMB);
+    private static final Joystick controlPanelCoral
+        = new Joystick(CONTROL_PANEL_PORT_CORAL);
+    private static final Joystick controlPanelAlgae
+        = new Joystick(CONTROL_PANEL_PORT_ALGAE);
 
     @SuppressWarnings("unused")
     private static PowerDistribution powerDistributionHub
@@ -141,7 +143,10 @@ public class Robot extends LoggedRobot {
         SwerveDrive.setMode(SwerveMode.FollowPath);
 
         autonomousProcedure = AutonomousManager.getProcedureFromSwitches(
-            // insert switch gets
+            controlPanelAlgae.getRawButton(1),
+            controlPanelAlgae.getRawButton(2),
+            controlPanelAlgae.getRawButton(3),
+            controlPanelAlgae.getRawButton(4)
         );
     }
 
@@ -282,31 +287,66 @@ public class Robot extends LoggedRobot {
      * from the operator's controller.
      */
     public void operatorTeleop() {
-        double algaeSpeed = 0.0;
+        double dealgaeSpeed = 0.0;
+        double groundAlgaeSpeed = 0.0;
+        ScoringPoint scoringPoint = ScoringPoint.Stowed;
+        IntakeState coralIntakeState = IntakeState.Idle;
+        AlgaePose algaePose = AlgaePose.Stow;
 
-        if (controllerOperator.getPOV() == 180) {
-            algaeSpeed = -1.0;
-        } else {
-            algaeSpeed = 1.0;
+        if (controlPanelAlgae.getRawButton(7)) {
+            dealgaeSpeed = -1;
+        } else if (controlPanelAlgae.getRawButton(6)){
+            dealgaeSpeed = 1;
         }
 
-        Coral.run(
-            controlPanelClimb.getRawButton(10), //Intaking
-            controlPanelClimb.getRawButton(9), //Outtaking
-            false, // Stow
-            controlPanelElevator.getRawButton(8), // Intake
-            controlPanelElevator.getRawButton(1),
-            controlPanelElevator.getRawButton(2), // L2
-            controlPanelElevator.getRawButton(3), // L3
-            false, //controlPanelElevator.getRawButton(4),     // L4
-            algaeSpeed,
-            controlPanelElevator.getRawButton(6),
-            controlPanelElevator.getRawButton(5)
-        );
+        if (controlPanelAlgae.getRawButton(9)) {
+            groundAlgaeSpeed = 1.0;
+        } else if (controlPanelAlgae.getRawButton(8)) {
+            groundAlgaeSpeed = -1.0;
+        }
 
-        Algae.setIntakeSpeed(0.0);
-        Algae.setPose(AlgaePose.Stow);
+        if (controlPanelCoral.getRawButton(1)) {
+            scoringPoint = ScoringPoint.ScoringL1;
+        } else if (controlPanelCoral.getRawButton(2)) {
+            scoringPoint = ScoringPoint.ScoringL2;
+        } else if (controlPanelCoral.getRawButton(3)) {
+            scoringPoint = ScoringPoint.ScoringL3;
+        } else if (controlPanelCoral.getRawButton(4)) {
+            scoringPoint = ScoringPoint.ScoringL4;
+        } else if (controlPanelCoral.getRawButton(6)) {
+            scoringPoint = ScoringPoint.DealgaeficateL2;
+        } else if (controlPanelCoral.getRawButton(5)) {
+            scoringPoint = ScoringPoint.DealgaeficateL3;
+        } else if (controlPanelCoral.getRawButton(7)) {
+            scoringPoint = ScoringPoint.Intaking;
+        }
+
+        if (controlPanelAlgae.getRawButton(10)) {
+            coralIntakeState = IntakeState.Intaking;
+        } else if (controlPanelAlgae.getRawButton(11)) {
+            coralIntakeState = IntakeState.Outtaking;
+        }
+
+        if (controlPanelCoral.getRawButton(8)) {
+            algaePose = AlgaePose.Processor;
+        } else if (controlPanelCoral.getRawButton(9)) {
+            algaePose = AlgaePose.Intake;
+        }
+
+        if (controlPanelAlgae.getRawButton(5)) {
+            algaePose = AlgaePose.Handoff;
+            scoringPoint = ScoringPoint.Handoff;
+        }
+
+        Coral.setDealgaeficatorSpeed(dealgaeSpeed);
+        Coral.setScoringPoint(scoringPoint);
+        Coral.setIntakeState(coralIntakeState);
+
+        Algae.setIntakeSpeed(groundAlgaeSpeed);
+        Algae.setPose(algaePose);
+
         Algae.run();
+        Coral.run();
         
         double pivotSpeed = controllerOperator.getRightX();
         double elevatorSpeed = -controllerOperator.getRightY();
@@ -319,7 +359,7 @@ public class Robot extends LoggedRobot {
             Coral._setElevatorSpeed(elevatorSpeed);
         }
 
-        if (controlPanelElevator.getRawButton(8)) {
+        if (controlPanelCoral.getRawButton(8)) {
             Coral._setElevatorPose(0.0);
         }
     }

@@ -9,7 +9,7 @@ public class Dealgaeficator {
         motor = new VictorSP(channel);
     }
 
-    public void run(double speed) {
+    public void set(double speed) {
         motor.set(speed);
     }
 

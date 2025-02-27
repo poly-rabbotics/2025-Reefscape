@@ -43,8 +43,8 @@ public class CoralPivot {
         motor = new SparkMax(5, MotorType.kBrushless);
 
         SparkMaxConfig motorConfig = new SparkMaxConfig();
-        AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
-        motorConfig.apply(encoderConfig);
+        motorConfig.apply(new AbsoluteEncoderConfig());
+        motorConfig.inverted(true);
         motor.configure(
             motorConfig,
             ResetMode.kResetSafeParameters,

@@ -67,7 +67,7 @@ public class Coral {
 
         elevator.set(currentScoringPoint);
         pivot.pivotTo(currentScoringPoint);
-        algae.run(algaeSpeed);
+        setDealgaeficatorSpeed(algaeSpeed);
         
         run();
     }
@@ -104,6 +104,10 @@ public class Coral {
 
     public static boolean atScoringPoint() {
         return elevator.atPosition() && pivot.atPivotPoint();
+    }
+
+    public static void setDealgaeficatorSpeed(double speed) {
+        algae.set(speed);
     }
 
     public static void _setPivotSpeed(double pivotSpeed) {
