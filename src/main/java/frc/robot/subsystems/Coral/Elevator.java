@@ -18,7 +18,7 @@ public class Elevator {
     private static final double SPROCKET_DIAMETER_INCHES = 2;
     private static final double INCHES_PER_ROTATION = GEAR_RATIO * Math.PI * SPROCKET_DIAMETER_INCHES * 3;
 
-    private static final double PID_P = 0.75;
+    private static final double PID_P = 0.05;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
@@ -27,10 +27,10 @@ public class Elevator {
     private static final double POSE_HANDOFF = 0.0;
     private static final double POSE_SCORING_L1 = 0.0;
     private static final double POSE_SCORING_L2 = 0.0;
-    private static final double POSE_SCORING_L3 = 28.0;
-    private static final double POSE_SCORING_L4 = 48.0;
-    private static final double POSE_DEALGAEFICATE_L2 = 0.0;
-    private static final double POSE_DEALGAEFICATE_L3 = 0.0;
+    private static final double POSE_SCORING_L3 = 23.0;
+    private static final double POSE_SCORING_L4 = 55.0;
+    private static final double POSE_DEALGAEFICATE_L2 = POSE_SCORING_L2;
+    private static final double POSE_DEALGAEFICATE_L3 = POSE_SCORING_L3 - 2.0;
 
     private static final double POSE_TOLERANCE = 0.0;
 

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.DrivePath;
+import frc.robot.subsystems.SwerveMode;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
 import frc.robot.systems.Coral.ScoringPoint;
 import frc.robot.systems.Coral.IntakeState;
@@ -90,11 +91,11 @@ public class AutonomousManager {
                 stepTimer.start();
             }
 
-            fn.run();
-
             if (stepTimer.get() >= time && prevState == StepStatus.Done) {
                 return StepStatus.Done;
             }
+
+            fn.run();
 
             return StepStatus.Running;
         };
@@ -231,5 +232,9 @@ public class AutonomousManager {
             .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
             .andThen(makeElevatorStep(ScoringPoint.Stowed))
             .and(makeStep(() -> Coral.setIntakeState(IntakeState.Idle)));
+        
+            procedures[7] = new AutonomousProcedure()
+                .and(makeStep(() -> SwerveDrive.setMode(SwerveMode.Headless)))
+                .andThen(makeTimedStep(2.5, () -> SwerveDrive.runUncurved(-0.25, 0.0, 0.0)));
     }
 }

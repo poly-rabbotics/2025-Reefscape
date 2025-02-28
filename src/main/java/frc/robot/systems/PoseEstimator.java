@@ -23,17 +23,17 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.littletonrobotics.junction.Logger;
 
 public class PoseEstimator {
-    private static final Transform3d BOT_TO_CAM_LEFT
-        = new Transform3d(0.305, 0.222, 0.098, new Rotation3d(0.0, 0.0, 0.0));
-    private static final Transform3d BOT_TO_CAM_RIGHT
-        = new Transform3d(0.273, 0.222, 0.133, new Rotation3d(0.0, 1.047, 0.0));
+    private static final Transform3d BOT_TO_CAM_FRONT
+        = new Transform3d(0.305, -0.222, 0.1, new Rotation3d(0.0, 0.0, Math.PI / 8));
+    private static final Transform3d BOT_TO_CAM_BACK
+        = new Transform3d(-0.273, -0.222, 0.1, new Rotation3d(0.0, 0.0, Math.PI / 8));
 
-    private static final PhotonCamera camRight = new PhotonCamera("RightCam");
-    private static final PhotonCamera camLeft = new PhotonCamera("LeftCam");
+    private static final PhotonCamera camFront = new PhotonCamera("FrontCam");
+    private static final PhotonCamera camBack = new PhotonCamera("BackCam");
 
     private static AprilTagFieldLayout field;
-    private static final PhotonPoseEstimator photonEstimatorLeft;
-    private static final PhotonPoseEstimator photonEstimatorRight;
+    private static final PhotonPoseEstimator photonEstimatorFront;
+    private static final PhotonPoseEstimator photonEstimatorBack;
 
     private static SwerveDrivePoseEstimator3d swervePoseEstimator
         = SwerveDrive.createSwervePoseEstimator(new Pose3d());
@@ -48,27 +48,29 @@ public class PoseEstimator {
             field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
         }
 
-        photonEstimatorLeft = new PhotonPoseEstimator(
+        photonEstimatorFront = new PhotonPoseEstimator(
             field,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            BOT_TO_CAM_LEFT
+            BOT_TO_CAM_FRONT
         );
-        photonEstimatorRight = new PhotonPoseEstimator(
+
+        photonEstimatorBack = new PhotonPoseEstimator(
             field,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            BOT_TO_CAM_RIGHT
+            BOT_TO_CAM_BACK
         );
-        photonEstimatorLeft.setReferencePose(new Pose3d());
-        photonEstimatorRight.setReferencePose(new Pose3d());
+
+        photonEstimatorFront.setReferencePose(new Pose3d());
+        photonEstimatorBack.setReferencePose(new Pose3d());
     }
 
     /**
      * Update the estimator with both odometry and vision data.
      */
     public static void update() {
-        Optional<EstimatedRobotPose> estimateLeft = updateEstimator(photonEstimatorLeft, camLeft);
-        Optional<EstimatedRobotPose> estimateRight = updateEstimator(photonEstimatorRight, camRight);
-        Optional<EstimatedRobotPose> workingEstimate = estimateLeft.or(() -> estimateRight);
+        Optional<EstimatedRobotPose> estimateFront = updateEstimator(photonEstimatorFront, camBack);
+        Optional<EstimatedRobotPose> estimateBack = updateEstimator(photonEstimatorBack, camFront);
+        Optional<EstimatedRobotPose> workingEstimate = estimateFront.or(() -> estimateBack);
 
         SwerveDrive.updatePoseEstimator(swervePoseEstimator);
         workingEstimate.ifPresent(

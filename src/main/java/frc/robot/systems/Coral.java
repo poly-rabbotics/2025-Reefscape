@@ -10,11 +10,9 @@ public class Coral {
     private static final double OUTTAKE_SPEED = 0.75;
 
     private static final CoralIntake coralIntake = new CoralIntake(7, 11);
-    private static final CoralPivot pivot = new CoralPivot(5);
+    private static final CoralPivot pivot = new CoralPivot(3);
     private static final Elevator elevator = new Elevator(14, InvertedValue.Clockwise_Positive);
     private static final Dealgaeficator algae = new Dealgaeficator(0);
-
-    private static ScoringPoint currentScoringPoint = ScoringPoint.Stowed;
 
     public enum IntakeState {
         Intaking, Outtaking, Idle
@@ -24,52 +22,6 @@ public class Coral {
         ScoringL1, ScoringL2, ScoringL3, ScoringL4,
         DealgaeficateL2, DealgaeficateL3,
         Stowed, Intaking, Handoff
-    }
-
-    /**
-     * To be run from teleop
-     * @param intaking
-     * @param outtaking
-     * @param stowedPose
-     * @param intakePose
-     * @param l1Pose
-     * @param l2Pose
-     * @param l3Pose
-     * @param l4Pose
-     */
-    public static void run(boolean intaking, boolean outtaking, boolean stowedPose, boolean intakePose, boolean l1Pose, boolean l2Pose, boolean l3Pose, boolean l4Pose, double algaeSpeed, boolean l2Algae, boolean l3Algae) {
-        // Coral intake
-        if (intaking) {
-            setIntakeState(IntakeState.Intaking);
-        } else if (outtaking) {
-            setIntakeState(IntakeState.Outtaking);
-        } else {
-            setIntakeState(IntakeState.Idle);
-        }
-
-        if (intakePose) {
-            currentScoringPoint = ScoringPoint.Intaking;
-        } else if (l1Pose) {
-            currentScoringPoint = ScoringPoint.ScoringL1;
-        } else if (l2Pose) {
-            currentScoringPoint = ScoringPoint.ScoringL2;
-        } else if (l3Pose) {
-            currentScoringPoint = ScoringPoint.ScoringL3;
-        } else if (l4Pose) {
-            currentScoringPoint = ScoringPoint.ScoringL4;
-        } else if (l2Algae) {
-            currentScoringPoint = ScoringPoint.DealgaeficateL2;
-        } else if (l3Algae) {
-            currentScoringPoint = ScoringPoint.DealgaeficateL3;
-        } else {
-            currentScoringPoint = ScoringPoint.Stowed;
-        }
-
-        elevator.set(currentScoringPoint);
-        pivot.pivotTo(currentScoringPoint);
-        setDealgaeficatorSpeed(algaeSpeed);
-        
-        run();
     }
 
     /**
@@ -99,7 +51,8 @@ public class Coral {
     }
 
     public static void setScoringPoint(ScoringPoint point) {
-        currentScoringPoint = point;
+        elevator.set(point);
+        pivot.pivotTo(point);
     }
 
     public static boolean atScoringPoint() {

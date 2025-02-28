@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -15,19 +16,20 @@ import frc.robot.subsystems.Angle;
 import frc.robot.systems.Coral.ScoringPoint;
 
 public class CoralPivot {
-    private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(2.5);
+    private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(5.0);
     private static final Angle PIVOT_OFFSET = new Angle().setDegrees(262.0 - 165.5);
 
-    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(90.0);
     private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(32.0);
+    private static final Angle PIVOT_POINT_HANDOFF = new Angle().setDegrees(45.0);
+    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(32.0);
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-7.0);
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-20.0);
-    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-25.0);
-    private static final Angle PIVOT_POINT_ALGAE_L2 = new Angle().setDegrees(-60.0);
-    private static final Angle PIVOT_POINT_ALGAE_L3 = new Angle().setDegrees(-60.0);
+    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-40.0);
+    private static final Angle PIVOT_POINT_ALGAE_L2 = new Angle().setDegrees(-70.0);
+    private static final Angle PIVOT_POINT_ALGAE_L3 = new Angle().setDegrees(-70.0);
 
-    private static final double PID_P = 0.015;
+    private static final double PID_P = 0.01;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
@@ -40,13 +42,13 @@ public class CoralPivot {
      * Instantiate a coral pivot on the given Spark Max ID.
      */
     public CoralPivot(int motorId) {
-        motor = new SparkMax(5, MotorType.kBrushless);
+        motor = new SparkMax(motorId, MotorType.kBrushless);
 
-        SparkMaxConfig motorConfig = new SparkMaxConfig();
-        motorConfig.apply(new AbsoluteEncoderConfig());
-        motorConfig.inverted(true);
         motor.configure(
-            motorConfig,
+            new SparkMaxConfig()
+                .inverted(true)
+                .idleMode(IdleMode.kBrake)
+                .apply(new AbsoluteEncoderConfig()),
             ResetMode.kResetSafeParameters,
             PersistMode.kNoPersistParameters
         );
@@ -154,6 +156,8 @@ public class CoralPivot {
                 return PIVOT_POINT_ALGAE_L3;
             case Intaking:
                 return PIVOT_POINT_INTAKE;
+            case Handoff:
+                return PIVOT_POINT_HANDOFF;
             case Stowed:
             default:
                 return PIVOT_POINT_STOW;

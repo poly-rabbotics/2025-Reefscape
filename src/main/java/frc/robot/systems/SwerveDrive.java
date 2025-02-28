@@ -22,7 +22,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.SwerveMode;
@@ -428,6 +429,11 @@ public class SwerveDrive {
 
         switch (mode) {
             case Headless: {
+                if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+                    translationX *= -1.0;
+                    translationY *= -1.0;
+                }
+
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         translationSpeedX,

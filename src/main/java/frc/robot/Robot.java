@@ -121,7 +121,7 @@ public class Robot extends LoggedRobot {
             }
 
             if (controllerDriver.getStartButtonReleased()) {
-                if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+                if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue) {
                     Pigeon.setYaw(new Angle().setDegrees(0.0));
                 } else {
                     Pigeon.setYaw(new Angle().setDegrees(180.0));
@@ -135,6 +135,13 @@ public class Robot extends LoggedRobot {
         }
 
         recordLogFrame();
+
+        Logger.recordOutput("Selected Auto Number", AutonomousManager.getSwitchSelection(
+            controlPanelAlgae.getRawButton(1),
+            controlPanelAlgae.getRawButton(2),
+            controlPanelAlgae.getRawButton(3),
+            controlPanelAlgae.getRawButton(4)
+        ));
     }
 
     @Override
@@ -152,13 +159,14 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousPeriodic() {
+        SwerveDrive.run();
+        Coral.run();
+        Algae.run();
+
         autonomousProcedure.ifPresent(proc -> {
             proc.run();
             proc.recordState();
         });
-        
-        SwerveDrive.run();
-        Coral.run();
     }
 
     @Override
@@ -172,7 +180,9 @@ public class Robot extends LoggedRobot {
             driverTeleop();
         }
 
-        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)) {
+        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)
+            || DriverStation.isJoystickConnected(CONTROL_PANEL_PORT_CORAL)
+            || DriverStation.isJoystickConnected(CONTROL_PANEL_PORT_ALGAE)) {
             operatorTeleop();
         }
     }
@@ -199,7 +209,7 @@ public class Robot extends LoggedRobot {
     private void driverTeleop() {
         // Reset field oriented heading, based on alliance.
         if (controllerDriver.getStartButtonReleased()) {
-            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue) {
                 Pigeon.setYaw(new Angle().setDegrees(0.0));
             } else {
                 Pigeon.setYaw(new Angle().setDegrees(180.0));
@@ -348,18 +358,23 @@ public class Robot extends LoggedRobot {
         Algae.run();
         Coral.run();
         
+        double algaeSpeed = -controllerOperator.getLeftY();
         double pivotSpeed = controllerOperator.getRightX();
         double elevatorSpeed = -controllerOperator.getRightY();
+
+        if (Math.abs(algaeSpeed) > 0.15) {
+            Algae._setPivotSpeed(algaeSpeed);
+        }
 
         if (Math.abs(pivotSpeed) > 0.15) {
             Coral._setPivotSpeed(pivotSpeed);
         }
 
-        if (Math.abs(elevatorSpeed) > 0.15) {
+        if (Math.abs(elevatorSpeed) > 0.1) {
             Coral._setElevatorSpeed(elevatorSpeed);
         }
 
-        if (controlPanelCoral.getRawButton(8)) {
+        if (controllerOperator.getStartButtonReleased()) {
             Coral._setElevatorPose(0.0);
         }
     }

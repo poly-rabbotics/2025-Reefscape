@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.Algae.*;
 
 public class Algae {
-    private static final int ALGAE_PIVOT_MOTOR_ID = 45;
+    private static final int ALGAE_PIVOT_MOTOR_ID = 1;
     private static final int ALGAE_INTAKE_MOTOR_ID = 13;
 
     private static AlgaeIntake algaeIntake
@@ -25,6 +25,10 @@ public class Algae {
 
     public static void setPose(AlgaePose pose) {
         algaeIntake.setPose(pose);
+    }
+
+    public static void _setPivotSpeed(double speed) {
+        algaeIntake._setPivotSpeed(speed);
     }
     
     public static void recordState() {
