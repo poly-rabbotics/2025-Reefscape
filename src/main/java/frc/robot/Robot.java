@@ -60,7 +60,7 @@ public class Robot extends LoggedRobot {
 
     private static Optional<AutonomousProcedure> autonomousProcedure;
     
-    private static boolean invertedTurn = false;
+    private static boolean invertedTurn = true;
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -172,6 +172,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         SwerveDrive.setMode(SwerveMode.Headless);
+        SwerveDrive.setRotationCurve((x) -> Controls.turnCurveRohan(-x));
     }
 
     @Override
@@ -282,8 +283,6 @@ public class Robot extends LoggedRobot {
 
         SwerveDrive.conditionalTempMode(SwerveMode.Rock, controllerDriver.getBButton());
         SwerveDrive.conditionalTempMode(SwerveMode.Relative, controllerDriver.getYButton());
-
-        SwerveDrive.conditionalTempMode(SwerveMode.FollowPath, controllerDriver.getAButton());
 
         SwerveDrive.run(
             -controllerDriver.getLeftY(),
