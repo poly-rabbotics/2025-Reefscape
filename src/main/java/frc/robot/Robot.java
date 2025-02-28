@@ -172,7 +172,11 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         SwerveDrive.setMode(SwerveMode.Headless);
-        SwerveDrive.setRotationCurve((x) -> Controls.turnCurveRohan(-x));
+        SwerveDrive.setRotationCurve(Controls::turnCurveRohan);
+
+        if (invertedTurn) {
+            SwerveDrive.setRotationCurve((x) -> Controls.turnCurveRohan(-x));
+        }
     }
 
     @Override
