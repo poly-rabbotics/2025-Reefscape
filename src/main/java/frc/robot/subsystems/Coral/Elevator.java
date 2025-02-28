@@ -1,9 +1,12 @@
 package frc.robot.subsystems.Coral;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Encoder.IndexingType;
 import edu.wpi.first.math.controller.PIDController;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
@@ -18,6 +21,8 @@ public class Elevator {
     private static final double SPROCKET_DIAMETER_INCHES = 2;
     private static final double INCHES_PER_ROTATION = GEAR_RATIO * Math.PI * SPROCKET_DIAMETER_INCHES * 3;
 
+    private static final int ENC_PULSES_PER_CYCLE = 8192;
+
     private static final double PID_P = 0.05;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
@@ -28,13 +33,14 @@ public class Elevator {
     private static final double POSE_SCORING_L1 = 0.0;
     private static final double POSE_SCORING_L2 = 0.0;
     private static final double POSE_SCORING_L3 = 23.0;
-    private static final double POSE_SCORING_L4 = 55.0;
+    private static final double POSE_SCORING_L4 = 58.0;
     private static final double POSE_DEALGAEFICATE_L2 = POSE_SCORING_L2;
     private static final double POSE_DEALGAEFICATE_L3 = POSE_SCORING_L3 - 2.0;
 
     private static final double POSE_TOLERANCE = 0.0;
 
-    private final DigitalInput bottomSwitch = new DigitalInput(0);
+    private final DigitalInput bottomSwitch;
+    private final Encoder throughBore;
     private final TalonFX elfKraken;
 
     private final PIDController controller = new PIDController(
@@ -45,7 +51,7 @@ public class Elevator {
 
     private ScoringPoint setPose = ScoringPoint.Stowed;
 
-    public Elevator(int motorID, InvertedValue inverted) {
+    public Elevator(int motorID, InvertedValue inverted, int bottomLimit, int encChanA, int encChanB) {
         elfKraken = new TalonFX(motorID);
 
         // Configure motor to give position feedback in inches extension.
@@ -55,11 +61,17 @@ public class Elevator {
             .withTorqueCurrent(new TorqueCurrentConfigs()
                 // These can potentially be used to reduce the maximum torque the motor exerts,
                 // which may be useful to limit chain skipping as well as force on the elevator.
-                .withPeakForwardTorqueCurrent(30.0)
-                .withPeakReverseTorqueCurrent(-30.0)
+                .withPeakForwardTorqueCurrent(10.0)
+                .withPeakReverseTorqueCurrent(-10.0)
             );
         elfKraken.getConfigurator().apply(config);
         elfKraken.setPosition(0.0);
+
+        bottomSwitch = new DigitalInput(bottomLimit);
+
+        throughBore = new Encoder(encChanA, encChanB);
+        throughBore.setDistancePerPulse(INCHES_PER_ROTATION / ENC_PULSES_PER_CYCLE);
+        throughBore.setIndexSource(bottomSwitch, IndexingType.kResetWhileLow);
     }
 
     /**
@@ -93,11 +105,19 @@ public class Elevator {
      * position may be easily changed between being an internal or external sensor.
      */
     public double getPosition() {
-        return elfKraken.getPosition().getValueAsDouble() * INCHES_PER_ROTATION;
+        // return elfKraken.getPosition().getValueAsDouble() * INCHES_PER_ROTATION;
+        return throughBore.getDistance();
     }
 
+    /**
+     * Sets the elevator's position, and resets the through bore if set to zero.
+     */
     public void setPosition(double pose) {
         elfKraken.setPosition(pose / INCHES_PER_ROTATION);
+
+        if (pose == 0.0) {
+            throughBore.reset();
+        }
     }
 
     /**

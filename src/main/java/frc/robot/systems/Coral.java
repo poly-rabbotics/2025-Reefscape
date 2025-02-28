@@ -11,7 +11,7 @@ public class Coral {
 
     private static final CoralIntake coralIntake = new CoralIntake(7, 11);
     private static final CoralPivot pivot = new CoralPivot(3);
-    private static final Elevator elevator = new Elevator(14, InvertedValue.Clockwise_Positive);
+    private static final Elevator elevator = new Elevator(14, InvertedValue.Clockwise_Positive, 0, 1, 2);
     private static final Dealgaeficator algae = new Dealgaeficator(0);
 
     public enum IntakeState {
