@@ -121,7 +121,7 @@ public class Robot extends LoggedRobot {
             }
 
             if (controllerDriver.getStartButtonReleased()) {
-                if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue) {
+                if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
                     Pigeon.setYaw(new Angle().setDegrees(0.0));
                 } else {
                     Pigeon.setYaw(new Angle().setDegrees(180.0));
@@ -210,7 +210,7 @@ public class Robot extends LoggedRobot {
     private void driverTeleop() {
         // Reset field oriented heading, based on alliance.
         if (controllerDriver.getStartButtonReleased()) {
-            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue) {
+            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
                 Pigeon.setYaw(new Angle().setDegrees(0.0));
             } else {
                 Pigeon.setYaw(new Angle().setDegrees(180.0));

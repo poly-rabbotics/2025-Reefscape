@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.systems.PoseEstimator;
 
 public class DrivePath {
@@ -91,5 +93,26 @@ public class DrivePath {
         var arc = currentPose.getRotation().getDegrees() - targetPose.getRotation().getDegrees();
 
         return distance < POSE_TOLERANCE && arc < ROTATION_TOLERANCE;
+    }
+
+    public static Alliance allianceSideOf(Pose2d pose) {
+        if (pose.getX() > 8.75) {
+            return Alliance.Red;
+        }
+
+        return Alliance.Blue;
+    }
+
+    public static Pose2d makeAllianceSide(Pose2d pose, Alliance alliance) {
+        if (allianceSideOf(pose) == alliance) {
+            return pose;
+        }
+
+        // Mirror about the diagonal
+        return new Pose2d(
+            17.5 - pose.getX(),
+            8.0 - pose.getY(),
+            pose.getRotation().plus(new Rotation2d(Math.PI))
+        );
     }
 }

@@ -6,7 +6,10 @@ import java.util.function.Function;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.DrivePath;
@@ -164,77 +167,13 @@ public class AutonomousManager {
         // Does nothing, assumes starting forward.
         procedures[0] = new AutonomousProcedure();
 
+        // Move towards driver and to the right of the reef.
         procedures[1] = new AutonomousProcedure()
-            .andThen(makeDriveStep(new Pose2d(12.5, 5.0, new Rotation2d(-60.0 / 180.0 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL4))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeStep(() -> Coral.setIntakeState(IntakeState.Idle)))
-            .and(makeElevatorStep(ScoringPoint.Intaking))
-            .and(makeDriveStep(new Pose2d(16.0, 7.4, new Rotation2d(54.0 / 180.0 * Math.PI))));
-
-        procedures[2] = new AutonomousProcedure()    
-            .andThen(makeDriveStep(new Pose2d(14.3,4, new Rotation2d(180.0 / 180.0 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL2))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeStep(() -> Coral.setIntakeState(IntakeState.Intaking)))
-            .and(makeElevatorStep(ScoringPoint.Intaking))
-            .andThen(makeDriveStep(new Pose2d(16.0, 0.6, new Rotation2d(-54 / 180 * Math.PI))))
-            .andThen(makeTimedStep(5.0))
-            .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120.0/ 180.0 * Math.PI))));
-            
-        procedures[3] = new AutonomousProcedure()
-            .andThen(makeDriveStep(new Pose2d(12.5, 3, new Rotation2d(60 / 180 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL4))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeStep( ()-> Coral.setIntakeState(IntakeState.Idle)))
-            .and(makeElevatorStep(ScoringPoint.Stowed))
-            .and(makeDriveStep(new Pose2d(14.3, 4, new Rotation2d(180 / 180 * Math.PI))));
-
-        procedures[4] = new AutonomousProcedure()
-            .andThen(makeDriveStep(new Pose2d(12, 4, new Rotation2d(0 / 180 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL2))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeStep(() -> Coral.setIntakeState(IntakeState.Intaking)))
-            .and(makeElevatorStep(ScoringPoint.Intaking))
-            .and(makeDriveStep(new Pose2d(16, 7.4, new Rotation2d( 54 / 180 * Math.PI))))
-            .andThen(makeTimedStep(5.0))
-            .andThen(makeStep(() -> Coral.setIntakeState(IntakeState.Idle)))
-            .and(makeDriveStep(new Pose2d(13.7, 5.1, new Rotation2d( -120 / 180 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL2))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ScoringPoint.Stowed))
-            .and(makeStep(() -> Coral.setIntakeState(IntakeState.Idle)));
-
-        procedures[5] = new AutonomousProcedure()
-            .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d(120 / 180 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL3))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ScoringPoint.Intaking))
-            .and(makeStep(() -> Coral.setIntakeState(IntakeState.Intaking)))
-            .and(makeDriveStep(new Pose2d(16, 0.6, new Rotation2d( -54 / 180 * Math.PI))))
-            .and(makeTimedStep(5.0))
-            .andThen(makeDriveStep(new Pose2d(13.7, 3, new Rotation2d( 120 / 180 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL2))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ScoringPoint.Stowed))
-            .and(makeStep(() -> Coral.setIntakeState(IntakeState.Idle)));
-
-        procedures[6] = new AutonomousProcedure()
-            .andThen(makeDriveStep(new Pose2d(11.8, 4, new Rotation2d(0 / 180 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL3))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ScoringPoint.Intaking))
-            .and(makeStep(() -> Coral.setIntakeState(IntakeState.Intaking)))
-            .and(makeDriveStep(new Pose2d(16, 7.4, new Rotation2d( 54 / 180 * Math.PI))))
-            .and(makeTimedStep(5.0))
-            .andThen(makeDriveStep(new Pose2d(13.7, 5.1, new Rotation2d( -120 / 180 * Math.PI))))
-            .and(makeElevatorStep(ScoringPoint.ScoringL2))
-            .andThen(makeTimedStep(3.0, () -> Coral.setIntakeState(IntakeState.Outtaking)))
-            .andThen(makeElevatorStep(ScoringPoint.Stowed))
-            .and(makeStep(() -> Coral.setIntakeState(IntakeState.Idle)));
-        
-            procedures[7] = new AutonomousProcedure()
-                .and(makeStep(() -> SwerveDrive.setMode(SwerveMode.Headless)))
-                .andThen(makeTimedStep(2.5, () -> SwerveDrive.runUncurved(-0.25, 0.0, 0.0)));
+            .andThen(makeDriveStep(
+                DrivePath.makeAllianceSide(
+                    new Pose2d(3.0, 1.0, new Rotation2d(0.0)),
+                    DriverStation.getAlliance().orElse(Alliance.Blue)
+                )
+            ));
     }
 }
