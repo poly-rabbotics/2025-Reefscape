@@ -357,20 +357,21 @@ public class Robot extends LoggedRobot {
         Algae.run();
         Coral.run();
         
-        double algaeSpeed = -controllerOperator.getLeftY();
-        double pivotSpeed = controllerOperator.getRightX();
-        double elevatorSpeed = -controllerOperator.getRightY();
+        double mainOverrideSpeed = Controls.defaultCurve(-controllerOperator.getLeftY());
+        double secondaryOverrideSpeed = Controls.defaultCurve(-controllerOperator.getRightY());
+        double intakeOverrideSpeed
+            = Controls.defaultCurve(controllerOperator.getRightTriggerAxis())
+            - Controls.defaultCurve(controllerOperator.getLeftTriggerAxis());
 
-        if (Math.abs(algaeSpeed) > 0.15) {
-            Algae._setPivotSpeed(algaeSpeed);
+        if (controllerOperator.getRightBumperButton()) {
+            Coral._setElevatorSpeed(mainOverrideSpeed);
+            Coral._setPivotSpeed(secondaryOverrideSpeed / 3.0);
+            Coral._setIntakeSpeed(intakeOverrideSpeed);
         }
 
-        if (Math.abs(pivotSpeed) > 0.15) {
-            Coral._setPivotSpeed(pivotSpeed);
-        }
-
-        if (Math.abs(elevatorSpeed) > 0.1) {
-            Coral._setElevatorSpeed(elevatorSpeed);
+        if (controllerOperator.getXButton()) {
+            Algae._setPivotSpeed(mainOverrideSpeed);
+            Algae.setIntakeSpeed(intakeOverrideSpeed);
         }
 
         if (controllerOperator.getStartButtonReleased()) {

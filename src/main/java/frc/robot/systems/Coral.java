@@ -71,6 +71,10 @@ public class Coral {
         elevator._setSpeed(elevatorSpeed);
     }
 
+    public static void _setIntakeSpeed(double speed) {
+        coralIntake.set(speed);
+    }
+
     public static void _setElevatorPose(double pose) {
         elevator.setPosition(pose);
     }
