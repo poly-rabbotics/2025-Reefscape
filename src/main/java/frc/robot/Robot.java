@@ -5,7 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -110,19 +112,20 @@ public class Robot extends LoggedRobot {
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             if (controllerDriver.getBackButtonReleased()) {
-                var pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
+                Pose3d pose = new Pose3d();
 
                 if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                    Pigeon.setFeildOrientation(
-                        new Angle().setRadians(pose.getRotation().getRadians() + Math.PI)
-                    );
-                } else {
-                    Pigeon.setFeildOrientation(
-                        new Angle().setRadians(pose.getRotation().getRadians())
+                    pose = new Pose3d(
+                        0.0, 0.0, 0.0,
+                        new Rotation3d(
+                            Pigeon.getRoll().radians(),
+                            Pigeon.getPitch().radians(),
+                            Pigeon.getYaw().radians() + Math.PI
+                        )
                     );
                 }
 
-                PoseEstimator.reset();
+                PoseEstimator.reset(pose);
 
                 // Prevents fast rotation when setting heading.
                 if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
@@ -131,7 +134,19 @@ public class Robot extends LoggedRobot {
             }
 
             if (controllerDriver.getStartButtonReleased()) {
-                Pigeon.setYaw(new Angle().setDegrees(0.0));
+                Angle yaw;
+
+                switch (DriverStation.getAlliance().orElse(Alliance.Blue)) {
+                    case Red:
+                        yaw = new Angle().setDegrees(180.0);
+                        break;
+                    default:
+                    case Blue:
+                        yaw = new Angle().setDegrees(0.0);
+                        break;
+                }
+                
+                Pigeon.setYaw(yaw);
 
                 // Prevents fast rotation when setting heading.
                 if (SwerveDrive.getMode() == SwerveMode.SetAngle) {

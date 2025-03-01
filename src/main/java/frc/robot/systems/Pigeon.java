@@ -16,16 +16,10 @@ public class Pigeon {
     private static final Pigeon2 pigeon = new Pigeon2(PIGEON_CAN_ID);
 
     /**
-     * Sets "relative forward" to the current position. This will make getting
-     * the relative rotation always return a rotation relative to the rotation
-     * the robot is in at the point this method is called.
+     * Set yaw.
      */
     public static void setYaw(Angle yaw) {
         pigeon.setYaw(yaw.degrees());
-    }
-
-    public static void setFeildOrientation(Angle value) {
-        pigeon.setYaw(value.degrees());
     }
 
     /**

@@ -80,16 +80,14 @@ public class PoseEstimator {
     }
 
     /**
-     * Returns the current best estimate of pose estimation, being either from photon vision if an
-     * april tag is available, or from odometry if it is not.
+     * Returns the current best estimate of pose estimation.
      */
     public static Pose3d estimate() {
         return swervePoseEstimator.getEstimatedPosition();
     }
 
     /**
-     * Returns the current best estimate of pose estimation, being either from photon vision if an
-     * april tag is available, or from odometry if it is not. Projects this position onto the XY
+     * Returns the current best estimate of pose estimation. Projects this position onto the XY
      * plane.
      */
     public static Pose2d estimate2d() {
@@ -101,7 +99,15 @@ public class PoseEstimator {
      * start at the origin.
      */
     public static void reset() {
-        swervePoseEstimator.resetPose(new Pose3d());
+        SwerveDrive.setPoseOf(swervePoseEstimator, new Pose3d());
+    }
+
+    /**
+     * Set position. This will quickly be undone by a vision target, but until then odometry will
+     * start at the origin.
+     */
+    public static void reset(Pose3d pose) {
+        SwerveDrive.setPoseOf(swervePoseEstimator, pose);
     }
 
     /**

@@ -618,6 +618,21 @@ public class SwerveDrive {
     }
 
     /**
+     * Sets the current position of the given estimator.
+     */
+    public static void setPoseOf(SwerveDrivePoseEstimator3d estimator, Pose3d pose) {
+        estimator.resetPosition(
+            new Rotation3d(
+                Pigeon.getRoll().radians(),
+                Pigeon.getPitch().radians(),
+                Pigeon.getYaw().radians()
+            ),
+            positions,
+            new Pose3d()
+        );
+    }
+
+    /**
      * Updates the given pose estimator using measurements from swerve modules and the gyro.
      */
     public static void updatePoseEstimator(SwerveDrivePoseEstimator3d poseEstimator) {
