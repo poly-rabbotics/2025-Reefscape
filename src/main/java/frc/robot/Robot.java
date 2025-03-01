@@ -111,7 +111,17 @@ public class Robot extends LoggedRobot {
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             if (controllerDriver.getBackButtonReleased()) {
                 var pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
-                Pigeon.setFeildOrientation(new Angle().setRadians(pose.getRotation().getRadians()));
+
+                if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                    Pigeon.setFeildOrientation(
+                        new Angle().setRadians(pose.getRotation().getRadians() + Math.PI)
+                    );
+                } else {
+                    Pigeon.setFeildOrientation(
+                        new Angle().setRadians(pose.getRotation().getRadians())
+                    );
+                }
+
                 PoseEstimator.reset();
 
                 // Prevents fast rotation when setting heading.
@@ -121,11 +131,7 @@ public class Robot extends LoggedRobot {
             }
 
             if (controllerDriver.getStartButtonReleased()) {
-                if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-                    Pigeon.setYaw(new Angle().setDegrees(0.0));
-                } else {
-                    Pigeon.setYaw(new Angle().setDegrees(180.0));
-                }
+                Pigeon.setYaw(new Angle().setDegrees(0.0));
 
                 // Prevents fast rotation when setting heading.
                 if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
@@ -136,6 +142,7 @@ public class Robot extends LoggedRobot {
 
         recordLogFrame();
 
+        Logger.recordOutput("Alliance", DriverStation.getAlliance().orElse(Alliance.Blue));
         Logger.recordOutput("Selected Auto Number", AutonomousManager.getSwitchSelection(
             controlPanelAlgae.getRawButton(1),
             controlPanelAlgae.getRawButton(2),
@@ -173,6 +180,7 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         SwerveDrive.setMode(SwerveMode.Headless);
         SwerveDrive.setRotationCurve(Controls::turnCurveRohan);
+        SwerveDrive.setTranslationCurve(Controls::quinticCurveTwoDimensional);
 
         if (invertedTurn) {
             SwerveDrive.setRotationCurve((x) -> Controls.turnCurveRohan(-x));
@@ -214,11 +222,7 @@ public class Robot extends LoggedRobot {
     private void driverTeleop() {
         // Reset field oriented heading, based on alliance.
         if (controllerDriver.getStartButtonReleased()) {
-            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-                Pigeon.setYaw(new Angle().setDegrees(0.0));
-            } else {
-                Pigeon.setYaw(new Angle().setDegrees(180.0));
-            }
+            Pigeon.setYaw(new Angle().setDegrees(0.0));
         }
 
         boolean isFieldOriented
@@ -330,8 +334,6 @@ public class Robot extends LoggedRobot {
             scoringPoint = ScoringPoint.DealgaeficateL2;
         } else if (controlPanelCoral.getRawButton(5)) {
             scoringPoint = ScoringPoint.DealgaeficateL3;
-        } else if (controlPanelCoral.getRawButton(7)) {
-            scoringPoint = ScoringPoint.Intaking;
         }
 
         if (controlPanelAlgae.getRawButton(10)) {
@@ -380,6 +382,10 @@ public class Robot extends LoggedRobot {
 
         if (controllerOperator.getStartButtonReleased()) {
             Coral._setElevatorPose(0.0);
+        }
+
+        if (controlPanelCoral.getRawButton(7)) {
+            Coral._setElevatorSpeed(-0.75);
         }
     }
 

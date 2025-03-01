@@ -175,5 +175,9 @@ public class AutonomousManager {
                     DriverStation.getAlliance().orElse(Alliance.Blue)
                 )
             ));
+
+        procedures[2] = new AutonomousProcedure()
+            .andThen(makeStep(() -> SwerveDrive.setMode(SwerveMode.Headless)))
+            .andThen(makeTimedStep(2.5, () -> SwerveDrive.runUncurved(-0.25, 0.0, 0.0)));
     }
 }

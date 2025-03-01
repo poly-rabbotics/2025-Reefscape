@@ -6,10 +6,12 @@ import edu.wpi.first.wpilibj.Encoder.IndexingType;
 import edu.wpi.first.math.controller.PIDController;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import frc.robot.systems.Coral.ScoringPoint;
@@ -19,13 +21,17 @@ public class Elevator {
 
     private static final double GEAR_RATIO = 1.0 / (9.0 * 5.0);
     private static final double SPROCKET_DIAMETER_INCHES = 2;
-    private static final double INCHES_PER_ROTATION = GEAR_RATIO * Math.PI * SPROCKET_DIAMETER_INCHES * 3;
+    private static final double INCHES_PER_SPROCKET_ROTATION = 3 * Math.PI * SPROCKET_DIAMETER_INCHES;
+    private static final double INCHES_PER_ROTATION = GEAR_RATIO * INCHES_PER_SPROCKET_ROTATION;
 
-    private static final int ENC_PULSES_PER_CYCLE = 8192;
+    private static final int ENC_PULSES_PER_CYCLE = 2048;
 
     private static final double PID_P = 0.05;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
+
+    private static final double MAGIC_ACCEL = 50.0;
+    private static final double MAGIC_VELOCITY = 36.0;
 
     private static final double POSE_STOWED = 0.0;
     private static final double POSE_INTAKING = 0.0;
@@ -63,15 +69,29 @@ public class Elevator {
                 // which may be useful to limit chain skipping as well as force on the elevator.
                 .withPeakForwardTorqueCurrent(10.0)
                 .withPeakReverseTorqueCurrent(-10.0)
+            )
+            .withMotionMagic(new MotionMagicConfigs()
+                .withMotionMagicAcceleration(MAGIC_ACCEL / INCHES_PER_ROTATION)
+                .withMotionMagicCruiseVelocity(MAGIC_VELOCITY / INCHES_PER_ROTATION)
+            )
+            .withSlot0(new Slot0Configs()
+                .withKG(0.0) // Feed forward for gravity
+                .withKS(0.0) // Feed forward for static friction
+                .withKV(0.0) // Output per unit of desired velocity
+                .withKA(0.0) // Output per unit of desired acceleration
+                .withKP(0.0) // Proportional gain
+                .withKI(0.0) // Intagral gain
+                .withKD(0.0) // Derivative gain
             );
+
         elfKraken.getConfigurator().apply(config);
         elfKraken.setPosition(0.0);
 
         bottomSwitch = new DigitalInput(bottomLimit);
 
         throughBore = new Encoder(encChanA, encChanB);
-        throughBore.setDistancePerPulse(INCHES_PER_ROTATION / ENC_PULSES_PER_CYCLE);
-        throughBore.setIndexSource(bottomSwitch, IndexingType.kResetWhileLow);
+        throughBore.setDistancePerPulse(INCHES_PER_SPROCKET_ROTATION / ENC_PULSES_PER_CYCLE);
+        // throughBore.setIndexSource(bottomSwitch, IndexingType.kResetWhileLow);
     }
 
     /**
@@ -82,7 +102,17 @@ public class Elevator {
             setPosition(MIN_HEIGHT_INCHES);
         }
 
-        elfKraken.set(controller.calculate(getPosition(), getSetpoint()));
+        if (setPose == ScoringPoint.Stowed) {
+            // Use the kraken position since its inacuracy will be to become greater than truth,
+            // causing it to run into the limit switch and correct both it and the encoder.
+            elfKraken.set(controller.calculate(getKrakenPosition(), getSetpoint()));
+        } else {
+            elfKraken.set(controller.calculate(getPosition(), getSetpoint()));
+        }
+
+        // Motion magic control
+        // MotionMagicVoltage magicRequest = new MotionMagicVoltage(getSetpoint() / INCHES_PER_ROTATION);
+        // elfKraken.setControl(magicRequest);
     }
 
     /**
@@ -105,8 +135,11 @@ public class Elevator {
      * position may be easily changed between being an internal or external sensor.
      */
     public double getPosition() {
-        // return elfKraken.getPosition().getValueAsDouble() * INCHES_PER_ROTATION;
         return throughBore.getDistance();
+    }
+
+    public double getKrakenPosition() {
+        return elfKraken.getPosition().getValueAsDouble() * INCHES_PER_ROTATION;
     }
 
     /**

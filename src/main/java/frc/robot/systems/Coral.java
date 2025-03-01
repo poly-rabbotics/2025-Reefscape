@@ -92,6 +92,7 @@ public class Coral {
         Logger.recordOutput("Elevator Set Point", elevator.getSetpointEnum());
         Logger.recordOutput("Elevator Set Point (Meters)", elevator.getSetpoint());
         Logger.recordOutput("Elevator Position", elevator.getPosition());
+        Logger.recordOutput("Elevator Position (Kraken)", elevator.getKrakenPosition());
         Logger.recordOutput("Elevator At Pose", elevator.atPosition());
         Logger.recordOutput("Elevator Speed", elevator.getSpeed());
         Logger.recordOutput("Elevator Velocity", elevator.getVelocity());

@@ -429,11 +429,6 @@ public class SwerveDrive {
 
         switch (mode) {
             case Headless: {
-                if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
-                    translationX *= -1.0;
-                    translationY *= -1.0;
-                }
-
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         translationSpeedX,
@@ -473,7 +468,8 @@ public class SwerveDrive {
             }
 
             case SetAngle: {
-                rotationSpeed = setAngleController.calculate(Pigeon.getYaw().radians(), setAngle.radians());
+                double gyroAngle = Pigeon.getYaw().radians();
+                rotationSpeed = setAngleController.calculate(gyroAngle, setAngle.radians());
 
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(

@@ -61,6 +61,19 @@ public class Controls {
         return Math.sqrt(x * x * distanceRatio) * Math.signum(x);
     }
 
+    public static double quinticCurveTwoDimensional(double x, double y) {
+        double distance = Math.sqrt(x*x + y*y) * 1.15;
+
+        if (distance < 0.1) {
+            return 0.0;
+        }
+
+        double curvedDistance = Math.pow(distance, 5);
+        double distanceRatio = curvedDistance * distance;
+
+        return Math.sqrt(x * x * distanceRatio) * Math.signum(x);
+    }
+
     /**
      * Returns `x` if `x` is greater than `y`, otherwise returning `0.0`.
      */

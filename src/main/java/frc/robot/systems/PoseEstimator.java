@@ -24,9 +24,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class PoseEstimator {
     private static final Transform3d BOT_TO_CAM_FRONT
-        = new Transform3d(0.329, -0.158, 0.201, new Rotation3d(0.0, 0.0, 30.0 * Math.PI / 180.0));
+        = new Transform3d(0.329, -0.158, 0.201, new Rotation3d(0.0, 0.0, -30.0 * Math.PI / 180.0));
     private static final Transform3d BOT_TO_CAM_BACK
-        = new Transform3d(-0.330, -0.214, 0.342, new Rotation3d(0.0, 0.0, -120.0 * Math.PI / 180.0));
+        = new Transform3d(-0.330, -0.214, 0.342, new Rotation3d(0.0, 0.0, 120.0 * Math.PI / 180.0));
 
     private static final PhotonCamera camFront = new PhotonCamera("FrontCam");
     private static final PhotonCamera camBack = new PhotonCamera("BackCam");
