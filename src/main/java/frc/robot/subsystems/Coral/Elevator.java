@@ -2,8 +2,6 @@ package frc.robot.subsystems.Coral;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Encoder.IndexingType;
-import edu.wpi.first.math.controller.PIDController;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -26,12 +24,8 @@ public class Elevator {
 
     private static final int ENC_PULSES_PER_CYCLE = 2048;
 
-    private static final double PID_P = 0.05;
-    private static final double PID_I = 0.0;
-    private static final double PID_D = 0.0;
-
-    private static final double MAGIC_ACCEL = 50.0;
-    private static final double MAGIC_VELOCITY = 36.0;
+    private static final double MAGIC_ACCEL = 175.0;
+    private static final double MAGIC_VELOCITY = 100.0;
 
     private static final double POSE_STOWED = 0.0;
     private static final double POSE_INTAKING = 0.0;
@@ -48,12 +42,6 @@ public class Elevator {
     private final DigitalInput bottomSwitch;
     private final Encoder throughBore;
     private final TalonFX elfKraken;
-
-    private final PIDController controller = new PIDController(
-        PID_P,
-        PID_I,
-        PID_D
-    );
 
     private ScoringPoint setPose = ScoringPoint.Stowed;
 
@@ -75,11 +63,11 @@ public class Elevator {
                 .withMotionMagicCruiseVelocity(MAGIC_VELOCITY / INCHES_PER_ROTATION)
             )
             .withSlot0(new Slot0Configs()
-                .withKG(0.0) // Feed forward for gravity
+                .withKG(0.35) // Feed forward for gravity
                 .withKS(0.0) // Feed forward for static friction
                 .withKV(0.0) // Output per unit of desired velocity
                 .withKA(0.0) // Output per unit of desired acceleration
-                .withKP(0.0) // Proportional gain
+                .withKP(0.42) // Proportional gain
                 .withKI(0.0) // Intagral gain
                 .withKD(0.0) // Derivative gain
             );
@@ -102,17 +90,9 @@ public class Elevator {
             setPosition(MIN_HEIGHT_INCHES);
         }
 
-        if (setPose == ScoringPoint.Stowed) {
-            // Use the kraken position since its inacuracy will be to become greater than truth,
-            // causing it to run into the limit switch and correct both it and the encoder.
-            elfKraken.set(controller.calculate(getKrakenPosition(), getSetpoint()));
-        } else {
-            elfKraken.set(controller.calculate(getPosition(), getSetpoint()));
-        }
-
         // Motion magic control
-        // MotionMagicVoltage magicRequest = new MotionMagicVoltage(getSetpoint() / INCHES_PER_ROTATION);
-        // elfKraken.setControl(magicRequest);
+        MotionMagicVoltage magicRequest = new MotionMagicVoltage(getSetpoint() / INCHES_PER_ROTATION);
+        elfKraken.setControl(magicRequest);
     }
 
     /**
@@ -179,6 +159,13 @@ public class Elevator {
      */
     public double getVelocity() {
         return elfKraken.getVelocity().getValueAsDouble();
+    }
+
+    /**
+     * Gets the velocity of the elevator.
+     */
+    public double getAcceleration() {
+        return elfKraken.getAcceleration().getValueAsDouble();
     }
 
     /**

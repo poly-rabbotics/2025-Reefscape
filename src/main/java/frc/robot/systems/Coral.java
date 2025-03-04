@@ -90,12 +90,13 @@ public class Coral {
         Logger.recordOutput("Coral Pivot Velocity", pivot.getVelocity());
 
         Logger.recordOutput("Elevator Set Point", elevator.getSetpointEnum());
-        Logger.recordOutput("Elevator Set Point (Meters)", elevator.getSetpoint());
-        Logger.recordOutput("Elevator Position", elevator.getPosition());
-        Logger.recordOutput("Elevator Position (Kraken)", elevator.getKrakenPosition());
+        Logger.recordOutput("Elevator Set Point (in)", elevator.getSetpoint());
+        Logger.recordOutput("Elevator Position (Top Encoder) (in)", elevator.getPosition());
+        Logger.recordOutput("Elevator Position (in)", elevator.getKrakenPosition());
         Logger.recordOutput("Elevator At Pose", elevator.atPosition());
         Logger.recordOutput("Elevator Speed", elevator.getSpeed());
-        Logger.recordOutput("Elevator Velocity", elevator.getVelocity());
+        Logger.recordOutput("Elevator Velocity (in per second)", elevator.getVelocity());
+        Logger.recordOutput("Elevator Acceleration (in per second^2)", elevator.getAcceleration());
         Logger.recordOutput("Elevator At Lower Limit", elevator.atLowerLimit());
 
         Logger.recordOutput("Algae Intake Speed", algae.get());
