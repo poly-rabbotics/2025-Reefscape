@@ -1,23 +1,26 @@
 package frc.robot.subsystems.Coral;
 
-import org.littletonrobotics.junction.Logger;
-
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-
-import edu.wpi.first.math.controller.PIDController;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.spark.config.MAXMotionConfig;
 
 import frc.robot.subsystems.Angle;
 import frc.robot.systems.Coral.ScoringPoint;
 
 public class CoralPivot {
     private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(5.0);
-    private static final Angle PIVOT_OFFSET = new Angle().setDegrees(262.0 - 165.5);
 
     private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(32.0);
     private static final Angle PIVOT_POINT_HANDOFF = new Angle().setDegrees(45.0);
@@ -29,13 +32,8 @@ public class CoralPivot {
     private static final Angle PIVOT_POINT_ALGAE_L2 = new Angle().setDegrees(-70.0);
     private static final Angle PIVOT_POINT_ALGAE_L3 = new Angle().setDegrees(-70.0);
 
-    private static final double PID_P = 0.01;
-    private static final double PID_I = 0.0;
-    private static final double PID_D = 0.0;
-
-    private static final PIDController controller = new PIDController(PID_P, PID_I, PID_D);
-
     private final SparkMax motor;
+    private final SparkClosedLoopController controller;
     private ScoringPoint scoringPoint = ScoringPoint.Stowed;
 
     /**
@@ -47,14 +45,35 @@ public class CoralPivot {
         motor.configure(
             new SparkMaxConfig()
                 .inverted(true)
-                .idleMode(IdleMode.kBrake)
-                .apply(new AbsoluteEncoderConfig()),
+                .apply(new AbsoluteEncoderConfig()
+                    .zeroOffset(0.0)
+                    .positionConversionFactor(360.0)
+                    .velocityConversionFactor(360.0)
+                    .inverted(true)
+                    .zeroCentered(true)
+                )
+                .apply(new EncoderConfig()
+                    .positionConversionFactor(360.0 / 75.0)
+                    .velocityConversionFactor(360.0 / 75.0)
+                )
+                .apply(new ClosedLoopConfig()
+                    .apply(new MAXMotionConfig()
+                        .allowedClosedLoopError(PIVOT_TOLERANCE.degrees())
+                        .maxAcceleration(150.0 * 60.0)
+                        .maxVelocity(150.0 * 60.0)
+                        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
+                    )
+                    .pid(0.016, 0.0, 0.0002)
+                    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                    .positionWrappingEnabled(true)
+                    .positionWrappingInputRange(-180.0, 180.0)
+                ),
             ResetMode.kResetSafeParameters,
             PersistMode.kNoPersistParameters
         );
 
-        controller.enableContinuousInput(0.0, 360.0);
-        controller.setTolerance(PIVOT_OFFSET.degrees());
+        controller = motor.getClosedLoopController();
+        motor.getEncoder().setPosition(motor.getAbsoluteEncoder().getPosition());
     }
 
     /**
@@ -62,20 +81,8 @@ public class CoralPivot {
      * overrides not withstanding.
      */
     public void run() {
-        double setAngle = pivotAngle(scoringPoint).degrees() % 360.0;
-        double speed = controller.calculate(
-            getAngle().degrees() % 360.0,
-            setAngle % 360.0
-        );
-
-        if (speed > 0.5) {
-            speed = 0.5;
-        } else if (speed < -0.5) {
-            speed = -0.5;
-        }
-
-        motor.set(speed);
-        Logger.recordOutput("Coral Pivot Set Neo Speed", speed);
+        double setAngle = pivotAngle(scoringPoint).degrees();
+        controller.setReference(setAngle, ControlType.kMAXMotionPositionControl);
     }
 
     /**
@@ -103,10 +110,7 @@ public class CoralPivot {
      * Gets the curret angle of the pivot, as measured by a through-bore encoder.
      */
     public Angle getAngle() {
-        return new Angle()
-            .setDegrees(
-                (-motor.getAbsoluteEncoder().getPosition() * 360.0 - PIVOT_OFFSET.degrees() + 360.0) % 360.0
-            );
+        return new Angle().setDegrees(motor.getEncoder().getPosition());
     }
 
     /**
@@ -134,7 +138,7 @@ public class CoralPivot {
      * Overrides the speed, do not use unless absolutely needed.
      */
     public void _setSpeed(double speed) {
-        motor.set(speed);
+        // motor.set(speed);
     }
     
     /**

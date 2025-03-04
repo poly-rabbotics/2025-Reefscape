@@ -33,6 +33,7 @@ public class Algae {
     
     public static void recordState() {
         Logger.recordOutput("Algae Intake Pivot Speed", algaeIntake.getPivotSpeed());
+        Logger.recordOutput("Algae Intake Pivot Velocity (Degrees per Second)", algaeIntake.getPivotVelocity());
         Logger.recordOutput("Algae Intake Speed", algaeIntake.getIntakeSpeed());
         Logger.recordOutput("Algae Intake Set Pose", algaeIntake.getSetPose());
         Logger.recordOutput("Algae Intake Angle (Degrees)", algaeIntake.getAngle().degrees());
