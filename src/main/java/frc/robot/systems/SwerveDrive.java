@@ -11,7 +11,9 @@ import java.util.function.Function;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,8 +24,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.SwerveMode;
@@ -428,6 +429,12 @@ public class SwerveDrive {
         boolean holdPos = false;
 
         switch (mode) {
+            case SetAngle: {
+                double gyroAngle = Pigeon.getYaw().radians();
+                rotationSpeed = setAngleController.calculate(gyroAngle, setAngle.radians());
+                // Fall-through to `Headless`
+            }
+
             case Headless: {
                 moduleStates = kinematics.toSwerveModuleStates(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -464,21 +471,6 @@ public class SwerveDrive {
                     );
                 }
 
-                break;
-            }
-
-            case SetAngle: {
-                double gyroAngle = Pigeon.getYaw().radians();
-                rotationSpeed = setAngleController.calculate(gyroAngle, setAngle.radians());
-
-                moduleStates = kinematics.toSwerveModuleStates(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translationSpeedX,
-                        translationSpeedY,
-                        rotationSpeed,
-                        new Rotation2d(Pigeon.getYaw().radians())
-                    )
-                );
                 break;
             }
 

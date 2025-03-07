@@ -1,6 +1,5 @@
 package frc.robot.subsystems.Coral;
 
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -10,7 +9,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.EncoderConfig;
@@ -58,13 +56,13 @@ public class CoralPivot {
                 )
                 .apply(new ClosedLoopConfig()
                     .apply(new MAXMotionConfig()
-                        .allowedClosedLoopError(PIVOT_TOLERANCE.degrees())
+                        // .allowedClosedLoopError(PIVOT_TOLERANCE.degrees())
                         .maxAcceleration(150.0 * 60.0)
                         .maxVelocity(150.0 * 60.0)
                         .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
                     )
-                    .pid(0.016, 0.0, 0.0002)
-                    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                    .pid(0.016, 0.0, 0.0001)
+                    .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
                     .positionWrappingEnabled(true)
                     .positionWrappingInputRange(-180.0, 180.0)
                 ),

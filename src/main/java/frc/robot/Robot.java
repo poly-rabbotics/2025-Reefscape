@@ -115,14 +115,7 @@ public class Robot extends LoggedRobot {
                 Pose3d pose = new Pose3d();
 
                 if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                    pose = new Pose3d(
-                        0.0, 0.0, 0.0,
-                        new Rotation3d(
-                            Pigeon.getRoll().radians(),
-                            Pigeon.getPitch().radians(),
-                            Pigeon.getYaw().radians() + Math.PI
-                        )
-                    );
+                    pose = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, Math.PI));
                 }
 
                 PoseEstimator.reset(pose);
@@ -307,11 +300,15 @@ public class Robot extends LoggedRobot {
         SwerveDrive.conditionalTempMode(SwerveMode.Rock, controllerDriver.getBButton());
         SwerveDrive.conditionalTempMode(SwerveMode.Relative, controllerDriver.getYButton());
 
-        SwerveDrive.run(
-            -controllerDriver.getLeftY(),
-            -controllerDriver.getLeftX(),
-            -controllerDriver.getRightX()
-        );
+        double speedX = -controllerDriver.getLeftY();
+        double speedY = -controllerDriver.getLeftX();
+
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            speedX *= -1.0;
+            speedY *= -1.0;
+        }
+
+        SwerveDrive.run(speedX, speedY, -controllerDriver.getRightX());
     }
 
     /**
