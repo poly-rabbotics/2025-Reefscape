@@ -32,10 +32,10 @@ public class Elevator {
     private static final double POSE_HANDOFF = 0.0;
     private static final double POSE_SCORING_L1 = 0.0;
     private static final double POSE_SCORING_L2 = 0.0;
-    private static final double POSE_SCORING_L3 = 23.0;
+    private static final double POSE_SCORING_L3 = 20.0;
     private static final double POSE_SCORING_L4 = 58.0;
     private static final double POSE_DEALGAEFICATE_L2 = POSE_SCORING_L2;
-    private static final double POSE_DEALGAEFICATE_L3 = POSE_SCORING_L3 - 2.0;
+    private static final double POSE_DEALGAEFICATE_L3 = POSE_SCORING_L3 - 3.0;
 
     private static final double POSE_TOLERANCE = 0.0;
 

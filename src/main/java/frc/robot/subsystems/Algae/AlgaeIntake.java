@@ -1,25 +1,20 @@
 package frc.robot.subsystems.Algae;
 
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.MAXMotionConfig;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.math.controller.PIDController;
+
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 
 import frc.robot.subsystems.Angle;
 import frc.robot.systems.Algae.AlgaePose;
 
 public class AlgaeIntake {
-    private static final double PIVOT_TOLERANCE = 10.0;
-
     private static final Angle PIVOT_STOW = new Angle().setDegrees(90.0);
     private static final Angle PIVOT_INTAKE = new Angle().setDegrees(-20.0);
     private static final Angle PIVOT_HANDOFF = new Angle().setDegrees(110.0);
@@ -27,7 +22,7 @@ public class AlgaeIntake {
 
     private final SparkMax intakeMotor;
     private final SparkMax pivotMotor;
-    private final SparkClosedLoopController controller;
+    private final PIDController controller = new PIDController(0.005, 0.0, 0.0);
 
     private AlgaePose pose = AlgaePose.Stow;
 
@@ -51,29 +46,15 @@ public class AlgaeIntake {
                     .velocityConversionFactor(360.0)
                     .inverted(true)
                     .zeroCentered(true)
-                )
-                .apply(new ClosedLoopConfig()
-                    .apply(new MAXMotionConfig()
-                        .allowedClosedLoopError(PIVOT_TOLERANCE)
-                        .maxAcceleration(500.0 * 60.0)
-                        .maxVelocity(200.0 * 60.0)
-                        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-                    )
-                    .pid(0.08, 0.0, 0.0)
-                    .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-                    .positionWrappingEnabled(false)
-                    .positionWrappingInputRange(-180.0, 180.0)
                 ),
             ResetMode.kResetSafeParameters,
             PersistMode.kNoPersistParameters
         );
-
-        controller = pivotMotor.getClosedLoopController();
     }
 
     public void run() {
-        double setAngle = getSetAngle().degrees();
-        controller.setReference(setAngle, ControlType.kMAXMotionPositionControl);
+        double speed = controller.calculate(getAngle().degrees(), getSetAngle().degrees());
+        pivotMotor.set(speed);
     }
 
     public void setSpeed(double speed) {
