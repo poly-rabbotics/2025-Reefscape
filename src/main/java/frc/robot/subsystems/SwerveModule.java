@@ -19,13 +19,14 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 
 /** 
  * Class for managing and manipulating a swerve module. 
  */
 public class SwerveModule {
     private static final double CONVERSION_FACTOR_ROTATION = Math.toRadians(150 / 7);
-    private static final double CONVERSION_FACTOR_MOVEMENT = 6.75 * 10/3;
+    private static final double CONVERSION_FACTOR_MOVEMENT = 6.75 / (0.09525 * Math.PI);
 
     private static final double PID_P = 0.70;
     private static final double PID_I = 0.0;
@@ -115,6 +116,12 @@ public class SwerveModule {
             new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(40.0)
                 .withSupplyCurrentLimitEnable(true)
+        );
+
+        movementConfigurator.apply(
+            new TorqueCurrentConfigs()
+                .withPeakForwardTorqueCurrent(70.0)
+                .withPeakForwardTorqueCurrent(-70.0)
         );
 
         movementConfigurator.apply(

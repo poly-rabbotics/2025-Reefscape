@@ -2,14 +2,18 @@ package frc.robot.systems;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.subsystems.TimedTrackedTarget;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -19,21 +23,27 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import org.littletonrobotics.junction.Logger;
 
 public class PoseEstimator {
+    private static final double AMBIGUITY_CUTOFF = 0.1;
+    
     private static final Transform3d BOT_TO_CAM_FRONT
-        = new Transform3d(-0.329, 0.158, 0.201, new Rotation3d(0.0, 0.0, 150.0 * Math.PI / 180.0));
+        = new Transform3d(-0.329, -0.158, 0.201, new Rotation3d(0.0, 0.0, 150.0 * Math.PI / 180.0));
     private static final Transform3d BOT_TO_CAM_BACK
-        = new Transform3d(0.330, 0.214, 0.342, new Rotation3d(0.0, 0.0, 30.0 * Math.PI / 180.0));
+        = new Transform3d(0.330, -0.214, 0.342, new Rotation3d(0.0, 0.0, 30.0 * Math.PI / 180.0));
 
     private static final PhotonCamera camFront = new PhotonCamera("FrontCam");
     private static final PhotonCamera camBack = new PhotonCamera("BackCam");
 
     private static AprilTagFieldLayout field;
+
     private static final PhotonPoseEstimator photonEstimatorFront;
     private static final PhotonPoseEstimator photonEstimatorBack;
+    private static final List<TimedTrackedTarget> trackedTargets
+        = new ArrayList<TimedTrackedTarget>();
 
     private static SwerveDrivePoseEstimator3d swervePoseEstimator
         = SwerveDrive.createSwervePoseEstimator(new Pose3d());
@@ -50,13 +60,13 @@ public class PoseEstimator {
 
         photonEstimatorFront = new PhotonPoseEstimator(
             field,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            PoseStrategy.LOWEST_AMBIGUITY,
             BOT_TO_CAM_FRONT
         );
 
         photonEstimatorBack = new PhotonPoseEstimator(
             field,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            PoseStrategy.LOWEST_AMBIGUITY,
             BOT_TO_CAM_BACK
         );
 
@@ -73,6 +83,22 @@ public class PoseEstimator {
         Optional<EstimatedRobotPose> workingEstimate = estimateFront.or(() -> estimateBack);
 
         SwerveDrive.updatePoseEstimator(swervePoseEstimator);
+
+        trackedTargets.clear();
+        double time = DriverStation.getMatchTime();
+
+        estimateFront.ifPresent((ef) -> {
+            for (PhotonTrackedTarget target : ef.targetsUsed) {
+                trackedTargets.add(new TimedTrackedTarget(target, time));
+            }
+        });
+
+        estimateBack.ifPresent((eb) -> {
+            for (PhotonTrackedTarget target : eb.targetsUsed) {
+                trackedTargets.add(new TimedTrackedTarget(target, time));
+            }
+        });
+
         workingEstimate.ifPresent(
             (est) -> swervePoseEstimator
                 .addVisionMeasurement(est.estimatedPose, est.timestampSeconds)
@@ -106,6 +132,20 @@ public class PoseEstimator {
     }
 
     /**
+     * Gets an `ArrayList` of the recently tracked targets of the `PoseEstimator`.
+     */
+    public static ArrayList<Pose3d> trackedTargetPoses() {
+        ArrayList<Pose3d> targetPoses = new ArrayList<Pose3d>();
+        
+        for (TimedTrackedTarget timedTarget : trackedTargets) {
+            field.getTagPose(timedTarget.getTrackedTarget().getFiducialId())
+                .ifPresent((pose) -> targetPoses.add(pose));
+        }
+
+        return targetPoses;
+    }
+
+    /**
      * Zero position. This will quickly be undone by a vision target, but until then odometry will
      * start at the origin.
      */
@@ -130,8 +170,10 @@ public class PoseEstimator {
 
         for (PhotonPipelineResult res : results) {
             if (
-                latestResult == null
-                || res.getTimestampSeconds() > latestResult.getTimestampSeconds()
+                (latestResult == null
+                || res.getTimestampSeconds() > latestResult.getTimestampSeconds())
+                && res.getBestTarget() != null
+                && res.getBestTarget().getPoseAmbiguity() < AMBIGUITY_CUTOFF
             ) {
                 latestResult = res;
             }
@@ -145,7 +187,12 @@ public class PoseEstimator {
     }
 
     public static void recordState() {
-        Logger.recordOutput("Estimated Robot Pose", estimate());
-        Logger.recordOutput("Estimated Robot Pose (2D)", estimate2d());
+        Logger.recordOutput("Pose Estimator Estimated Robot Pose", estimate());
+        Logger.recordOutput("Pose Estimator Estimated Robot Pose (2D)", estimate2d());
+
+        Logger.recordOutput(
+            "Pose Estimator Tracked Target Poses",
+            trackedTargetPoses().toArray(new Pose3d[0])
+        );
     }
 }

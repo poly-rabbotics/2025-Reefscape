@@ -20,7 +20,7 @@ public class Coral {
 
     public enum ScoringPoint {
         ScoringL1, ScoringL2, ScoringL3, ScoringL4,
-        DealgaeficateL2, DealgaeficateL3,
+        DealgaeficateL2, DealgaeficateL3, AlgaeNet,
         Stowed, Intaking, Handoff
     }
 

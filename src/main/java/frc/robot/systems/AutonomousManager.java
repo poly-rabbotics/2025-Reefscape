@@ -6,9 +6,7 @@ import java.util.function.Function;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
@@ -16,7 +14,6 @@ import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.SwerveMode;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
 import frc.robot.systems.Coral.ScoringPoint;
-import frc.robot.systems.Coral.IntakeState;
 
 public class AutonomousManager {
     private static final int AUTO_SWITCH_COUNT = 4;
@@ -167,14 +164,37 @@ public class AutonomousManager {
         // Does nothing, assumes starting forward.
         procedures[0] = new AutonomousProcedure();
 
-        // Move towards driver and to the right of the reef.
+        // Blue side close algae to net
         procedures[1] = new AutonomousProcedure()
-            .andThen(makeDriveStep(
-                DrivePath.makeAllianceSide(
-                    new Pose2d(3.0, 1.0, new Rotation2d(0.0)),
-                    DriverStation.getAlliance().orElse(Alliance.Blue)
-                )
-            ));
+            // .andThen(makeDriveStep(new Pose2d(7.17, 0.7, new Rotation2d(Math.PI))))
+            .andThen(makeDriveStep(new Pose2d(3.75, 8.0 - 1.29, new Rotation2d(Math.PI / 2))))
+            .andThen(makeDriveStep(new Pose2d(1.78, 8.0 - 3.9, new Rotation2d())))
+            .andThen(makeElevatorStep(ScoringPoint.DealgaeficateL3))
+            .andThen((prevStatus) -> {
+                Coral.setDealgaeficatorSpeed(-1.0);
+                return StepStatus.Done;
+            })
+            .andThen(makeDriveStep(new Pose2d(2.85, 4.0, new Rotation2d())))
+            .andThen(makeTimedStep(1.5))
+            .andThen((prevStatus) -> {
+                Coral.setDealgaeficatorSpeed(0.0);
+                return StepStatus.Done;
+            })
+            .andThen(makeDriveStep(new Pose2d(3.05, 4, new Rotation2d())))
+            .andThen(makeElevatorStep(ScoringPoint.Stowed))
+            .andThen(makeDriveStep(new Pose2d(3.18, 6.46, new Rotation2d())))
+            .andThen(makeDriveStep(new Pose2d(6.7, 5.7, new Rotation2d())))
+            .andThen(makeElevatorStep(ScoringPoint.AlgaeNet))
+            .andThen((prevStatus) -> {
+                Coral.setDealgaeficatorSpeed(1.0);
+                return StepStatus.Done;
+            })
+            .andThen(makeTimedStep(1.5))
+            .andThen(makeElevatorStep(ScoringPoint.Stowed))
+            .andThen((prevStatus) -> {
+                Coral.setDealgaeficatorSpeed(0.0);
+                return StepStatus.Done;
+            });
 
         procedures[2] = new AutonomousProcedure()
             .andThen(makeStep(() -> SwerveDrive.setMode(SwerveMode.Headless)))

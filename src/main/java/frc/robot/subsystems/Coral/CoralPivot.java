@@ -15,17 +15,18 @@ import frc.robot.subsystems.Angle;
 import frc.robot.systems.Coral.ScoringPoint;
 
 public class CoralPivot {
-    private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(5.0);
+    private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(0.0);
 
-    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(32.0);
+    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(25.0);
     private static final Angle PIVOT_POINT_HANDOFF = new Angle().setDegrees(45.0);
-    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(32.0);
+    private static final Angle PIVOT_POINT_STOW = PIVOT_POINT_INTAKE;
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-20.0);
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-30.0);
     private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-40.0);
     private static final Angle PIVOT_POINT_ALGAE_L2 = new Angle().setDegrees(-90.0);
     private static final Angle PIVOT_POINT_ALGAE_L3 = new Angle().setDegrees(-90.0);
+    private static final Angle PIVOT_POINT_ALGAE_NET = new Angle().setDegrees(-40.0);
 
     private final SparkMax motor;
     private final PIDController controller = new PIDController(0.005, 0.0, 0.00008);
@@ -41,7 +42,7 @@ public class CoralPivot {
             new SparkMaxConfig()
                 .inverted(true)
                 .apply(new AbsoluteEncoderConfig()
-                    .zeroOffset(0.0)
+                    .zeroOffset(188.75 / 360.0)
                     .positionConversionFactor(360.0)
                     .velocityConversionFactor(360.0)
                     .inverted(true)
@@ -140,6 +141,8 @@ public class CoralPivot {
                 return PIVOT_POINT_ALGAE_L2;
             case DealgaeficateL3:
                 return PIVOT_POINT_ALGAE_L3;
+            case AlgaeNet:
+                return PIVOT_POINT_ALGAE_NET;
             case Intaking:
                 return PIVOT_POINT_INTAKE;
             case Handoff:

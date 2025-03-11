@@ -31,13 +31,14 @@ public class Elevator {
     private static final double POSE_INTAKING = 0.0;
     private static final double POSE_HANDOFF = 0.0;
     private static final double POSE_SCORING_L1 = 0.0;
-    private static final double POSE_SCORING_L2 = 0.0;
-    private static final double POSE_SCORING_L3 = 20.0;
-    private static final double POSE_SCORING_L4 = 58.0;
+    private static final double POSE_SCORING_L2 = 3.0;
+    private static final double POSE_SCORING_L3 = 24.0;
+    private static final double POSE_SCORING_L4 = 54.0;
     private static final double POSE_DEALGAEFICATE_L2 = POSE_SCORING_L2;
-    private static final double POSE_DEALGAEFICATE_L3 = POSE_SCORING_L3 - 3.0;
+    private static final double POSE_DEALGAEFICATE_L3 = POSE_SCORING_L3;
+    private static final double POSE_ALGAE_NET = 58.0;
 
-    private static final double POSE_TOLERANCE = 0.0;
+    private static final double POSE_TOLERANCE = 2.0;
 
     private final DigitalInput bottomSwitch;
     private final Encoder throughBore;
@@ -115,7 +116,7 @@ public class Elevator {
      * position may be easily changed between being an internal or external sensor.
      */
     public double getPosition() {
-        return throughBore.getDistance();
+        return getKrakenPosition();
     }
 
     public double getKrakenPosition() {
@@ -203,6 +204,8 @@ public class Elevator {
                 return POSE_DEALGAEFICATE_L2;
             case DealgaeficateL3:
                 return POSE_DEALGAEFICATE_L3;
+            case AlgaeNet:
+                return POSE_ALGAE_NET;
             case Stowed:
             default:
                 return POSE_STOWED;

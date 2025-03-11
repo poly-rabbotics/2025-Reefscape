@@ -77,11 +77,11 @@ public class SwerveDrive {
 
     // PID parameter constants for following autonomous trajectories. These are used to follow a
     // setpoint given as a two dimensional point and a rotation.
-    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.75;
+    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.5;
     private static final double TRAJECTORY_STRAFE_X_PID_I = 0.0;
     private static final double TRAJECTORY_STRAFE_X_PID_D = 0.0;
 
-    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.75;
+    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.5;
     private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.0;
     private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.0;
 
@@ -147,6 +147,7 @@ public class SwerveDrive {
     private static BiFunction<Double, Double, Double> inactiveTransationCurve = null;
     private static Function<Double, Double> rotationCurve = Controls::defaultCurve;
     private static Function<Double, Double> inactiveRotationCurve = null;
+    private static DriveOrientation driveOrientation = DriveOrientation.NeutralObserver;
 
     // Drive mode fields. Inactive mode works the same as an inactive curve, and tracks the drive
     // mode to return to when setting temporary modes. The display mode is used only for display,
@@ -177,6 +178,12 @@ public class SwerveDrive {
     private static double translationSpeedX = 0.0;
     private static double translationSpeedY = 0.0;
     private static double rotationSpeed = 0.0;
+
+    public enum DriveOrientation {
+        NeutralObserver,
+        BlueDriver,
+        RedDriver
+    }
 
     static {
         // Create swerve modules using device CAN IDs, encoder offsets, and physical positions.
@@ -330,13 +337,6 @@ public class SwerveDrive {
     }
 
     /**
-     * Gets the Function currently used for turning.
-     */
-    public static Function<Double, Double> getRotationCurve() {
-        return rotationCurve;
-    }
-
-    /**
      * Temporarily sets the curve function for turn inputs. Undone after running.
      * @param curve The Function to use for proccessing the curve.
      */
@@ -364,37 +364,16 @@ public class SwerveDrive {
         tempRotationCurve(curve);
     }
 
+    public static void setDriveOrientation(DriveOrientation orientation) {
+        driveOrientation = orientation;
+    }
+
     /**
      * Runs with a static speed of zero for all inputs, meant to be used for
      * trajectory following in autonomous.
      */
     public static void run() {
         runUncurved(0.0, 0.0, 0.0);
-    }
-
-    /**
-     * Runs swerve, behavior changes based on the drive's mode. This will reset
-     * temporary modes on completion.
-     * @param translationX The X axis of the directional control, between 1 and -1
-     * @param translationY The Y axis of the directional control, between 1 and -1.
-     * @param speed The speed scalar for the drive.
-     * @param rotation A value between 1 and -1 that determines the turning speed.
-     * @param lowSense The angle to move in low sensitivity in degrees, -1 for no movement.
-     */
-    public static void run(
-        double translationX,
-        double translationY,
-        double speed,
-        double rotation
-    ) {
-        speed = Math.abs(translationX) <= 0.05 && Math.abs(translationY) <= 0.05 ? 0.0 : speed;
-
-        // angle is in radians as per Java's trig methods.
-        var angle = Math.atan2(translationY, translationX);
-        translationX = Math.cos(angle) * speed;
-
-        translationY = Math.sin(angle) * speed;
-        run(translationX, translationY, rotation);
     }
 
     /**
@@ -406,9 +385,23 @@ public class SwerveDrive {
      * @param lowSense The angle to move in low sensitivity in degrees, -1 for no movement.
      */
     public static void run(double translationX, double translationY, double rotation) {
-        var x = translationCurve.apply(translationX, translationY);
-        var y = translationCurve.apply(translationY, translationX);
+        double x;
+        double y;
         rotation = rotationCurve.apply(rotation);
+
+        switch (driveOrientation) {
+            case BlueDriver:
+            case RedDriver:
+                x = translationCurve.apply(translationY, translationX);
+                y = -translationCurve.apply(translationX, translationY);
+                break;
+            default:
+            case NeutralObserver:
+                x = translationCurve.apply(translationX, translationY);
+                y = translationCurve.apply(translationY, translationX);
+                break;
+        }
+        
         runUncurved(x, y, rotation);
     }
     
@@ -695,5 +688,7 @@ public class SwerveDrive {
                 .flatMap((path) -> path.currentTarget())
                 .orElse(new Pose2d())
         );
+
+        Logger.recordOutput("Swerve Drive Orientation", driveOrientation);
     }
 }

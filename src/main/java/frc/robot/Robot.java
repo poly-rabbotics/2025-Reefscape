@@ -5,9 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
+
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,6 +22,7 @@ import frc.robot.systems.*;
 import frc.robot.systems.Algae.AlgaePose;
 import frc.robot.systems.Coral.IntakeState;
 import frc.robot.systems.Coral.ScoringPoint;
+import frc.robot.systems.SwerveDrive.DriveOrientation;
 
 import java.util.Optional;
 
@@ -110,44 +110,6 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         PoseEstimator.update();
 
-        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
-            if (controllerDriver.getBackButtonReleased()) {
-                Pose3d pose = new Pose3d();
-
-                if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                    pose = new Pose3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, Math.PI));
-                }
-
-                PoseEstimator.reset(pose);
-
-                // Prevents fast rotation when setting heading.
-                if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
-                    SwerveDrive.setMode(SwerveMode.Headless);
-                }
-            }
-
-            if (controllerDriver.getStartButtonReleased()) {
-                Angle yaw;
-
-                switch (DriverStation.getAlliance().orElse(Alliance.Blue)) {
-                    case Red:
-                        yaw = new Angle().setDegrees(180.0);
-                        break;
-                    default:
-                    case Blue:
-                        yaw = new Angle().setDegrees(0.0);
-                        break;
-                }
-                
-                Pigeon.setYaw(yaw);
-
-                // Prevents fast rotation when setting heading.
-                if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
-                    SwerveDrive.setMode(SwerveMode.Headless);
-                }
-            }
-        }
-
         recordLogFrame();
 
         Logger.recordOutput("Alliance", DriverStation.getAlliance().orElse(Alliance.Blue));
@@ -212,7 +174,33 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {}
 
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
+            int dPadAngle = controllerDriver.getPOV();
+
+            if (dPadAngle != -1) {
+                Angle yaw = new Angle().setDegrees((double)dPadAngle - 90.0);
+                Pigeon.setYaw(yaw);
+
+                // Prevents fast rotation when setting heading.
+                if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
+                    SwerveDrive.setMode(SwerveMode.Headless);
+                }
+            }
+
+            if (controllerDriver.getRightBumperButtonReleased()) {
+                SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
+            }
+
+            if (controllerDriver.getLeftBumperButtonReleased()) {
+                SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
+            }
+
+            if (controllerDriver.getStartButtonReleased()) {
+                SwerveDrive.setDriveOrientation(DriveOrientation.NeutralObserver);
+            }
+        }
+    }
 
     private void recordLogFrame() {
         SwerveDrive.recordState();
@@ -228,11 +216,6 @@ public class Robot extends LoggedRobot {
      * from the driver's controller.
      */
     private void driverTeleop() {
-        // Reset field oriented heading, based on alliance.
-        if (controllerDriver.getStartButtonReleased()) {
-            Pigeon.setYaw(new Angle().setDegrees(0.0));
-        }
-
         boolean isFieldOriented
             = SwerveDrive.getMode() == SwerveMode.Headless
             || SwerveDrive.getMode() == SwerveMode.SetAngle;
@@ -300,8 +283,8 @@ public class Robot extends LoggedRobot {
         SwerveDrive.conditionalTempMode(SwerveMode.Rock, controllerDriver.getBButton());
         SwerveDrive.conditionalTempMode(SwerveMode.Relative, controllerDriver.getYButton());
 
-        double speedX = -controllerDriver.getLeftY();
-        double speedY = -controllerDriver.getLeftX();
+        double speedX = controllerDriver.getLeftX();
+        double speedY = -controllerDriver.getLeftY();
 
         if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
             speedX *= -1.0;
@@ -346,6 +329,8 @@ public class Robot extends LoggedRobot {
             scoringPoint = ScoringPoint.DealgaeficateL2;
         } else if (controlPanelCoral.getRawButton(5)) {
             scoringPoint = ScoringPoint.DealgaeficateL3;
+        } else if (controlPanelCoral.getRawButton(7)) {
+            scoringPoint = ScoringPoint.AlgaeNet;
         }
 
         if (controlPanelAlgae.getRawButton(10)) {
@@ -394,10 +379,6 @@ public class Robot extends LoggedRobot {
 
         if (controllerOperator.getStartButtonReleased()) {
             Coral._setElevatorPose(0.0);
-        }
-
-        if (controlPanelCoral.getRawButton(7)) {
-            Coral._setElevatorSpeed(-0.75);
         }
     }
 
