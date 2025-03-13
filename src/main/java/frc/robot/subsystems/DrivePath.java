@@ -66,6 +66,13 @@ public class DrivePath {
     }
 
     /**
+     * Get a list of all targets not yet completed in the `DrivePath`. Includes the current target.
+     */
+    public ArrayList<Pose2d> futureTargets() {
+        return points;
+    }
+
+    /**
      * Returns `true` if all targets have been reached and no more target points remain.
      */
     public boolean isCompleted() {

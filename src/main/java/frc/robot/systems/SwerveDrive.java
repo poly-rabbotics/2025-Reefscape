@@ -692,6 +692,11 @@ public class SwerveDrive {
                 .orElse(new Pose2d())
         );
 
+        Logger.recordOutput(
+            "Swerve Drive Drive Path",
+            path.futureTargets().toArray(new Pose2d[0])
+        );
+
         Logger.recordOutput("Swerve Drive Orientation", driveOrientation);
     }
 }
