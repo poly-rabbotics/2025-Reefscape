@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import frc.robot.subsystems.TimedTrackedTarget;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -42,8 +41,8 @@ public class PoseEstimator {
 
     private static final PhotonPoseEstimator photonEstimatorFront;
     private static final PhotonPoseEstimator photonEstimatorBack;
-    private static final List<TimedTrackedTarget> trackedTargets
-        = new ArrayList<TimedTrackedTarget>();
+    private static final List<PhotonTrackedTarget> trackedTargets
+        = new ArrayList<PhotonTrackedTarget>();
 
     private static SwerveDrivePoseEstimator3d swervePoseEstimator
         = SwerveDrive.createSwervePoseEstimator(new Pose3d());
@@ -85,19 +84,8 @@ public class PoseEstimator {
         SwerveDrive.updatePoseEstimator(swervePoseEstimator);
 
         trackedTargets.clear();
-        double time = DriverStation.getMatchTime();
-
-        estimateFront.ifPresent((ef) -> {
-            for (PhotonTrackedTarget target : ef.targetsUsed) {
-                trackedTargets.add(new TimedTrackedTarget(target, time));
-            }
-        });
-
-        estimateBack.ifPresent((eb) -> {
-            for (PhotonTrackedTarget target : eb.targetsUsed) {
-                trackedTargets.add(new TimedTrackedTarget(target, time));
-            }
-        });
+        estimateFront.ifPresent((ef) -> trackedTargets.addAll(ef.targetsUsed));
+        estimateBack.ifPresent((eb) -> trackedTargets.addAll(eb.targetsUsed));
 
         workingEstimate.ifPresent(
             (est) -> swervePoseEstimator
@@ -137,9 +125,8 @@ public class PoseEstimator {
     public static ArrayList<Pose3d> trackedTargetPoses() {
         ArrayList<Pose3d> targetPoses = new ArrayList<Pose3d>();
         
-        for (TimedTrackedTarget timedTarget : trackedTargets) {
-            field.getTagPose(timedTarget.getTrackedTarget().getFiducialId())
-                .ifPresent((pose) -> targetPoses.add(pose));
+        for (PhotonTrackedTarget timedTarget : trackedTargets) {
+            field.getTagPose(timedTarget.getFiducialId()).ifPresent((pose) -> targetPoses.add(pose));
         }
 
         return targetPoses;

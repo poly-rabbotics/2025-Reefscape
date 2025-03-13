@@ -77,13 +77,13 @@ public class SwerveDrive {
 
     // PID parameter constants for following autonomous trajectories. These are used to follow a
     // setpoint given as a two dimensional point and a rotation.
-    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.5;
-    private static final double TRAJECTORY_STRAFE_X_PID_I = 0.0;
-    private static final double TRAJECTORY_STRAFE_X_PID_D = 0.0;
+    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.35;
+    private static final double TRAJECTORY_STRAFE_X_PID_I = 0.1;
+    private static final double TRAJECTORY_STRAFE_X_PID_D = 0.01;
 
-    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.5;
-    private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.0;
-    private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.0;
+    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.35;
+    private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.1;
+    private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.01;
 
     private static final double TRAJECTORY_ROTATE_PID_P = 0.9;
     private static final double TRAJECTORY_ROTATE_PID_I = 0.0;
@@ -391,9 +391,12 @@ public class SwerveDrive {
 
         switch (driveOrientation) {
             case BlueDriver:
-            case RedDriver:
                 x = translationCurve.apply(translationY, translationX);
                 y = -translationCurve.apply(translationX, translationY);
+                break;
+            case RedDriver:
+                x = -translationCurve.apply(translationY, translationX);
+                y = translationCurve.apply(translationX, translationY);
                 break;
             default:
             case NeutralObserver:

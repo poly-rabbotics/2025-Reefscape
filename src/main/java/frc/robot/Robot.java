@@ -285,12 +285,6 @@ public class Robot extends LoggedRobot {
 
         double speedX = controllerDriver.getLeftX();
         double speedY = -controllerDriver.getLeftY();
-
-        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-            speedX *= -1.0;
-            speedY *= -1.0;
-        }
-
         SwerveDrive.run(speedX, speedY, -controllerDriver.getRightX());
     }
 

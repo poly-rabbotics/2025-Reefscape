@@ -140,7 +140,7 @@ public class AutonomousManager {
         final double TOLERANCE_THETA = 0.1;
 
         // makes sure angle are within [0, tau)
-        double measuredAngle = (PoseEstimator.estimate2d().getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
+        double measuredAngle =(PoseEstimator.estimate2d().getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
         double setAngle = (setPathPosition.getRotation().getRadians() % Angle.TAU + Angle.TAU) % Angle.TAU;
 
         return Math.abs(PoseEstimator.estimate2d().getX() - setPathPosition.getX()) < TOLERANCE_X
@@ -166,36 +166,16 @@ public class AutonomousManager {
 
         // Blue side close algae to net
         procedures[1] = new AutonomousProcedure()
-            // .andThen(makeDriveStep(new Pose2d(7.17, 0.7, new Rotation2d(Math.PI))))
-            .andThen(makeDriveStep(new Pose2d(3.75, 8.0 - 1.29, new Rotation2d(Math.PI / 2))))
-            .andThen(makeDriveStep(new Pose2d(1.78, 8.0 - 3.9, new Rotation2d())))
-            .andThen(makeElevatorStep(ScoringPoint.DealgaeficateL3))
-            .andThen((prevStatus) -> {
-                Coral.setDealgaeficatorSpeed(-1.0);
-                return StepStatus.Done;
-            })
-            .andThen(makeDriveStep(new Pose2d(2.85, 4.0, new Rotation2d())))
-            .andThen(makeTimedStep(1.5))
-            .andThen((prevStatus) -> {
-                Coral.setDealgaeficatorSpeed(0.0);
-                return StepStatus.Done;
-            })
-            .andThen(makeDriveStep(new Pose2d(3.05, 4, new Rotation2d())))
-            .andThen(makeElevatorStep(ScoringPoint.Stowed))
-            .andThen(makeDriveStep(new Pose2d(3.18, 6.46, new Rotation2d())))
-            .andThen(makeDriveStep(new Pose2d(6.7, 5.7, new Rotation2d())))
-            .andThen(makeElevatorStep(ScoringPoint.AlgaeNet))
-            .andThen((prevStatus) -> {
-                Coral.setDealgaeficatorSpeed(1.0);
-                return StepStatus.Done;
-            })
-            .andThen(makeTimedStep(1.5))
-            .andThen(makeElevatorStep(ScoringPoint.Stowed))
-            .andThen((prevStatus) -> {
-                Coral.setDealgaeficatorSpeed(0.0);
-                return StepStatus.Done;
-            });
-
+            .andThen(makeDriveStep(new Pose2d(13.890498 + 2.0, 4.0259, new Rotation2d(Math.PI))))
+            .andThen(makeTimedStep(1.0))
+            .andThen(makeDriveStep(new Pose2d(13.890498 + 2.0, 4.0259 + 2.0, new Rotation2d())))
+            .andThen(makeTimedStep(1.0))
+            .andThen(makeDriveStep(new Pose2d(13.890498 - 1.0, 4.0259 + 2.0, new Rotation2d())))
+            .andThen(makeTimedStep(1.0))
+            .andThen(makeDriveStep(new Pose2d(13.890498 + 2.0, 4.0259 + 2.0, new Rotation2d(Math.PI))))
+            .andThen(makeTimedStep(1.0))
+            .andThen(makeDriveStep(new Pose2d(13.890498 + 2.0, 4.0259, new Rotation2d(Math.PI))));
+            
         procedures[2] = new AutonomousProcedure()
             .andThen(makeStep(() -> SwerveDrive.setMode(SwerveMode.Headless)))
             .andThen(makeTimedStep(2.5, () -> SwerveDrive.runUncurved(-0.25, 0.0, 0.0)));
