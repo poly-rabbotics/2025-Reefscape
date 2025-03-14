@@ -4,19 +4,14 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import frc.robot.subsystems.Coral.*;
+import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 
 public class Coral {
-    private static final double INTAKE_SPEED = -0.75;
-    private static final double OUTTAKE_SPEED = 0.75;
-
-    private static final CoralIntake coralIntake = new CoralIntake(7, 11);
-    private static final CoralPivot pivot = new CoralPivot(3);
-    private static final Elevator elevator = new Elevator(14, InvertedValue.Clockwise_Positive, 0, 1, 2);
+    private static final CoralIntake coralIntake = new CoralIntake(7, 11, 2, 3);
     private static final Dealgaeficator algae = new Dealgaeficator(0);
-
-    public enum IntakeState {
-        Intaking, Outtaking, Idle
-    }
+    private static final CoralPivot pivot = new CoralPivot(3);
+    private static final Elevator elevator
+        = new Elevator(14, InvertedValue.Clockwise_Positive, 0, 1, 2);
 
     public enum ScoringPoint {
         ScoringL1, ScoringL2, ScoringL3, ScoringL4,
@@ -36,16 +31,16 @@ public class Coral {
     public static void setIntakeState(IntakeState state) {
         switch (state) {
             case Intaking:
-                coralIntake.set(INTAKE_SPEED);
+                coralIntake.setIntaking();
                 break;
-
+        
             case Outtaking:
-                coralIntake.set(OUTTAKE_SPEED);
+                coralIntake.setOuttaking();
                 break;
 
-            case Idle:
             default:
-                coralIntake.set(0);
+            case Idle:
+                coralIntake.setIdle();
                 break;
         }
     }
@@ -56,7 +51,8 @@ public class Coral {
     }
 
     public static boolean atScoringPoint() {
-        return elevator.atPosition() && pivot.atPivotPoint();
+        return elevator.atPosition() && pivot.atPivotPoint()
+            && (coralIntake.getState() != IntakeState.Storing || coralIntake.isCoralStored());
     }
 
     public static void setDealgaeficatorSpeed(double speed) {
@@ -72,7 +68,7 @@ public class Coral {
     }
 
     public static void _setIntakeSpeed(double speed) {
-        coralIntake.set(speed);
+        coralIntake._setSpeed(speed);
     }
 
     public static void _setElevatorPose(double pose) {
@@ -82,6 +78,9 @@ public class Coral {
     public static void recordState() {
         Logger.recordOutput("Coral Intake Speed", coralIntake.get());
         Logger.recordOutput("Coral Intake Current", coralIntake.getCurrent());
+        Logger.recordOutput("Coral Intake State", coralIntake.getState());
+        Logger.recordOutput("Coral Intake Storing Coral", coralIntake.isCoralStored());
+        Logger.recordOutput("Coral Intake Coral Position", coralIntake.getCoralPosition());
 
         Logger.recordOutput("Coral Pivot Speed", pivot.get());
         Logger.recordOutput("Coral Pivot Set Angle (Degrees)", pivot.getSetAngle().degrees());

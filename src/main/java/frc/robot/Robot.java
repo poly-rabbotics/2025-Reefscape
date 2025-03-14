@@ -17,12 +17,12 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 
-import frc.robot.subsystems.*;
 import frc.robot.systems.*;
+import frc.robot.subsystems.*;
 import frc.robot.systems.Algae.AlgaePose;
-import frc.robot.systems.Coral.IntakeState;
 import frc.robot.systems.Coral.ScoringPoint;
 import frc.robot.systems.SwerveDrive.DriveOrientation;
+import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 
 import java.util.Optional;
 
@@ -327,9 +327,9 @@ public class Robot extends LoggedRobot {
             scoringPoint = ScoringPoint.AlgaeNet;
         }
 
-        if (controlPanelAlgae.getRawButton(10)) {
+        if (controlPanelAlgae.getRawButtonReleased(10)) {
             coralIntakeState = IntakeState.Intaking;
-        } else if (controlPanelAlgae.getRawButton(11)) {
+        } else if (controlPanelAlgae.getRawButtonReleased(11)) {
             coralIntakeState = IntakeState.Outtaking;
         }
 
