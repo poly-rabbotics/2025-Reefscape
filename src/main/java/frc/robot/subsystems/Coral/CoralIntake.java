@@ -31,10 +31,10 @@ public class CoralIntake {
      * spaces to the front of where the sensor is mounted and adding that to 1.35".
      */
 
-    private static final double FRONT_PROX_POSE = 1.35;
-    private static final double BACK_PROX_POSE = 1.35 + 1.05 * 1;
+    private static final double FRONT_PROX_POSE = -1.35;
+    private static final double BACK_PROX_POSE = -1.35 + -1.05 * 1;
     private static final double CORAL_LENGTH = 11.0 + 7.0 / 8.0;
-    private static final double CORAL_STORAGE_POSE = 3.0 - CORAL_LENGTH;
+    private static final double CORAL_STORAGE_POSE = 3.0;
 
     private static final double CORAL_POSE_TOLERANCE = 0.25;
    
@@ -167,7 +167,7 @@ public class CoralIntake {
      *
      * NOTE: DO NOT CALL STATE SETTING METHODS PERIODICALLY. This class changes its own state
      * internally and to states which are not settable publically, setting a state periodically
-     * impares this behavior..
+     * impares this behavior.
      */
     public void setIntaking() {
         currentState = IntakeState.Intaking;
@@ -178,7 +178,7 @@ public class CoralIntake {
      *
      * NOTE: DO NOT CALL STATE SETTING METHODS PERIODICALLY. This class changes its own state
      * internally and to states which are not settable publically, setting a state periodically
-     * impares this behavior..
+     * impares this behavior.
      */
     public void setOuttaking() {
         currentState = IntakeState.Outtaking;
@@ -189,7 +189,7 @@ public class CoralIntake {
      *
      * NOTE: DO NOT CALL STATE SETTING METHODS PERIODICALLY. This class changes its own state
      * internally and to states which are not settable publically, setting a state periodically
-     * impares this behavior..
+     * impares this behavior.
      */
     public void setIdle() {
         currentState = IntakeState.Idle;
