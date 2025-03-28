@@ -1,7 +1,6 @@
 package frc.robot.subsystems.Coral;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -22,8 +21,6 @@ public class Elevator {
     private static final double INCHES_PER_SPROCKET_ROTATION = 3 * Math.PI * SPROCKET_DIAMETER_INCHES;
     private static final double INCHES_PER_ROTATION = GEAR_RATIO * INCHES_PER_SPROCKET_ROTATION;
 
-    private static final int ENC_PULSES_PER_CYCLE = 2048;
-
     private static final double MAGIC_ACCEL = 175.0;
     private static final double MAGIC_VELOCITY = 100.0;
 
@@ -41,12 +38,11 @@ public class Elevator {
     private static final double POSE_TOLERANCE = 2.0;
 
     private final DigitalInput bottomSwitch;
-    private final Encoder throughBore;
     private final TalonFX elfKraken;
 
     private ScoringPoint setPose = ScoringPoint.Stowed;
 
-    public Elevator(int motorID, InvertedValue inverted, int bottomLimit, int encChanA, int encChanB) {
+    public Elevator(int motorID, InvertedValue inverted, int bottomLimit) {
         elfKraken = new TalonFX(motorID);
 
         // Configure motor to give position feedback in inches extension.
@@ -77,10 +73,6 @@ public class Elevator {
         elfKraken.setPosition(0.0);
 
         bottomSwitch = new DigitalInput(bottomLimit);
-
-        throughBore = new Encoder(encChanA, encChanB);
-        throughBore.setDistancePerPulse(INCHES_PER_SPROCKET_ROTATION / ENC_PULSES_PER_CYCLE);
-        // throughBore.setIndexSource(bottomSwitch, IndexingType.kResetWhileLow);
     }
 
     /**
@@ -128,10 +120,6 @@ public class Elevator {
      */
     public void setPosition(double pose) {
         elfKraken.setPosition(pose / INCHES_PER_ROTATION);
-
-        if (pose == 0.0) {
-            throughBore.reset();
-        }
     }
 
     /**

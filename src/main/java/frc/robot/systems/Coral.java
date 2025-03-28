@@ -7,11 +7,11 @@ import frc.robot.subsystems.Coral.*;
 import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 
 public class Coral {
-    private static final CoralIntake coralIntake = new CoralIntake(7, 11, 2, 3);
+    private static final CoralIntake coralIntake = new CoralIntake(11, 7, 1, 2);
     private static final Dealgaeficator algae = new Dealgaeficator(0);
     private static final CoralPivot pivot = new CoralPivot(3);
     private static final Elevator elevator
-        = new Elevator(14, InvertedValue.Clockwise_Positive, 0, 1, 2);
+        = new Elevator(14, InvertedValue.Clockwise_Positive, 0);
 
     public enum ScoringPoint {
         ScoringL1, ScoringL2, ScoringL3, ScoringL4,
@@ -40,7 +40,7 @@ public class Coral {
 
             default:
             case Idle:
-                coralIntake.setIdle();
+                // coralIntake.setIdle();
                 break;
         }
     }
@@ -81,6 +81,8 @@ public class Coral {
         Logger.recordOutput("Coral Intake State", coralIntake.getState());
         Logger.recordOutput("Coral Intake Storing Coral", coralIntake.isCoralStored());
         Logger.recordOutput("Coral Intake Coral Position", coralIntake.getCoralPosition());
+        Logger.recordOutput("Coral Intake Front Prox On", coralIntake.frontProxOn());
+        Logger.recordOutput("Coral Intake Back Prox On", coralIntake.backProxOn());
 
         Logger.recordOutput("Coral Pivot Speed", pivot.get());
         Logger.recordOutput("Coral Pivot Set Angle (Degrees)", pivot.getSetAngle().degrees());

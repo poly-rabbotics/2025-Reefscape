@@ -684,18 +684,23 @@ public class SwerveDrive {
         Logger.recordOutput("Swerve Set Angle (Radians)", setAngle.radians());
         Logger.recordOutput("Swerve Set Angle (Degrees)", setAngle.degrees());
 
-        Logger.recordOutput(
-            "Swerve Drive Set Pose", 
-            Optional
-                .ofNullable(path)
-                .flatMap((path) -> path.currentTarget())
-                .orElse(new Pose2d())
-        );
+        if (path == null) {            
+            Logger.recordOutput("Swerve Drive Set Pose", new Pose2d());
+        } else {
+            Logger.recordOutput("Swerve Drive Set Pose", path.currentTarget().orElse(new Pose2d()));
+        }
 
-        Logger.recordOutput(
-            "Swerve Drive Drive Path",
-            path.futureTargets().toArray(new Pose2d[0])
-        );
+        if (path == null) {
+            Logger.recordOutput(
+                "Swerve Drive Drive Path",
+                new Pose2d[0]
+            );
+        } else {
+            Logger.recordOutput(
+                "Swerve Drive Drive Path",
+                path.futureTargets().toArray(new Pose2d[0])
+            );
+        }
 
         Logger.recordOutput("Swerve Drive Orientation", driveOrientation);
     }

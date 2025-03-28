@@ -61,13 +61,13 @@ public class CoralIntake {
     }
 
     public CoralIntake(
-        int rightMotorID,
-        int leftMotorID,
+        int bottomMotorID,
+        int topMotorID,
         int frontProxChannel,
         int backProxChannel
     ) {
-        bottomMotor = new SparkMax(rightMotorID, MotorType.kBrushless);
-        topMotor = new SparkMax(leftMotorID, MotorType.kBrushless);
+        bottomMotor = new SparkMax(bottomMotorID, MotorType.kBrushless);
+        topMotor = new SparkMax(topMotorID, MotorType.kBrushless);
         frontProx = new DigitalInput(frontProxChannel);
         backProx = new DigitalInput(backProxChannel);
 
@@ -76,14 +76,15 @@ public class CoralIntake {
                 .apply(new EncoderConfig()
                     .positionConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO)
                     .velocityConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO)
-                ),
+                )
+                .inverted(true),
             ResetMode.kResetSafeParameters,
             PersistMode.kNoPersistParameters
         );
 
         bottomMotor.configure(
             new SparkMaxConfig()
-                .follow(topMotor, false)
+                .follow(topMotor, true)
                 .apply(new EncoderConfig()
                     .positionConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO)
                     .velocityConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO)
@@ -241,6 +242,14 @@ public class CoralIntake {
     public boolean isCoralStored() {
         return Math.abs(topMotor.getEncoder().getPosition() - CORAL_STORAGE_POSE)
             < CORAL_POSE_TOLERANCE;
+    }
+
+    public boolean frontProxOn() {
+        return proxOn(frontProx.get());
+    }
+
+    public boolean backProxOn() {
+        return proxOn(backProx.get());
     }
 
     public void _setSpeed(double speed) {

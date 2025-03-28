@@ -294,7 +294,8 @@ public class Robot extends LoggedRobot {
      */
     public void operatorTeleop() {
         double dealgaeSpeed = 0.0;
-        double groundAlgaeSpeed = 0.0;
+        double groundAlgaeSpeedX = 0.0;
+        double groundAlgaeSpeedY = 0.0;
         ScoringPoint scoringPoint = ScoringPoint.Stowed;
         IntakeState coralIntakeState = IntakeState.Idle;
         AlgaePose algaePose = AlgaePose.Stow;
@@ -306,9 +307,15 @@ public class Robot extends LoggedRobot {
         }
 
         if (controlPanelAlgae.getRawButton(9)) {
-            groundAlgaeSpeed = 1.0;
+            groundAlgaeSpeedX = -1.0;
         } else if (controlPanelAlgae.getRawButton(8)) {
-            groundAlgaeSpeed = -1.0;
+            groundAlgaeSpeedX = 1.0;
+        }
+
+        if (controllerOperator.getPOV() == 0.0) {
+            groundAlgaeSpeedY = 1.0;
+        } if (controllerOperator.getPOV() == 180.0) {
+            groundAlgaeSpeedY = -1.0;
         }
 
         if (controlPanelCoral.getRawButton(1)) {
@@ -348,7 +355,7 @@ public class Robot extends LoggedRobot {
         Coral.setScoringPoint(scoringPoint);
         Coral.setIntakeState(coralIntakeState);
 
-        Algae.setIntakeSpeed(groundAlgaeSpeed);
+        Algae.setIntakeVector(groundAlgaeSpeedX, groundAlgaeSpeedY);
         Algae.setPose(algaePose);
 
         Algae.run();
@@ -368,7 +375,6 @@ public class Robot extends LoggedRobot {
 
         if (controllerOperator.getXButton()) {
             Algae._setPivotSpeed(mainOverrideSpeed);
-            Algae.setIntakeSpeed(intakeOverrideSpeed);
         }
 
         if (controllerOperator.getStartButtonReleased()) {
