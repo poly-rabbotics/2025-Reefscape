@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.DrivePath;
-import frc.robot.subsystems.SwerveMode;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
+import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 import frc.robot.systems.Coral.ScoringPoint;
 
 public class AutonomousManager {
@@ -83,6 +83,7 @@ public class AutonomousManager {
             return StepStatus.Running;
         };
     }
+
     private static Function<StepStatus, StepStatus> makeTimedStep(double time, Runnable fn) {
         Timer stepTimer = new Timer();
 
@@ -148,7 +149,7 @@ public class AutonomousManager {
             && Math.abs(measuredAngle - setAngle) < TOLERANCE_THETA;
     }
 
-    public static Function<StepStatus, StepStatus> makeElevatorStep(ScoringPoint pose) {
+    public static Function<StepStatus, StepStatus> makeCoralStep(ScoringPoint pose) {
         return (prevState) -> {
             Coral.setScoringPoint(pose);
 
@@ -160,24 +161,109 @@ public class AutonomousManager {
         };
     }
 
+    private static Function<StepStatus, StepStatus> scoreCoral() {
+        final double outtakeTime = 1.5;
+        Timer stepTimer = new Timer();
+
+        return (prevState) -> {
+            if (!stepTimer.isRunning()) {
+                stepTimer.start();
+            }
+
+            if (stepTimer.get() >= outtakeTime && prevState == StepStatus.Done) {
+                Coral.setIntakeState(IntakeState.Idle);
+                return StepStatus.Done;
+            }
+
+            if (Coral.getIntakeState() != IntakeState.Outtaking) {
+                Coral.setIntakeState(IntakeState.Outtaking);
+            }
+
+            return StepStatus.Running;
+        };
+    }
+
+    private static Function<StepStatus, StepStatus> intakeCoral() {
+        return (prevState) -> {
+            switch (Coral.getIntakeState()) {
+                case Intaking:
+                    return StepStatus.Running;
+
+                case Storing:
+                    if (prevState == StepStatus.Done) {
+                        return StepStatus.Done;
+                    }
+
+                    return StepStatus.Waiting;
+
+                default:
+                    Coral.setIntakeState(IntakeState.Intaking);
+                    return StepStatus.Running;
+            }
+        };
+    }
+
     private static void buildProcedures() {
         // Does nothing, assumes starting forward.
         procedures[0] = new AutonomousProcedure();
 
-        // Blue side close algae to net
-        procedures[1] = new AutonomousProcedure()
-            .andThen(makeDriveStep(new Pose2d(13.890498 + 2.0, 4.0259, new Rotation2d(Math.PI))))
-            .andThen(makeTimedStep(1.0))
-            .andThen(makeDriveStep(new Pose2d(13.890498 + 2.0, 4.0259 + 2.0, new Rotation2d())))
-            .andThen(makeTimedStep(1.0))
-            .andThen(makeDriveStep(new Pose2d(13.890498 - 1.0, 4.0259 + 2.0, new Rotation2d())))
-            .andThen(makeTimedStep(1.0))
-            .andThen(makeDriveStep(new Pose2d(13.890498 + 2.0, 4.0259 + 2.0, new Rotation2d(Math.PI))))
-            .andThen(makeTimedStep(1.0))
-            .andThen(makeDriveStep(new Pose2d(13.890498 + 2.0, 4.0259, new Rotation2d(Math.PI))));
-            
+        // Starts center then scores coral far reef right side (driver POV) L3, intakes and moves
+        // counter clockwise to score as many L3 as possible. Blue Side.
         procedures[2] = new AutonomousProcedure()
-            .andThen(makeStep(() -> SwerveDrive.setMode(SwerveMode.Headless)))
-            .andThen(makeTimedStep(2.5, () -> SwerveDrive.runUncurved(-0.25, 0.0, 0.0)));
+
+            // Move to right side of far reef (driver POV)
+            .andThen(makeDriveStep(new Pose2d(5.75, 3.85, new Rotation2d(Math.PI))))
+
+            // Score coral L3
+            .andThen(makeCoralStep(ScoringPoint.ScoringL3))
+            .andThen(scoreCoral())
+
+            // Move to avoid reef and go to the left far intake station (driver POV), then intake a
+            // coral
+            .andThen(makeDriveStep(
+                new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
+                new Pose2d(1.647, 7.47, new Rotation2d(2.2))
+            ))
+            .andThen(intakeCoral())
+
+            // Move around reef then move to left side of far reef (driver POV)
+            .andThen(makeDriveStep(
+                new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
+                new Pose2d(5.75, 4.18, new Rotation2d(Math.PI))
+            ))
+
+            // Score coral L3
+            .andThen(makeCoralStep(ScoringPoint.ScoringL3))
+            .andThen(scoreCoral())
+            
+            // Move to avoid reef and go to the left far intake station (driver POV), then intake a
+            // coral
+            .andThen(makeDriveStep(
+                new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
+                new Pose2d(1.647, 7.47, new Rotation2d(2.2))
+            ))
+            .andThen(intakeCoral())
+
+            // Move to back left reef right/center side
+            .andThen(makeDriveStep(new Pose2d(5.26, 5.04, new Rotation2d(-2.1))))
+
+            // Score coral L3
+            .andThen(makeCoralStep(ScoringPoint.ScoringL3))
+            .andThen(scoreCoral())
+            
+            // Move to avoid reef and go to the left far intake station (driver POV), then intake a
+            // coral
+            .andThen(makeDriveStep(
+                new Pose2d(1.647, 7.47, new Rotation2d(2.2))
+            ))
+            .andThen(intakeCoral())
+
+            // Move to back left reef left/away from center side
+            .andThen(makeDriveStep(new Pose2d(4.97, 5.22, new Rotation2d(-2.1))))
+
+            // Score coral L3
+            .andThen(makeCoralStep(ScoringPoint.ScoringL3))
+            .andThen(scoreCoral())
+            ;
     }
 }

@@ -10,10 +10,13 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.systems.Coral;
+import frc.robot.systems.Coral.ScoringPoint;
 
 public class CoralIntake {
     private static final double MOTOR_GEAR_RATIO = 1.0 / 15.0;
     private static final double SPROCKET_RATIO = 15.0 / 18.0;
+    private static final double WHEEL_CIRCUMFRANCE = 2.25 * Math.PI;
 
     /*
      * Positions are in inches, which zero being the entrance of the intake. Negative position
@@ -34,14 +37,14 @@ public class CoralIntake {
     private static final double FRONT_PROX_POSE = -1.35;
     private static final double BACK_PROX_POSE = -1.35 + -1.05 * 1;
     private static final double CORAL_LENGTH = 11.0 + 7.0 / 8.0;
-    private static final double CORAL_STORAGE_POSE = 3.0;
+    private static final double CORAL_STORAGE_POSE = 6.0;
 
     private static final double CORAL_POSE_TOLERANCE = 0.25;
    
     private static final double INTAKE_SPEED = -1.0;
     private static final double OUTTAKE_SPEED = 1.0;
 
-    private static final double PID_P = 0.0;
+    private static final double PID_P = 0.035;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
@@ -74,8 +77,8 @@ public class CoralIntake {
         topMotor.configure(
             new SparkMaxConfig()
                 .apply(new EncoderConfig()
-                    .positionConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO)
-                    .velocityConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO)
+                    .positionConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO * WHEEL_CIRCUMFRANCE)
+                    .velocityConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO * WHEEL_CIRCUMFRANCE)
                 )
                 .inverted(true),
             ResetMode.kResetSafeParameters,
@@ -86,8 +89,8 @@ public class CoralIntake {
             new SparkMaxConfig()
                 .follow(topMotor, true)
                 .apply(new EncoderConfig()
-                    .positionConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO)
-                    .velocityConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO)
+                    .positionConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO * WHEEL_CIRCUMFRANCE)
+                    .velocityConversionFactor(MOTOR_GEAR_RATIO * SPROCKET_RATIO * WHEEL_CIRCUMFRANCE)
                 ),
             ResetMode.kResetSafeParameters,
             PersistMode.kNoPersistParameters
@@ -148,7 +151,12 @@ public class CoralIntake {
 
             case Storing:
                 double position = topMotor.getEncoder().getPosition();
-                speed = controller.calculate(position, CORAL_STORAGE_POSE);
+
+                if (Coral.getScoringPoint() == ScoringPoint.ScoringL4) {
+                    speed = controller.calculate(position, CORAL_STORAGE_POSE - 6.0);
+                } else {
+                    speed = controller.calculate(position, CORAL_STORAGE_POSE);
+                }
                 break;
                 
             default:

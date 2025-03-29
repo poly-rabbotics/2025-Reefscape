@@ -23,13 +23,13 @@ public class CoralPivot {
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-20.0);
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-30.0);
-    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-40.0);
+    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-60.0);
     private static final Angle PIVOT_POINT_ALGAE_L2 = new Angle().setDegrees(-90.0);
     private static final Angle PIVOT_POINT_ALGAE_L3 = new Angle().setDegrees(-90.0);
     private static final Angle PIVOT_POINT_ALGAE_NET = new Angle().setDegrees(-40.0);
 
     private final SparkMax motor;
-    private final PIDController controller = new PIDController(0.005, 0.0, 0.00008);
+    private final PIDController controller = new PIDController(0.0075, 0.0, 0.00008);
     private ScoringPoint scoringPoint = ScoringPoint.Stowed;
 
     /**

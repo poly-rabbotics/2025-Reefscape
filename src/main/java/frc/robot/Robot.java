@@ -334,10 +334,21 @@ public class Robot extends LoggedRobot {
             scoringPoint = ScoringPoint.AlgaeNet;
         }
 
-        if (controlPanelAlgae.getRawButtonReleased(10)) {
-            coralIntakeState = IntakeState.Intaking;
+        if (controlPanelAlgae.getRawButtonPressed(10)) {
+            if (
+                Coral.getIntakeState() != IntakeState.Intaking
+                && Coral.getIntakeState() != IntakeState.Storing
+            ) {
+                Coral.setIntakeState(IntakeState.Intaking);
+            }
+        } else if (controlPanelAlgae.getRawButtonReleased(10)) {
+            if (Coral.getIntakeState() == IntakeState.Intaking) {
+                Coral.setIntakeState(IntakeState.Idle);
+            }
+        } else if (controlPanelAlgae.getRawButtonPressed(11)) {
+            Coral.setIntakeState(IntakeState.Outtaking);
         } else if (controlPanelAlgae.getRawButtonReleased(11)) {
-            coralIntakeState = IntakeState.Outtaking;
+            Coral.setIntakeState(IntakeState.Idle);
         }
 
         if (controlPanelCoral.getRawButton(8)) {
@@ -353,7 +364,6 @@ public class Robot extends LoggedRobot {
 
         Coral.setDealgaeficatorSpeed(dealgaeSpeed);
         Coral.setScoringPoint(scoringPoint);
-        Coral.setIntakeState(coralIntakeState);
 
         Algae.setIntakeVector(groundAlgaeSpeedX, groundAlgaeSpeedY);
         Algae.setPose(algaePose);

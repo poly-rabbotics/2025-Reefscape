@@ -40,16 +40,33 @@ public class Coral {
 
             default:
             case Idle:
-                // coralIntake.setIdle();
+                coralIntake.setIdle();
                 break;
         }
     }
 
+    /**
+     * Gets the current state of the intake.
+     */
+    public static IntakeState getIntakeState() {
+        return coralIntake.getState();
+    }
+
+    /**
+     * Set the desired scoring point for all coral related appendages.
+     */
     public static void setScoringPoint(ScoringPoint point) {
         elevator.set(point);
         pivot.pivotTo(point);
     }
 
+    public static ScoringPoint getScoringPoint() {
+        return elevator.getSetpointEnum();
+    }
+
+    /**
+     * Whether or not all coral related appendages are at their desired locations.
+     */
     public static boolean atScoringPoint() {
         return elevator.atPosition() && pivot.atPivotPoint()
             && (coralIntake.getState() != IntakeState.Storing || coralIntake.isCoralStored());
