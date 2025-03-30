@@ -15,7 +15,7 @@ import frc.robot.subsystems.Angle;
 import frc.robot.systems.Coral.ScoringPoint;
 
 public class CoralPivot {
-    private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(3.0);
 
     private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(25.0);
     private static final Angle PIVOT_POINT_HANDOFF = new Angle().setDegrees(45.0);
@@ -23,13 +23,16 @@ public class CoralPivot {
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-20.0);
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-30.0);
-    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-60.0);
+    private static final Angle PIVOT_POINT_L4 = new Angle().setDegrees(-50.0);
     private static final Angle PIVOT_POINT_ALGAE_L2 = new Angle().setDegrees(-90.0);
     private static final Angle PIVOT_POINT_ALGAE_L3 = new Angle().setDegrees(-90.0);
     private static final Angle PIVOT_POINT_ALGAE_NET = new Angle().setDegrees(-40.0);
 
+    private static final double FEED_FORWARD = 0.05;
+    private static final Angle MAX_G_TORQUE = new Angle().setDegrees(-90.0);
+
     private final SparkMax motor;
-    private final PIDController controller = new PIDController(0.0075, 0.0, 0.00008);
+    private final PIDController controller = new PIDController(0.0055, 0.0, 0.0005);
     private ScoringPoint scoringPoint = ScoringPoint.Stowed;
 
     /**
@@ -64,7 +67,9 @@ public class CoralPivot {
      * overrides not withstanding.
      */
     public void run() {
-        double speed = controller.calculate(getAngle().degrees(), getSetAngle().degrees());
+        double speed
+            = controller.calculate(getAngle().degrees(), getSetAngle().degrees())
+            + FEED_FORWARD * Math.cos(MAX_G_TORQUE.radians() - getAngle().radians());
         motor.set(speed);
     }
 

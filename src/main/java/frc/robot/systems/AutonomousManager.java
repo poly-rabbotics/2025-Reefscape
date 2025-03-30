@@ -102,6 +102,22 @@ public class AutonomousManager {
         };
     }
 
+    private static Function<StepStatus, StepStatus> makeTimedStep(double time, Function<StepStatus, StepStatus> fn) {
+        Timer stepTimer = new Timer();
+
+        return (prevState) -> {
+            if (!stepTimer.isRunning()) {
+                stepTimer.start();
+            }
+
+            if (stepTimer.get() >= time && prevState == StepStatus.Done) {
+                return StepStatus.Done;
+            }
+
+            return fn.apply(prevState);
+        };
+    }
+
     /**
      * Makes a step for running the drive.
      */
@@ -122,6 +138,7 @@ public class AutonomousManager {
     private static Function<StepStatus, StepStatus> makeDriveStep(DrivePath path) {
         return (prevState) -> {
             SwerveDrive.setPath(path);
+            SwerveDrive.run();
 
             if (path.isCompleted() && prevState == StepStatus.Done) {
                 return StepStatus.Done;
@@ -136,8 +153,8 @@ public class AutonomousManager {
      * a swerve mode which takes over driving.
      */
     public static boolean withinPositionTolerance(Pose2d setPathPosition) {
-        final double TOLERANCE_X = 0.3;
-        final double TOLERANCE_Y = 0.3;
+        final double TOLERANCE_X = 0.05;
+        final double TOLERANCE_Y = 0.05;
         final double TOLERANCE_THETA = 0.1;
 
         // makes sure angle are within [0, tau)
@@ -207,63 +224,119 @@ public class AutonomousManager {
         // Does nothing, assumes starting forward.
         procedures[0] = new AutonomousProcedure();
 
+        procedures[1] = new AutonomousProcedure()
+            .andThen(makeStep(() -> Coral.setCoralPosition(4.8)))
+
+            // Move to L2 point
+            .andThen(makeCoralStep(ScoringPoint.ScoringL2))
+
+            // Back left reef, center/right side (driver POV)
+            .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(5.4, 6.0, new Rotation2d(-2.1)))))
+            .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.26, 5.14, new Rotation2d(-2.1)))))
+
+            // Score coral
+            .andThen(scoreCoral())
+
+            // Move out of the way.
+            .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
+            ;
+
+        // Start left most edge, angled 135 degrees from forward clockwise.
+        // Pushes friend backward,
+        // Scores l2
+        procedures[9] = new AutonomousProcedure()
+            // Push our friend a bit
+            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(8.0, 6.67, new Rotation2d(-135.0 * Math.PI / 180.0)))))
+
+            .andThen(makeStep(() -> Coral.setCoralPosition(4.8)))
+
+            // Move to L2 point
+            .andThen(makeCoralStep(ScoringPoint.ScoringL2))
+
+            // Back left reef, center/right side (driver POV)
+            .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(5.4, 6.0, new Rotation2d(-2.1)))))
+            .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.26, 5.14, new Rotation2d(-2.1)))))
+
+            // Score coral
+            .andThen(scoreCoral())
+
+            // Move out of the way.
+            .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
+            ;
+
         // Starts center then scores coral far reef right side (driver POV) L3, intakes and moves
         // counter clockwise to score as many L3 as possible. Blue Side.
         procedures[2] = new AutonomousProcedure()
+            .andThen(makeStep(() -> Coral.setCoralPosition(4.8)))
 
             // Move to right side of far reef (driver POV)
-            .andThen(makeDriveStep(new Pose2d(5.75, 3.85, new Rotation2d(Math.PI))))
-
-            // Score coral L3
-            .andThen(makeCoralStep(ScoringPoint.ScoringL3))
-            .andThen(scoreCoral())
-
-            // Move to avoid reef and go to the left far intake station (driver POV), then intake a
-            // coral
-            .andThen(makeDriveStep(
-                new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
-                new Pose2d(1.647, 7.47, new Rotation2d(2.2))
-            ))
-            .andThen(intakeCoral())
-
-            // Move around reef then move to left side of far reef (driver POV)
-            .andThen(makeDriveStep(
-                new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
-                new Pose2d(5.75, 4.18, new Rotation2d(Math.PI))
-            ))
-
-            // Score coral L3
-            .andThen(makeCoralStep(ScoringPoint.ScoringL3))
-            .andThen(scoreCoral())
+            .andThen(makeDriveStep(new Pose2d(5.55, 4.35, new Rotation2d(Math.PI))))
             
-            // Move to avoid reef and go to the left far intake station (driver POV), then intake a
-            // coral
-            .andThen(makeDriveStep(
-                new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
-                new Pose2d(1.647, 7.47, new Rotation2d(2.2))
-            ))
-            .andThen(intakeCoral())
-
-            // Move to back left reef right/center side
-            .andThen(makeDriveStep(new Pose2d(5.26, 5.04, new Rotation2d(-2.1))))
-
-            // Score coral L3
-            .andThen(makeCoralStep(ScoringPoint.ScoringL3))
+            // Score coral L4
+            .andThen(makeCoralStep(ScoringPoint.ScoringL4))
             .andThen(scoreCoral())
-            
-            // Move to avoid reef and go to the left far intake station (driver POV), then intake a
-            // coral
-            .andThen(makeDriveStep(
-                new Pose2d(1.647, 7.47, new Rotation2d(2.2))
-            ))
-            .andThen(intakeCoral())
 
-            // Move to back left reef left/away from center side
-            .andThen(makeDriveStep(new Pose2d(4.97, 5.22, new Rotation2d(-2.1))))
+            .andThen(makeDriveStep(new Pose2d(5.75, 4.05, new Rotation2d(Math.PI))))
 
-            // Score coral L3
-            .andThen(makeCoralStep(ScoringPoint.ScoringL3))
-            .andThen(scoreCoral())
+            .andThen(makeDriveStep(new Pose2d(5.55, 4.05, new Rotation2d(Math.PI))))
+
+            .andThen(makeCoralStep(ScoringPoint.Stowed))
+
+            .andThen(makeDriveStep(new Pose2d(5.75, 4.55, new Rotation2d(Math.PI))))
+
+            .andThen(makeCoralStep(ScoringPoint.DealgaeficateL2))
+            .andThen(makeStep(() -> Coral.setDealgaeficatorSpeed(-1.0)))
+
+            .andThen(makeDriveStep(new Pose2d(5.55, 4.55, new Rotation2d(Math.PI))))
+            // .andThen(makeDriveStep(new Pose2d(5.75, 4.55, new Rotation2d(Math.PI))))
             ;
+
+            // // Move to avoid reef and go to the left far intake station (driver POV), then intake a
+            // // coral
+            // .andThen(makeDriveStep(
+            //     new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
+            //     new Pose2d(1.647, 7.47, new Rotation2d(2.2))
+            // ))
+            // .andThen(intakeCoral())
+
+            // // Move around reef then move to left side of far reef (driver POV)
+            // .andThen(makeDriveStep(
+            //     new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
+            //     new Pose2d(5.75, 4.18, new Rotation2d(Math.PI))
+            // ))
+
+            // // Score coral L4
+            // .andThen(makeCoralStep(ScoringPoint.ScoringL3))
+            // .andThen(scoreCoral())
+            
+            // // Move to avoid reef and go to the left far intake station (driver POV), then intake a
+            // // coral
+            // .andThen(makeDriveStep(
+            //     new Pose2d(5.75, 5.0, new Rotation2d(Math.PI)),
+            //     new Pose2d(1.647, 7.47, new Rotation2d(2.2))
+            // ))
+            // .andThen(intakeCoral())
+
+            // // Move to back left reef right/center side
+            // .andThen(makeDriveStep(new Pose2d(5.26, 5.04, new Rotation2d(-2.1))))
+
+            // // Score coral L3
+            // .andThen(makeCoralStep(ScoringPoint.ScoringL4))
+            // .andThen(scoreCoral())
+            
+            // // Move to avoid reef and go to the left far intake station (driver POV), then intake a
+            // // coral
+            // .andThen(makeDriveStep(
+            //     new Pose2d(1.647, 7.47, new Rotation2d(2.2))
+            // ))
+            // .andThen(intakeCoral())
+
+            // // Move to back left reef left/away from center side
+            // .andThen(makeDriveStep(new Pose2d(4.97, 5.22, new Rotation2d(-2.1))))
+
+            // // Score coral L4
+            // .andThen(makeCoralStep(ScoringPoint.ScoringL4))
+            // .andThen(scoreCoral())
+            // ;
     }
 }

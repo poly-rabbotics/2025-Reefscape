@@ -135,7 +135,7 @@ public class CoralIntake {
             // pheasable, but in the event that the back stop breaks this position will help PID
             // keep the piece at the right position.
             
-            topMotor.getEncoder().setPosition(BACK_PROX_POSE);
+            // topMotor.getEncoder().setPosition(BACK_PROX_POSE);
         }
 
         double speed;
@@ -242,6 +242,11 @@ public class CoralIntake {
         }
 
         return Double.POSITIVE_INFINITY;
+    }
+
+    public void setCoralPosition(double coralExtension) {
+        topMotor.getEncoder().setPosition(coralExtension);
+        currentState = IntakeState.Storing;
     }
 
     /**

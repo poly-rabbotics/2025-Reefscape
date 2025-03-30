@@ -60,6 +60,10 @@ public class Coral {
         pivot.pivotTo(point);
     }
 
+    public static void setCoralPosition(double coralPose) {
+        coralIntake.setCoralPosition(coralPose);
+    }
+
     public static ScoringPoint getScoringPoint() {
         return elevator.getSetpointEnum();
     }
@@ -68,8 +72,7 @@ public class Coral {
      * Whether or not all coral related appendages are at their desired locations.
      */
     public static boolean atScoringPoint() {
-        return elevator.atPosition() && pivot.atPivotPoint()
-            && (coralIntake.getState() != IntakeState.Storing || coralIntake.isCoralStored());
+        return elevator.atPosition() && pivot.atPivotPoint();
     }
 
     public static void setDealgaeficatorSpeed(double speed) {

@@ -5,8 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -123,6 +124,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        Coral.setIntakeState(IntakeState.Idle);
         AutonomousManager.reset();
         SwerveDrive.setMode(SwerveMode.FollowPath);
 
@@ -136,7 +138,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousPeriodic() {
-        SwerveDrive.run();
         Coral.run();
         Algae.run();
 
@@ -242,10 +243,13 @@ public class Robot extends LoggedRobot {
 
         // If a D-Pad button is pressed, snap to that angle.
         if (pov != -1 && isFieldOriented) {
-            Angle angle = new Angle().setDegrees(-(double) pov);
+            Angle angle = new Angle().setDegrees((double) pov);
 
             SwerveDrive.setMode(SwerveMode.SetAngle);
             SwerveDrive.setTargetAngle(angle);
+
+            Pose3d pose = PoseEstimator.estimate();
+            PoseEstimator.reset( new Pose3d(pose.getTranslation(), new Rotation3d(0.0, 0.0, angle.radians())));
         }
 
         // If the driver is not actively turning the robot, enable automated turn control to
@@ -282,6 +286,8 @@ public class Robot extends LoggedRobot {
 
         SwerveDrive.conditionalTempMode(SwerveMode.Rock, controllerDriver.getBButton());
         SwerveDrive.conditionalTempMode(SwerveMode.Relative, controllerDriver.getYButton());
+        SwerveDrive.conditionalTempMode(SwerveMode.FollowPath, controllerDriver.getAButton());
+        SwerveDrive.setPath(new DrivePath(new Pose2d(5.75, 3.85, new Rotation2d(Math.PI))));
 
         double speedX = controllerDriver.getLeftX();
         double speedY = -controllerDriver.getLeftY();
@@ -293,7 +299,7 @@ public class Robot extends LoggedRobot {
      * from the operator's controller.
      */
     public void operatorTeleop() {
-        double dealgaeSpeed = 0.0;
+        double dealgaeSpeed = -0.2;
         double groundAlgaeSpeedX = 0.0;
         double groundAlgaeSpeedY = 0.0;
         ScoringPoint scoringPoint = ScoringPoint.Stowed;
@@ -335,15 +341,12 @@ public class Robot extends LoggedRobot {
         }
 
         if (controlPanelAlgae.getRawButtonPressed(10)) {
-            if (
-                Coral.getIntakeState() != IntakeState.Intaking
-                && Coral.getIntakeState() != IntakeState.Storing
-            ) {
+            if (Coral.getIntakeState() != IntakeState.Intaking) {
                 Coral.setIntakeState(IntakeState.Intaking);
             }
         } else if (controlPanelAlgae.getRawButtonReleased(10)) {
-            if (Coral.getIntakeState() == IntakeState.Intaking) {
-                Coral.setIntakeState(IntakeState.Idle);
+            if (Coral.getIntakeState() != IntakeState.Storing) {
+                Coral.setCoralPosition(4.8);
             }
         } else if (controlPanelAlgae.getRawButtonPressed(11)) {
             Coral.setIntakeState(IntakeState.Outtaking);

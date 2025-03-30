@@ -14,7 +14,7 @@ import frc.robot.subsystems.Angle;
 import frc.robot.systems.Algae.AlgaePose;
 
 public class AlgaeIntake {
-    private static final Angle PIVOT_STOW = new Angle().setDegrees(90.0);
+    private static final Angle PIVOT_STOW = new Angle().setDegrees(130.0);
     private static final Angle PIVOT_INTAKE = new Angle().setDegrees(-38.0);
     private static final Angle PIVOT_HANDOFF = new Angle().setDegrees(90.0);
     private static final Angle PIVOT_PROCESSOR = new Angle().setDegrees(45.0);

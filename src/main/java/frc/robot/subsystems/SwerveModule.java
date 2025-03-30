@@ -120,8 +120,8 @@ public class SwerveModule {
 
         movementConfigurator.apply(
             new TorqueCurrentConfigs()
-                .withPeakForwardTorqueCurrent(70.0)
-                .withPeakForwardTorqueCurrent(-70.0)
+                .withPeakForwardTorqueCurrent(60.0)
+                .withPeakForwardTorqueCurrent(-60.0)
         );
 
         movementConfigurator.apply(

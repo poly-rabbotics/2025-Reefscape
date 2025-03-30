@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.systems.PoseEstimator;
 
 public class DrivePath {
-    private static final double POSE_TOLERANCE = 0.1;
-    private static final double ROTATION_TOLERANCE = 2.0;
+    private static final double POSE_TOLERANCE = 0.05;
+    private static final double ROTATION_TOLERANCE = 2.0; // Degrees
 
     private final ArrayList<Pose2d> points;
     private final Function<Pose2d, Boolean> targetReached;

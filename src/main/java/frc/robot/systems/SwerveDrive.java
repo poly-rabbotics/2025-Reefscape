@@ -4,7 +4,6 @@
 
 package frc.robot.systems;
 
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -77,13 +76,13 @@ public class SwerveDrive {
 
     // PID parameter constants for following autonomous trajectories. These are used to follow a
     // setpoint given as a two dimensional point and a rotation.
-    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.35;
-    private static final double TRAJECTORY_STRAFE_X_PID_I = 0.1;
-    private static final double TRAJECTORY_STRAFE_X_PID_D = 0.01;
+    private static final double TRAJECTORY_STRAFE_X_PID_P = 0.45;
+    private static final double TRAJECTORY_STRAFE_X_PID_I = 0.005;
+    private static final double TRAJECTORY_STRAFE_X_PID_D = 0.08;
 
-    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.35;
-    private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.1;
-    private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.01;
+    private static final double TRAJECTORY_STRAFE_Y_PID_P = 0.45;
+    private static final double TRAJECTORY_STRAFE_Y_PID_I = 0.005;
+    private static final double TRAJECTORY_STRAFE_Y_PID_D = 0.08;
 
     private static final double TRAJECTORY_ROTATE_PID_P = 0.9;
     private static final double TRAJECTORY_ROTATE_PID_I = 0.0;

@@ -8,6 +8,7 @@ import java.util.Optional;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 
@@ -27,6 +28,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class PoseEstimator {
     private static final double AMBIGUITY_CUTOFF = 0.1;
+    private static final double DISTANCE_CUTOFF = 5.0;
     
     private static final Transform3d BOT_TO_CAM_FRONT
         = new Transform3d(-0.329, -0.158, 0.201, new Rotation3d(0.0, 0.0, 150.0 * Math.PI / 180.0));
@@ -58,13 +60,13 @@ public class PoseEstimator {
 
         photonEstimatorFront = new PhotonPoseEstimator(
             field,
-            PoseStrategy.LOWEST_AMBIGUITY,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             BOT_TO_CAM_FRONT
         );
 
         photonEstimatorBack = new PhotonPoseEstimator(
             field,
-            PoseStrategy.LOWEST_AMBIGUITY,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             BOT_TO_CAM_BACK
         );
 
@@ -160,6 +162,7 @@ public class PoseEstimator {
                 || res.getTimestampSeconds() > latestResult.getTimestampSeconds())
                 && res.getBestTarget() != null
                 && res.getBestTarget().getPoseAmbiguity() < AMBIGUITY_CUTOFF
+                && res.getBestTarget().getBestCameraToTarget().getTranslation().getDistance(new Translation3d()) < DISTANCE_CUTOFF
             ) {
                 latestResult = res;
             }
