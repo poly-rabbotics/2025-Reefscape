@@ -6,11 +6,9 @@ import frc.robot.subsystems.Algae.*;
 
 public class Algae {
     private static final int ALGAE_PIVOT_MOTOR_ID = 1;
-    private static final int ALGAE_FRONT_MOTOR_ID = 23;
-    private static final int ALGAE_BACK_MOTOR_ID = 24;
 
     private static AlgaeIntake algaeIntake
-        = new AlgaeIntake(ALGAE_FRONT_MOTOR_ID, ALGAE_BACK_MOTOR_ID, ALGAE_PIVOT_MOTOR_ID);
+        = new AlgaeIntake(ALGAE_PIVOT_MOTOR_ID);
 
     public enum AlgaePose {
         Handoff, Processor, Intake, Stow
@@ -18,10 +16,6 @@ public class Algae {
 
     public static void run() {
         algaeIntake.run();
-    }
-
-    public static void setIntakeVector(double x, double y) {
-        algaeIntake.setIntakeVector(x, y);
     }
 
     public static void setPose(AlgaePose pose) {
@@ -34,14 +28,6 @@ public class Algae {
     
     public static void recordState() {
         Logger.recordOutput("Algae Intake Pivot Speed", algaeIntake.getPivotSpeed());
-        Logger.recordOutput(
-            "Algae Intake Front Mecanum Pair Speed",
-            algaeIntake.getFrontPairMotorSpeed()
-        );
-        Logger.recordOutput(
-            "Algae Intake Back Mecanum Pair Speed",
-            algaeIntake.getBackPairMotorSpeed()
-        );
         Logger.recordOutput(
             "Algae Intake Pivot Velocity (Degrees per Second)",
             algaeIntake.getPivotVelocity()

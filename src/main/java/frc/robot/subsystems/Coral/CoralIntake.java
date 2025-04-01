@@ -151,12 +151,7 @@ public class CoralIntake {
 
             case Storing:
                 double position = topMotor.getEncoder().getPosition();
-
-                if (Coral.getScoringPoint() == ScoringPoint.ScoringL4) {
-                    speed = controller.calculate(position, CORAL_STORAGE_POSE - 6.0);
-                } else {
-                    speed = controller.calculate(position, CORAL_STORAGE_POSE);
-                }
+                speed = controller.calculate(position, getCoralSetPosition());
                 break;
                 
             default:
@@ -212,6 +207,13 @@ public class CoralIntake {
     }
 
     /**
+     * Get the velocity of the motors.
+     */
+    public double getVelocity() {
+        return topMotor.getEncoder().getVelocity();
+    }
+
+    /**
      * Gets the output current given to the motors by their controllers.
      */
     public double getCurrent() {
@@ -234,14 +236,22 @@ public class CoralIntake {
 
     /**
      * Returns the position of the coral piece if it is known, otherwise returning
-     * `Double.POSITIVE_INFINITY` if the position is outside the intake/unknowable.
+     * `Double.NaN` if the position is outside the intake/unknowable.
      */
     public double getCoralPosition() {
         if (proxOn(frontProx.get()) || proxOn(backProx.get())) {
             return topMotor.getEncoder().getPosition();
         }
 
-        return Double.POSITIVE_INFINITY;
+        return Double.NaN;
+    }
+
+    public double getCoralSetPosition() {
+        if (Coral.getScoringPoint() == ScoringPoint.ScoringL4) {
+            return CORAL_STORAGE_POSE - 6.0;
+        }
+
+        return CORAL_STORAGE_POSE;
     }
 
     public void setCoralPosition(double coralExtension) {

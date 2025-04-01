@@ -79,10 +79,6 @@ public class Coral {
         algae.set(speed);
     }
 
-    public static void _setPivotSpeed(double pivotSpeed) {
-        pivot._setSpeed(pivotSpeed);
-    }
-
     public static void _setElevatorSpeed(double elevatorSpeed) {
         elevator._setSpeed(elevatorSpeed);
     }
@@ -97,18 +93,20 @@ public class Coral {
 
     public static void recordState() {
         Logger.recordOutput("Coral Intake Speed", coralIntake.get());
+        Logger.recordOutput("Coral Intake Velocity", coralIntake.getVelocity());
         Logger.recordOutput("Coral Intake Current", coralIntake.getCurrent());
         Logger.recordOutput("Coral Intake State", coralIntake.getState());
         Logger.recordOutput("Coral Intake Storing Coral", coralIntake.isCoralStored());
         Logger.recordOutput("Coral Intake Coral Position", coralIntake.getCoralPosition());
+        Logger.recordOutput("Coral Intake Coral Set Position", coralIntake.getCoralSetPosition());
         Logger.recordOutput("Coral Intake Front Prox On", coralIntake.frontProxOn());
         Logger.recordOutput("Coral Intake Back Prox On", coralIntake.backProxOn());
 
         Logger.recordOutput("Coral Pivot Speed", pivot.get());
+        Logger.recordOutput("Coral Pivot Velocity", pivot.getVelocity());
         Logger.recordOutput("Coral Pivot Set Angle (Degrees)", pivot.getSetAngle().degrees());
         Logger.recordOutput("Coral Pivot Position (Degrees)", pivot.getAngle().degrees());
         Logger.recordOutput("Coral Pivot Setpoint", pivot.getSetPoint());
-        Logger.recordOutput("Coral Pivot Velocity", pivot.getVelocity());
 
         Logger.recordOutput("Elevator Set Point", elevator.getSetpointEnum());
         Logger.recordOutput("Elevator Set Point (in)", elevator.getSetpoint());

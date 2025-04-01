@@ -300,28 +300,13 @@ public class Robot extends LoggedRobot {
      */
     public void operatorTeleop() {
         double dealgaeSpeed = -0.2;
-        double groundAlgaeSpeedX = 0.0;
-        double groundAlgaeSpeedY = 0.0;
         ScoringPoint scoringPoint = ScoringPoint.Stowed;
-        IntakeState coralIntakeState = IntakeState.Idle;
         AlgaePose algaePose = AlgaePose.Stow;
 
         if (controlPanelAlgae.getRawButton(7)) {
             dealgaeSpeed = -1;
         } else if (controlPanelAlgae.getRawButton(6)){
             dealgaeSpeed = 1;
-        }
-
-        if (controlPanelAlgae.getRawButton(9)) {
-            groundAlgaeSpeedX = -1.0;
-        } else if (controlPanelAlgae.getRawButton(8)) {
-            groundAlgaeSpeedX = 1.0;
-        }
-
-        if (controllerOperator.getPOV() == 0.0) {
-            groundAlgaeSpeedY = 1.0;
-        } if (controllerOperator.getPOV() == 180.0) {
-            groundAlgaeSpeedY = -1.0;
         }
 
         if (controlPanelCoral.getRawButton(1)) {
@@ -362,27 +347,25 @@ public class Robot extends LoggedRobot {
 
         if (controlPanelAlgae.getRawButton(5)) {
             algaePose = AlgaePose.Handoff;
-            scoringPoint = ScoringPoint.Handoff;
+            // scoringPoint = ScoringPoint.Handoff;
         }
 
         Coral.setDealgaeficatorSpeed(dealgaeSpeed);
         Coral.setScoringPoint(scoringPoint);
 
-        Algae.setIntakeVector(groundAlgaeSpeedX, groundAlgaeSpeedY);
         Algae.setPose(algaePose);
 
         Algae.run();
         Coral.run();
         
         double mainOverrideSpeed = Controls.defaultCurve(-controllerOperator.getLeftY());
-        double secondaryOverrideSpeed = Controls.defaultCurve(-controllerOperator.getRightY());
+        // double secondaryOverrideSpeed = Controls.defaultCurve(-controllerOperator.getRightY());
         double intakeOverrideSpeed
             = Controls.defaultCurve(controllerOperator.getRightTriggerAxis())
             - Controls.defaultCurve(controllerOperator.getLeftTriggerAxis());
 
         if (controllerOperator.getRightBumperButton()) {
             Coral._setElevatorSpeed(mainOverrideSpeed);
-            Coral._setPivotSpeed(secondaryOverrideSpeed / 3.0);
             Coral._setIntakeSpeed(intakeOverrideSpeed);
         }
 
