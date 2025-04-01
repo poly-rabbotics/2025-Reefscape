@@ -21,7 +21,7 @@ public class CoralPivot {
     private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(3.0);
 
     private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(25.0);
-    private static final Angle PIVOT_POINT_HANDOFF = new Angle().setDegrees(45.0);
+    private static final Angle PIVOT_POINT_HANDOFF = new Angle().setDegrees(-20.0);
     private static final Angle PIVOT_POINT_STOW = PIVOT_POINT_INTAKE;
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-20.0);

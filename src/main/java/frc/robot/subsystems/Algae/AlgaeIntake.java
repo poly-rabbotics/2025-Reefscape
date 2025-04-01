@@ -17,7 +17,7 @@ import frc.robot.systems.Algae.AlgaePose;
 public class AlgaeIntake {
     private static final Angle PIVOT_STOW = new Angle().setDegrees(180.0);
     private static final Angle PIVOT_INTAKE = new Angle().setDegrees(0.0);
-    private static final Angle PIVOT_HANDOFF = new Angle().setDegrees(135.0);
+    private static final Angle PIVOT_HANDOFF = new Angle().setDegrees(115.0);
     private static final Angle PIVOT_PROCESSOR = new Angle().setDegrees(0.0);
 
     private final SparkMax pivotMotor;

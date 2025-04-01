@@ -347,7 +347,7 @@ public class Robot extends LoggedRobot {
 
         if (controlPanelAlgae.getRawButton(5)) {
             algaePose = AlgaePose.Handoff;
-            // scoringPoint = ScoringPoint.Handoff;
+            scoringPoint = ScoringPoint.Handoff;
         }
 
         Coral.setDealgaeficatorSpeed(dealgaeSpeed);
