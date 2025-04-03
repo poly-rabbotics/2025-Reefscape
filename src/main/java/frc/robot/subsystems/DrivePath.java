@@ -87,6 +87,12 @@ public class DrivePath {
         return points.isEmpty();
     }
 
+    public void convertToAlliance(Alliance alliance) {
+        for (int i = 0; i < points.size(); i++) {
+            points.set(i, makeAllianceSide(points.get(i), alliance));
+        }
+    }
+
     /**
      * A reasonable default for the `targetReached` function required by drive paths.
      */

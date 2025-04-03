@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.subsystems.Angle;
@@ -137,6 +138,7 @@ public class AutonomousManager {
      */
     private static Function<StepStatus, StepStatus> makeDriveStep(DrivePath path) {
         return (prevState) -> {
+            DriverStation.getAlliance().ifPresent((a) -> path.convertToAlliance(a));
             SwerveDrive.setPath(path);
             SwerveDrive.run();
 
