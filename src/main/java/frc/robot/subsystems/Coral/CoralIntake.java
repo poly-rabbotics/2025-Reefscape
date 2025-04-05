@@ -104,39 +104,44 @@ public class CoralIntake {
      * Runs the intake and performs position control, should be called periodically.
      */
     public void run() {
-        if (proxTripped(frontProx.get(), frontProxLastState) && !proxOn(backProx.get())) {
+        // if (proxTripped(frontProx.get(), frontProxLastState) && !proxOn(backProx.get())) {
+        if (proxTripped(backProx.get(), backProxLastState)) {
             // back edge of coral is in the intake, front edge a coral's width beyond the front
             // sensor.
 
-            topMotor.getEncoder().setPosition(FRONT_PROX_POSE + CORAL_LENGTH);
-
+            // topMotor.getEncoder().setPosition(FRONT_PROX_POSE + CORAL_LENGTH);
             if (currentState == IntakeState.Intaking) {
                 currentState = IntakeState.Storing;
+                topMotor.getEncoder().setPosition(BACK_PROX_POSE + CORAL_LENGTH);
             }
         }
 
-        if (proxTripped(backProx.get(), backProxLastState) && proxOn(frontProx.get())) {
-            // Coral just met the back sensor and is still on the front sensor, putting the coral's
-            // front a coral's width away from the back sensors position.
+        // if (proxTripped(backProx.get(), backProxLastState) && proxOn(frontProx.get())) {
+        //     // Coral just met the back sensor and is still on the front sensor, putting the coral's
+        //     // front a coral's width away from the back sensors position.
             
-            topMotor.getEncoder().setPosition(BACK_PROX_POSE + CORAL_LENGTH);
-        }
+        //     topMotor.getEncoder().setPosition(BACK_PROX_POSE + CORAL_LENGTH);
 
-        if (proxTripped(frontProx.get(), frontProxLastState) && proxOn(backProx.get())) {
-            // Coral just left the front sensor going further into the intake, ergo its front is at
-            // the front sensor's position.
-            
-            topMotor.getEncoder().setPosition(FRONT_PROX_POSE);
-        }
+        //     if (currentState == IntakeState.Intaking) {
+        //         currentState = IntakeState.Storing;
+        //     }
+        // }
 
-        if (proxTripped(backProx.get(), backProxLastState) && !proxOn(frontProx.get())) {
-            // Coral just left the back prox sensor and the front sensor is not on, meaning  that it
-            // has retracted into the intake past the back sensor. This is probably not physically
-            // pheasable, but in the event that the back stop breaks this position will help PID
-            // keep the piece at the right position.
+        // if (proxTripped(frontProx.get(), frontProxLastState) && proxOn(backProx.get())) {
+        //     // Coral just left the front sensor going further into the intake, ergo its front is at
+        //     // the front sensor's position.
             
-            // topMotor.getEncoder().setPosition(BACK_PROX_POSE);
-        }
+        //     topMotor.getEncoder().setPosition(FRONT_PROX_POSE);
+        // }
+
+        // if (proxTripped(backProx.get(), backProxLastState) && !proxOn(frontProx.get())) {
+        //     // Coral just left the back prox sensor and the front sensor is not on, meaning  that it
+        //     // has retracted into the intake past the back sensor. This is probably not physically
+        //     // pheasable, but in the event that the back stop breaks this position will help PID
+        //     // keep the piece at the right position.
+            
+        //     // topMotor.getEncoder().setPosition(BACK_PROX_POSE);
+        // }
 
         double speed;
 

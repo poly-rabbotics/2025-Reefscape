@@ -117,6 +117,8 @@ public class Coral {
         Logger.recordOutput("Elevator Velocity (in per second)", elevator.getVelocity());
         Logger.recordOutput("Elevator Acceleration (in per second^2)", elevator.getAcceleration());
         Logger.recordOutput("Elevator At Lower Limit", elevator.atLowerLimit());
+        Logger.recordOutput("Elevator Closed Loop Output", elevator.getClosedLoopOutput());
+        Logger.recordOutput("Elevator Duty Cycle", elevator.getDutyCycle());
 
         Logger.recordOutput("Algae Intake Speed", algae.get());
     }

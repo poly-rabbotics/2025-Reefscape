@@ -227,20 +227,63 @@ public class AutonomousManager {
         procedures[0] = new AutonomousProcedure();
 
         procedures[1] = new AutonomousProcedure()
-            .andThen(makeStep(() -> Coral.setCoralPosition(4.8)))
+            .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
+
+            .andThen(makeTimedStep(3.0))
 
             // Move to L2 point
             .andThen(makeCoralStep(ScoringPoint.ScoringL2))
 
             // Back left reef, center/right side (driver POV)
             .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(5.4, 6.0, new Rotation2d(-2.1)))))
-            .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.26, 5.14, new Rotation2d(-2.1)))))
+            .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.188, 5.010, new Rotation2d(-2.1)))))
 
             // Score coral
             .andThen(scoreCoral())
 
             // Move out of the way.
             .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
+            ;
+
+        // Start right side score L2 driver side reef
+        procedures[2] = new AutonomousProcedure()
+
+            // Set preload position
+            .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
+
+            // Move to L2
+            .andThen(makeCoralStep(ScoringPoint.ScoringL2))
+
+            // Drive to driver side reef
+            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(2.5957, 2.4092, new Rotation2d()))))
+            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(3.2207, 3.8563, new Rotation2d()))))
+
+            // Score on L2
+            .andThen(scoreCoral())
+
+            // Drive back and stow
+            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(1.8364, 3.8931, new Rotation2d()))))
+            .andThen(makeCoralStep(ScoringPoint.Stowed))
+
+            // Set up for intake in Tele
+            .andThen(makeDriveStep(new Pose2d(1.8595, 0.7987, new Rotation2d(-2.2377))))
+            ;
+
+        // Start center, get leave points
+        procedures[3] = new AutonomousProcedure()
+            .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
+
+            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(6.4540, 3.8510, new Rotation2d(Math.PI)))))
+
+            // .andThen(makeCoralStep(ScoringPoint.ScoringL3))
+
+            // .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(5.8252, 3.8510, new Rotation2d(Math.PI)))))
+
+            // .andThen(scoreCoral())
+            
+            // .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(6.4540, 3.8510, new Rotation2d(Math.PI)))))
+
+            // .andThen(makeCoralStep(ScoringPoint.Stowed))
             ;
 
         // Start left most edge, angled 135 degrees from forward clockwise.
@@ -255,14 +298,14 @@ public class AutonomousManager {
                 )
             )
 
-            .andThen(makeStep(() -> Coral.setCoralPosition(4.8)))
+            .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
 
             // Move to L2 point
             .andThen(makeCoralStep(ScoringPoint.ScoringL2))
 
             // Back left reef, center/right side (driver POV)
             .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(5.4, 6.0, new Rotation2d(-2.1)))))
-            .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.26, 5.14, new Rotation2d(-2.1)))))
+            .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.188, 5.010, new Rotation2d(-2.1)))))
 
             // Score coral
             .andThen(scoreCoral())

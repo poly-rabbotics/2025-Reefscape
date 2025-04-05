@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import frc.robot.systems.*;
 import frc.robot.subsystems.*;
-import frc.robot.systems.Algae.AlgaePose;
+import frc.robot.systems.Algae.ClimberPose;
 import frc.robot.systems.Coral.ScoringPoint;
 import frc.robot.systems.SwerveDrive.DriveOrientation;
 import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
@@ -180,13 +180,15 @@ public class Robot extends LoggedRobot {
             int dPadAngle = controllerDriver.getPOV();
 
             if (dPadAngle != -1) {
-                Angle yaw = new Angle().setDegrees((double)dPadAngle - 90.0);
+                Angle yaw = new Angle().setDegrees((double)dPadAngle + 90.0);
                 Pigeon.setYaw(yaw);
 
                 // Prevents fast rotation when setting heading.
                 if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
                     SwerveDrive.setMode(SwerveMode.Headless);
                 }
+
+                PoseEstimator.reinstantiateDrive();
             }
 
             if (controllerDriver.getRightBumperButtonReleased()) {
@@ -301,7 +303,7 @@ public class Robot extends LoggedRobot {
     public void operatorTeleop() {
         double dealgaeSpeed = -0.2;
         ScoringPoint scoringPoint = ScoringPoint.Stowed;
-        AlgaePose algaePose = AlgaePose.Stow;
+        ClimberPose algaePose = ClimberPose.Stow;
 
         if (controlPanelAlgae.getRawButton(7)) {
             dealgaeSpeed = -1;
@@ -323,15 +325,17 @@ public class Robot extends LoggedRobot {
             scoringPoint = ScoringPoint.DealgaeficateL3;
         } else if (controlPanelCoral.getRawButton(7)) {
             scoringPoint = ScoringPoint.AlgaeNet;
+        } else if (controlPanelAlgae.getRawButton(10)) {
+            scoringPoint = ScoringPoint.Intaking;
         }
 
-        if (controlPanelAlgae.getRawButtonPressed(10)) {
+        if (controlPanelAlgae.getRawButtonPressed(10) || controlPanelAlgae.getRawButtonPressed(9)) {
             if (Coral.getIntakeState() != IntakeState.Intaking) {
                 Coral.setIntakeState(IntakeState.Intaking);
             }
-        } else if (controlPanelAlgae.getRawButtonReleased(10)) {
+        } else if (controlPanelAlgae.getRawButtonReleased(10) || controlPanelAlgae.getRawButtonReleased(9)) {
             if (Coral.getIntakeState() != IntakeState.Storing) {
-                Coral.setCoralPosition(4.8);
+                Coral.setCoralPosition(2.6);
             }
         } else if (controlPanelAlgae.getRawButtonPressed(11)) {
             Coral.setIntakeState(IntakeState.Outtaking);
@@ -340,13 +344,11 @@ public class Robot extends LoggedRobot {
         }
 
         if (controlPanelCoral.getRawButton(8)) {
-            algaePose = AlgaePose.Processor;
-        } else if (controlPanelCoral.getRawButton(9)) {
-            algaePose = AlgaePose.Intake;
+            algaePose = ClimberPose.ClimbAproach;
         }
 
         if (controlPanelAlgae.getRawButton(5)) {
-            algaePose = AlgaePose.Handoff;
+            algaePose = ClimberPose.ClimbHold;
             scoringPoint = ScoringPoint.Handoff;
         }
 
@@ -375,6 +377,10 @@ public class Robot extends LoggedRobot {
 
         if (controllerOperator.getStartButtonReleased()) {
             Coral._setElevatorPose(0.0);
+        }
+
+        if (controlPanelCoral.getRawButton(9)) {
+            Coral._setElevatorSpeed(-1.0);
         }
     }
 

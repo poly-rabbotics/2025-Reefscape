@@ -149,6 +149,20 @@ public class PoseEstimator {
         SwerveDrive.setPoseOf(swervePoseEstimator, pose);
     }
 
+    public static void reinstantiateDrive() {
+        swervePoseEstimator = SwerveDrive
+            .createSwervePoseEstimator(
+                new Pose3d(
+                    0.0, 0.0, 0.0,
+                    new Rotation3d(
+                        Pigeon.getRoll().radians(),
+                        Pigeon.getPitch().radians(),
+                        Pigeon.getYaw().radians()
+                    )
+                )
+            );
+    }
+
     /**
      * Update an individual estimator with vision data.
      */

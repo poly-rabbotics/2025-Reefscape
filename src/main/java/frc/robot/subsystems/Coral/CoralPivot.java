@@ -8,7 +8,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.EncoderConfig;
@@ -20,9 +20,9 @@ public class CoralPivot {
     private static final double GEAR_RATIO = 1.0 / 75.0;
     private static final Angle PIVOT_TOLERANCE = new Angle().setDegrees(3.0);
 
-    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(25.0);
-    private static final Angle PIVOT_POINT_HANDOFF = new Angle().setDegrees(-20.0);
-    private static final Angle PIVOT_POINT_STOW = PIVOT_POINT_INTAKE;
+    private static final Angle PIVOT_POINT_INTAKE = new Angle().setDegrees(5.0);
+    private static final Angle PIVOT_POINT_CLIMB = new Angle().setDegrees(-2.5);
+    private static final Angle PIVOT_POINT_STOW = new Angle().setDegrees(25.0);
     private static final Angle PIVOT_POINT_L1 = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_POINT_L2 = new Angle().setDegrees(-20.0);
     private static final Angle PIVOT_POINT_L3 = new Angle().setDegrees(-30.0);
@@ -50,8 +50,9 @@ public class CoralPivot {
         motor.configure(
             new SparkMaxConfig()
                 .inverted(true)
+                .idleMode(IdleMode.kBrake)
                 .apply(new AbsoluteEncoderConfig()
-                    .zeroOffset(188.75 / 360.0)
+                    .zeroOffset(239.6 / 360.0)
                     .positionConversionFactor(360.0)
                     .velocityConversionFactor(360.0)
                     .inverted(true)
@@ -158,7 +159,7 @@ public class CoralPivot {
             case Intaking:
                 return PIVOT_POINT_INTAKE;
             case Handoff:
-                return PIVOT_POINT_HANDOFF;
+                return PIVOT_POINT_CLIMB;
             case Stowed:
             default:
                 return PIVOT_POINT_STOW;

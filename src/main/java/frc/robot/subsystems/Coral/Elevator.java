@@ -21,8 +21,8 @@ public class Elevator {
     private static final double INCHES_PER_SPROCKET_ROTATION = 3 * Math.PI * SPROCKET_DIAMETER_INCHES;
     private static final double INCHES_PER_ROTATION = GEAR_RATIO * INCHES_PER_SPROCKET_ROTATION;
 
-    private static final double MAGIC_ACCEL = 175.0;
-    private static final double MAGIC_VELOCITY = 100.0;
+    private static final double MAGIC_ACCEL = 195.0;
+    private static final double MAGIC_VELOCITY = 120.0;
 
     private static final double POSE_STOWED = 0.0;
     private static final double POSE_INTAKING = 0.0;
@@ -64,7 +64,7 @@ public class Elevator {
                 .withKS(0.0) // Feed forward for static friction
                 .withKV(0.0) // Output per unit of desired velocity
                 .withKA(0.0) // Output per unit of desired acceleration
-                .withKP(0.42) // Proportional gain
+                .withKP(0.8) // Proportional gain
                 .withKI(0.0) // Intagral gain
                 .withKD(0.0) // Derivative gain
             );
@@ -155,6 +155,14 @@ public class Elevator {
      */
     public double getAcceleration() {
         return elfKraken.getAcceleration().getValueAsDouble();
+    }
+
+    public double getClosedLoopOutput() {
+        return elfKraken.getClosedLoopOutput().getValueAsDouble();
+    }
+
+    public double getDutyCycle() {
+        return elfKraken.getDutyCycle().getValueAsDouble();
     }
 
     /**
