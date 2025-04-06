@@ -120,6 +120,34 @@ public class Robot extends LoggedRobot {
             controlPanelAlgae.getRawButton(3),
             controlPanelAlgae.getRawButton(4)
         ));
+
+        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
+            int dPadAngle = controllerDriver.getPOV();
+
+            if (dPadAngle != -1) {
+                Angle yaw = new Angle().setDegrees(-(double)dPadAngle + 90.0);
+                Pigeon.setYaw(yaw);
+
+                // Prevents fast rotation when setting heading.
+                if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
+                    SwerveDrive.setMode(SwerveMode.Headless);
+                }
+
+                PoseEstimator.reinstantiateDrive();
+            }
+
+            if (controllerDriver.getRightBumperButtonReleased()) {
+                SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
+            }
+
+            if (controllerDriver.getLeftBumperButtonReleased()) {
+                SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
+            }
+
+            if (controllerDriver.getStartButtonReleased()) {
+                SwerveDrive.setDriveOrientation(DriveOrientation.NeutralObserver);
+            }
+        }
     }
 
     @Override
@@ -175,35 +203,7 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {}
 
     @Override
-    public void disabledPeriodic() {
-        if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
-            int dPadAngle = controllerDriver.getPOV();
-
-            if (dPadAngle != -1) {
-                Angle yaw = new Angle().setDegrees((double)dPadAngle + 90.0);
-                Pigeon.setYaw(yaw);
-
-                // Prevents fast rotation when setting heading.
-                if (SwerveDrive.getMode() == SwerveMode.SetAngle) {
-                    SwerveDrive.setMode(SwerveMode.Headless);
-                }
-
-                PoseEstimator.reinstantiateDrive();
-            }
-
-            if (controllerDriver.getRightBumperButtonReleased()) {
-                SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
-            }
-
-            if (controllerDriver.getLeftBumperButtonReleased()) {
-                SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
-            }
-
-            if (controllerDriver.getStartButtonReleased()) {
-                SwerveDrive.setDriveOrientation(DriveOrientation.NeutralObserver);
-            }
-        }
-    }
+    public void disabledPeriodic() {}
 
     private void recordLogFrame() {
         SwerveDrive.recordState();
@@ -241,18 +241,15 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        double pov = controllerDriver.getPOV();
+        // double pov = controllerDriver.getPOV();
 
-        // If a D-Pad button is pressed, snap to that angle.
-        if (pov != -1 && isFieldOriented) {
-            Angle angle = new Angle().setDegrees((double) pov);
+        // // If a D-Pad button is pressed, snap to that angle.
+        // if (pov != -1 && isFieldOriented) {
+        //     Angle angle = new Angle().setDegrees((double) pov);
 
-            SwerveDrive.setMode(SwerveMode.SetAngle);
-            SwerveDrive.setTargetAngle(angle);
-
-            Pose3d pose = PoseEstimator.estimate();
-            PoseEstimator.reset( new Pose3d(pose.getTranslation(), new Rotation3d(0.0, 0.0, angle.radians())));
-        }
+        //     SwerveDrive.setMode(SwerveMode.SetAngle);
+        //     SwerveDrive.setTargetAngle(angle);
+        // }
 
         // If the driver is not actively turning the robot, enable automated turn control to
         // compensate for drift.
@@ -276,15 +273,15 @@ public class Robot extends LoggedRobot {
             Controls.cardinalLock(Controls::defaultCurveTwoDimensional),
             controllerDriver.getXButton()
         ); // Lock to cardinal directions.
-        SwerveDrive.conditionalTempTranslationCurve(
-            (x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 3.0,
-            controllerDriver.getRightBumperButton()
-        ); // Lessen translation speed.
-        SwerveDrive.conditionalTempTranslationCurve(
-            Controls.cardinalLock((x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 3.0),
-            controllerDriver.getRightBumperButton() &&
-            controllerDriver.getXButton()
-        ); // Lessen translation speed and lock cardinal directions.
+        // SwerveDrive.conditionalTempTranslationCurve(
+        //     (x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 3.0,
+        //     controllerDriver.getRightBumperButton()
+        // ); // Lessen translation speed.
+        // SwerveDrive.conditionalTempTranslationCurve(
+        //     Controls.cardinalLock((x, y) -> Controls.defaultCurveTwoDimensional(x, y) / 3.0),
+        //     controllerDriver.getRightBumperButton() &&
+        //     controllerDriver.getXButton()
+        // ); // Lessen translation speed and lock cardinal directions.
 
         SwerveDrive.conditionalTempMode(SwerveMode.Rock, controllerDriver.getBButton());
         SwerveDrive.conditionalTempMode(SwerveMode.Relative, controllerDriver.getYButton());
