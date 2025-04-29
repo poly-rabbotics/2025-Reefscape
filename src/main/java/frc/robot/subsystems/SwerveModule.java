@@ -16,10 +16,12 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 
 /** 
  * Class for managing and manipulating a swerve module. 
@@ -31,7 +33,7 @@ public class SwerveModule {
     private static final double PID_P = 0.70;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
-
+    private static final double KStaticFriction = 0.0;
     private static final double ROCK_PID_P = 0.05;
     private static final double ROCK_PID_I = 0.0;
     private static final double ROCK_PID_D = 0.0;
@@ -39,8 +41,7 @@ public class SwerveModule {
     private final TalonFX rotationMotor;   // Motor responsible for rotating the module.
     private final TalonFX movementMotor;   // Motor responsible for creating movement in the module.
     private final CANcoder angularEncoder; // Cancoder tracking the angle of the module.
-
-    private final PIDController rotationController;
+   
     private final PIDController rockController;
 
     private final Angle canCoderOffset;
@@ -56,13 +57,12 @@ public class SwerveModule {
         desiredState.optimize(new Rotation2d(getAngle().radians()));
 
         double desiredAngle = ((desiredState.angle.getRadians() % Angle.TAU) + Angle.TAU) % Angle.TAU;
-        double rotationSpeed = rotationController.calculate(getAngle().radians(), desiredAngle);
         double propulsionSpeed = Double.isNaN(rockPos)
             ? desiredState.speedMetersPerSecond
             : rockController.calculate(getDistanceTraveled(), rockPos);
-    
+        PositionVoltage rotationRequest = new PositionVoltage(desiredAngle / Angle.TAU).withSlot(0);
         movementMotor.set(propulsionSpeed);
-        rotationMotor.set(rotationSpeed);
+        rotationMotor.setControl(rotationRequest);
     }
     
     public SwerveModule(
@@ -98,9 +98,13 @@ public class SwerveModule {
                 .withSensorToMechanismRatio(CONVERSION_FACTOR_ROTATION)
         );
 
-        rotationController = new PIDController(PID_P, PID_I, PID_D);
-        rotationController.enableContinuousInput(0.0, Angle.TAU);
-        rotationController.setTolerance(Angle.TAU / 360.0);
+        rotationConfigurator.apply(
+            new Slot0Configs()
+                .withKS(KStaticFriction)
+                .withKP(PID_P)
+                .withKI(PID_I)
+                .withKD(PID_D)
+        );
 
         // Movement Motor
         movementMotor = new TalonFX(movementMotorID);
