@@ -40,6 +40,8 @@ public class SwerveDrive {
     
     // Side length of the drive. Assumes a square drive.
     private static final double CHASSIS_SIDE_LENGTH = 0.6604; // ~26"
+    private static final double MAX_VELOCITY = 4.25; // meters per second
+    private static final double MAX_ANGULAR_VELOCITY = 12.0; // radians per second
 
     // Offsets of each absolute encoder (in this case CANCoders) from zero, where we take an angle
     // of zero to be forward. By adding an offset to the corosponding encoder's reported angle, we
@@ -127,7 +129,6 @@ public class SwerveDrive {
             TRAJECTORY_ROTATE_PID_I,
             TRAJECTORY_ROTATE_PID_D
         );
-
 
     // Controller for set angles, may be used on command by the driver while retaining full 
     // translation control. This controller is still available to the whole class, and so may be 
@@ -404,7 +405,7 @@ public class SwerveDrive {
                 break;
         }
         
-        runUncurved(x, y, rotation);
+        runUncurved(x * MAX_VELOCITY, y * MAX_VELOCITY, rotation * MAX_ANGULAR_VELOCITY);
     }
     
     /**
@@ -568,7 +569,7 @@ public class SwerveDrive {
 
         for (SwerveModule module : modules) {
             tempSum += module.getRotationMotorTemp();
-            tempSum += module.getMovementMotorTemp();
+            tempSum += module.getPropulsionMotorTemp();
         }
 
         return tempSum / (modules.length * 2.0);
@@ -644,7 +645,7 @@ public class SwerveDrive {
 
             Logger.recordOutput(
                 "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Movement Current",
-                modules[i].getMovementTorqueCurrent()
+                modules[i].getPropulsionTorqueCurrent()
             );
             Logger.recordOutput(
                 "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Rotation Current",
@@ -660,7 +661,7 @@ public class SwerveDrive {
             );
             Logger.recordOutput(
                 "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Movement Temp (Celsius)",
-                modules[i].getMovementMotorTemp()
+                modules[i].getPropulsionMotorTemp()
             );
             Logger.recordOutput(
                 "Swerve Module " + MODULE_PHYSICAL_POSITION_NAMES[i] + " Rotation Temp (Celsius)",

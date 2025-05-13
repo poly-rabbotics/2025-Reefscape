@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -15,54 +14,54 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 
 /** 
  * Class for managing and manipulating a swerve module. 
  */
 public class SwerveModule {
-    private static final double CONVERSION_FACTOR_ROTATION = Math.toRadians(150 / 7);
+    private static final double CONVERSION_FACTOR_ROTATION = 150 / 7;
     private static final double CONVERSION_FACTOR_MOVEMENT = 6.75 / (0.09525 * Math.PI);
 
-    private static final double PID_P = 0.70;
-    private static final double PID_I = 0.0;
-    private static final double PID_D = 0.0;
+    private static final double PID_ROTATION_P = 38.0; // Basically, request 20 volts per rotation of error.
+    private static final double PID_ROTATION_I = 0.0;
+    private static final double PID_ROTATION_D = 0.0;
 
-    private static final double ROCK_PID_P = 0.05;
-    private static final double ROCK_PID_I = 0.0;
-    private static final double ROCK_PID_D = 0.0;
+    private static final double PID_PROPULSION_P = 8.0;
+    private static final double PID_PROPULSION_I = 0.0;
+    private static final double PID_PROPULSION_D = 0.025;
 
     private final TalonFX rotationMotor;   // Motor responsible for rotating the module.
-    private final TalonFX movementMotor;   // Motor responsible for creating movement in the module.
+    private final TalonFX propulsionMotor; // Motor responsible for creating movement in the module.
     private final CANcoder angularEncoder; // Cancoder tracking the angle of the module.
 
-    private final PIDController rotationController;
-    private final PIDController rockController;
-
     private final Angle canCoderOffset;
-
     private SwerveModuleState desiredState;
 
-    // Set to NaN if not in rock mode, NaN does not equal itself by definition
-    // (see some IEEE standard or something) and so this is how rock mode is 
-    // checked.
-    private double rockPos = Double.NaN;
+    private boolean rockMode = false;
 
     public void run() {
-        desiredState.optimize(new Rotation2d(getAngle().radians()));
+        desiredState.optimize(new Rotation2d(rotationMotor.getPosition().getValueAsDouble() * Angle.TAU));
+        rotationMotor.setPosition(getAngle().degrees() / 360.0);
 
-        double desiredAngle = ((desiredState.angle.getRadians() % Angle.TAU) + Angle.TAU) % Angle.TAU;
-        double rotationSpeed = rotationController.calculate(getAngle().radians(), desiredAngle);
-        double propulsionSpeed = Double.isNaN(rockPos)
-            ? desiredState.speedMetersPerSecond
-            : rockController.calculate(getDistanceTraveled(), rockPos);
-    
-        movementMotor.set(propulsionSpeed);
-        rotationMotor.set(rotationSpeed);
+        PositionVoltage rotationRequest = new PositionVoltage(desiredState.angle.getRotations());
+        rotationMotor.setControl(rotationRequest);
+
+        if (rockMode) {
+            VelocityVoltage propulsionRequest = new VelocityVoltage(0.0);
+            propulsionMotor.setControl(propulsionRequest);
+        } else {
+            VelocityVoltage propulsionRequest = new VelocityVoltage(desiredState.speedMetersPerSecond);
+            propulsionMotor.setControl(propulsionRequest);
+        }
     }
     
     public SwerveModule(
@@ -71,6 +70,7 @@ public class SwerveModule {
         int canCoderID, 
         Angle canCoderOffset
     ) {
+        desiredState = new SwerveModuleState();
         this.canCoderOffset = canCoderOffset.clone();
 
         angularEncoder = new CANcoder(canCoderID);
@@ -78,62 +78,68 @@ public class SwerveModule {
 
         // Rotation Motor
         rotationMotor = new TalonFX(rotationalMotorID);
-        TalonFXConfigurator rotationConfigurator = rotationMotor.getConfigurator();
 
-        rotationConfigurator.apply(
-            new MotorOutputConfigs()
-                .withInverted(InvertedValue.Clockwise_Positive)
-        );
+        ClosedLoopGeneralConfigs rotationClosedLoopConfigs = new ClosedLoopGeneralConfigs();
+        rotationClosedLoopConfigs.ContinuousWrap = true;
+        
+        TalonFXConfiguration rotationConfig = new TalonFXConfiguration()
+            .withClosedLoopGeneral(rotationClosedLoopConfigs)
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+            )
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(30.0)
+                    .withSupplyCurrentLimitEnable(true)
+            )
+            .withFeedback(
+                new FeedbackConfigs()
+                    // .withFeedbackRemoteSensorID(canCoderID)
+                    // .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+                    .withSensorToMechanismRatio(CONVERSION_FACTOR_ROTATION)
+            )
+            .withSlot0(
+                new Slot0Configs()
+                    .withKP(PID_ROTATION_P)
+                    .withKI(PID_ROTATION_I)
+                    .withKD(PID_ROTATION_D)
+            );
 
-        rotationConfigurator.apply(
-            new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(30.0)
-                .withSupplyCurrentLimitEnable(true)
-        );
-
-        rotationConfigurator.apply(
-            new FeedbackConfigs()
-                .withFeedbackRemoteSensorID(canCoderID)
-                .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
-                .withSensorToMechanismRatio(CONVERSION_FACTOR_ROTATION)
-        );
-
-        rotationController = new PIDController(PID_P, PID_I, PID_D);
-        rotationController.enableContinuousInput(0.0, Angle.TAU);
-        rotationController.setTolerance(Angle.TAU / 360.0);
+        rotationMotor.getConfigurator().apply(rotationConfig);
+        rotationMotor.setPosition(getAngle().degrees() / 360.0);
 
         // Movement Motor
-        movementMotor = new TalonFX(movementMotorID);
-        TalonFXConfigurator movementConfigurator = movementMotor.getConfigurator();
-
-        movementConfigurator.apply(
-            new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Brake)
-        );
-
-        movementConfigurator.apply(
-            new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(40.0)
-                .withSupplyCurrentLimitEnable(true)
-        );
-
-        movementConfigurator.apply(
-            new TorqueCurrentConfigs()
-                .withPeakForwardTorqueCurrent(60.0)
-                .withPeakForwardTorqueCurrent(-60.0)
-        );
-
-        movementConfigurator.apply(
-            new FeedbackConfigs()
-                .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                .withSensorToMechanismRatio(CONVERSION_FACTOR_MOVEMENT)
-        );
+        propulsionMotor = new TalonFX(movementMotorID);
+        TalonFXConfiguration propulsionConfiguration = new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake)
+            )
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(40.0)
+                    .withSupplyCurrentLimitEnable(true)
+            )
+            .withTorqueCurrent(
+                new TorqueCurrentConfigs()
+                    .withPeakForwardTorqueCurrent(60.0)
+                    .withPeakForwardTorqueCurrent(-60.0)
+            )
+            .withFeedback(
+                new FeedbackConfigs()
+                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                    .withSensorToMechanismRatio(CONVERSION_FACTOR_MOVEMENT)
+            )
+            .withSlot0(
+                new Slot0Configs()
+                    .withKP(PID_PROPULSION_P)
+                    .withKI(PID_PROPULSION_I)
+                    .withKD(PID_PROPULSION_D)
+            );
         
-        rockController = new PIDController(ROCK_PID_P, ROCK_PID_I, ROCK_PID_D);
-        rockController.setTolerance(1);
-
-        desiredState = new SwerveModuleState();
+        propulsionMotor.getConfigurator().apply(propulsionConfiguration);
     }
 
     /**
@@ -154,7 +160,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getActualState() {
         return new SwerveModuleState(
-            movementMotor.getVelocity().getValueAsDouble(),
+            propulsionMotor.getVelocity().getValueAsDouble(),
             new Rotation2d(getAngle().radians())
         );
     }
@@ -171,7 +177,7 @@ public class SwerveModule {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            movementMotor.getPosition().getValueAsDouble(), 
+            propulsionMotor.getPosition().getValueAsDouble(), 
             new Rotation2d(getAngle().radians())
         );
     }
@@ -180,18 +186,14 @@ public class SwerveModule {
      * True if the module should be in rock mode.
      */
     public void setRockMode(boolean shouldHold) {
-        if (!shouldHold) {
-            rockPos = Double.NaN;
-        } else if (rockPos != rockPos) {
-            rockPos = getDistanceTraveled();
-        }
+        rockMode = shouldHold;
     }
 
     /**
      * True if in rock mode.
      */
     public boolean inRockMode() {
-        return rockPos == rockPos;
+        return rockMode;
     }
 
     /**
@@ -201,7 +203,7 @@ public class SwerveModule {
      * interupt odometry).
      */
     public double getDistanceTraveled() {
-        return movementMotor.getPosition().getValueAsDouble();
+        return propulsionMotor.getPosition().getValueAsDouble();
     }
 
     public Angle getAngle() {
@@ -220,16 +222,16 @@ public class SwerveModule {
     /**
      * Gets the reported tempurature of the movement motor in celsius.
      */
-    public double getMovementMotorTemp() {
-        return movementMotor.getDeviceTemp().getValueAsDouble();
+    public double getPropulsionMotorTemp() {
+        return propulsionMotor.getDeviceTemp().getValueAsDouble();
     }
 
     /**
      * Gets the reported torque current, proportional to the motor's output torque, of the movement
      * motor. Value is in amps and may be negative, where sign indicates forward/backward.
      */
-    public double getMovementTorqueCurrent() {
-        return movementMotor.getTorqueCurrent().getValueAsDouble();
+    public double getPropulsionTorqueCurrent() {
+        return propulsionMotor.getTorqueCurrent().getValueAsDouble();
     }
 
     /**
@@ -244,7 +246,7 @@ public class SwerveModule {
      * Gets the reported motor voltage of the movement motor. Value is in volts, may be negative.
      */
     public double getMovementVoltage() {
-        return movementMotor.getMotorVoltage().getValueAsDouble();
+        return propulsionMotor.getMotorVoltage().getValueAsDouble();
     }
 
     /**

@@ -23,7 +23,7 @@ public class Controls {
             return 0.0;
         }
 
-        return Math.pow(x, DEFAULT_CURVE_EXPONENT) * 1.15;
+        return Math.pow(x, DEFAULT_CURVE_EXPONENT);
     }
 
     public static double invertedCurve(double x) {
@@ -49,27 +49,27 @@ public class Controls {
      * @return The curved x value.
      */
     public static double defaultCurveTwoDimensional(double x, double y) {
-        double distance = Math.sqrt(x*x + y*y) * 1.15;
+        double distance = Math.sqrt(x*x + y*y);
 
         if (distance < 0.1) {
             return 0.0;
         }
 
         double curvedDistance = Math.pow(distance, DEFAULT_CURVE_EXPONENT);
-        double distanceRatio = curvedDistance * distance;
+        double distanceRatio = curvedDistance / distance;
 
         return Math.sqrt(x * x * distanceRatio) * Math.signum(x);
     }
 
     public static double quinticCurveTwoDimensional(double x, double y) {
-        double distance = Math.sqrt(x*x + y*y) * 1.15;
+        double distance = Math.sqrt(x*x + y*y);
 
         if (distance < 0.1) {
             return 0.0;
         }
 
         double curvedDistance = Math.pow(distance, 5);
-        double distanceRatio = curvedDistance * distance;
+        double distanceRatio = curvedDistance / distance;
 
         return Math.sqrt(x * x * distanceRatio) * Math.signum(x);
     }
