@@ -31,7 +31,7 @@ public class SwerveModule {
     private static final double CONVERSION_FACTOR_ROTATION = 150 / 7;
     private static final double CONVERSION_FACTOR_MOVEMENT = 6.75 / (0.09525 * Math.PI);
 
-    private static final double PID_ROTATION_P = 38.0; // Basically, request 20 volts per rotation of error.
+    private static final double PID_ROTATION_P = 38.0;
     private static final double PID_ROTATION_I = 0.0;
     private static final double PID_ROTATION_D = 0.0;
 
