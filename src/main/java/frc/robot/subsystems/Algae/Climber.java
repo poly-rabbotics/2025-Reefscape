@@ -18,6 +18,9 @@ import frc.robot.systems.Algae.ClimberPose;
 public class Climber {
     private static final Angle PIVOT_CLIMB_HOLD = new Angle().setDegrees(140.0);
     private static final Angle PIVOT_CLIMB_APROACH = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_CLIMB_ALGAEXFER = new Angle().setDegrees(90);
+    private static final Angle PIVOT_CLIMB_ALGAEINTAKE = new Angle().setDegrees(45);
+    private static final Angle PIVOT_CLIMB_PROCESSOR = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_STOW = PIVOT_CLIMB_HOLD;
 
     private static final double PIVOT_DEGREES_TOLERANCE = 1.0;
@@ -58,14 +61,14 @@ public class Climber {
         double speed = controller.calculate(getAngle().degrees(), getSetAngle().degrees());
         pivotMotor.set(speed);
 
-        if (
+        /*if (
             pose == ClimberPose.ClimbHold
             && Math.abs(getAngle().degrees() - getSetAngle().degrees()) < PIVOT_DEGREES_TOLERANCE
         ) {
             linearActuator.set(ACTUATOR_HOLD / ACTUATOR_LENGTH);
         } else {
             linearActuator.set(ACTIATOR_STOW / ACTUATOR_LENGTH);
-        }
+        } */
     }
 
     public void setPose(ClimberPose pose) {

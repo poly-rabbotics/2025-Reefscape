@@ -6,12 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -44,8 +42,6 @@ public class Robot extends LoggedRobot {
     private static final int CONTROL_PANEL_PORT_CORAL = 2; // Elevator
     private static final int CONTROL_PANEL_PORT_ALGAE = 3; // Algae and switches
 
-    private static Compressor comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
-
     private static final XboxController controllerDriver
         = new XboxController(CONTROLLER_PORT_DRIVER);
     private static final XboxController controllerOperator
@@ -62,6 +58,10 @@ public class Robot extends LoggedRobot {
     private static Optional<AutonomousProcedure> autonomousProcedure;
     
     private static boolean invertedTurn = true;
+
+    double dealgaeSpeed = -0.2;
+    ScoringPoint scoringPoint = ScoringPoint.Stowed;
+    ClimberPose algaePose = ClimberPose.Stow;
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -101,8 +101,7 @@ public class Robot extends LoggedRobot {
 
         Pigeon.setYaw(new Angle().setDegrees(0.0));
 
-        // Compressor stuffs
-        comp.enableDigital();
+
     }
 
     @Override
@@ -134,15 +133,15 @@ public class Robot extends LoggedRobot {
                 PoseEstimator.reinstantiateDrive();
             }
 
-            if (controllerDriver.getRightBumperButtonReleased()) {
+            if (controllerDriver.getRightBumperButtonPressed()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
             }
 
-            if (controllerDriver.getLeftBumperButtonReleased()) {
+            if (controllerDriver.getLeftBumperButtonPressed()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
             }
 
-            if (controllerDriver.getStartButtonReleased()) {
+            if (controllerDriver.getStartButtonPressed()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.NeutralObserver);
             }
         }
@@ -296,9 +295,7 @@ public class Robot extends LoggedRobot {
      * from the operator's controller.
      */
     public void operatorTeleop() {
-        double dealgaeSpeed = -0.2;
-        ScoringPoint scoringPoint = ScoringPoint.Stowed;
-        ClimberPose algaePose = ClimberPose.Stow;
+
 
         if (controlPanelAlgae.getRawButton(7)) {
             dealgaeSpeed = -1;
@@ -338,11 +335,11 @@ public class Robot extends LoggedRobot {
             Coral.setIntakeState(IntakeState.Idle);
         }
 
-        if (controlPanelCoral.getRawButton(8)) {
+        if (controlPanelCoral.getRawButtonPressed(8)) {
             algaePose = ClimberPose.ClimbAproach;
         }
 
-        if (controlPanelAlgae.getRawButton(5)) {
+        if (controlPanelAlgae.getRawButtonPressed(5)) {
             algaePose = ClimberPose.ClimbHold;
             scoringPoint = ScoringPoint.Handoff;
         }
