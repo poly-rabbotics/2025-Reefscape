@@ -29,6 +29,16 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+ 
+import frc.robot.systems.LEDLights;
+import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.patterns.Rainbow;
+import frc.robot.patterns.FadeIn;
+import frc.robot.subsystems.ColorUtils;
+import frc.robot.subsystems.LightPattern;
+import frc.robot.subsystems.LightRenderer;
+import frc.robot.subsystems.SwerveMode;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -107,6 +117,10 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         PoseEstimator.update();
+        LEDLights.run();
+           
+
+        
 
         recordLogFrame();
 

@@ -11,8 +11,8 @@ import frc.robot.subsystems.SwerveMode;
 
 public class LEDLights {
     // Public since it may be usefule for pattern instantiation.
-    public static final int LED_LENGTH = 64;
-    private static final int LED_PORT = 8;
+    public static final int LED_LENGTH = 52;
+    private static final int LED_PORT = 2;
 
     private static final LEDLights instance = new LEDLights();
 
@@ -29,7 +29,7 @@ public class LEDLights {
 
         if (DriverStation.isDisabled()) {
             // Rainbow if disabled.
-            setPattern = new Rainbow(100, 2.0);
+            setPattern = new Rainbow(100, 50.0);
         } else if (SwerveDrive.getDisplayMode() == SwerveMode.Rock) {
             // If in rock mode make wyvern scary >:D
             setPattern = new FadeIn(new Color(1.0, 0.0, 0.0), 2.0);
