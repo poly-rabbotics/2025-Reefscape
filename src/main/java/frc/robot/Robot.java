@@ -110,7 +110,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         PoseEstimator.update();
-
+        LEDLights.run();
         recordLogFrame();
 
         Logger.recordOutput("Alliance", DriverStation.getAlliance().orElse(Alliance.Blue));
