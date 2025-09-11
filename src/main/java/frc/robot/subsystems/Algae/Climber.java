@@ -21,6 +21,9 @@ public class Climber {
     private static final Angle PIVOT_CLIMB_ALGAEXFER = new Angle().setDegrees(90);
     private static final Angle PIVOT_CLIMB_ALGAEINTAKE = new Angle().setDegrees(45);
     private static final Angle PIVOT_CLIMB_PROCESSOR = new Angle().setDegrees(0.0);
+    private static final Angle PIVOT_ALGAE_GRAB = new Angle().setDegrees(0);
+    private static final Angle PIVOT_CORAL_GRAB = new Angle().setDegrees(0);
+    private static final Angle PIVOT_ALGAE_TRANSFER = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_STOW = PIVOT_CLIMB_HOLD;
 
     private static final double PIVOT_DEGREES_TOLERANCE = 1.0;
@@ -124,6 +127,12 @@ public class Climber {
                 return PIVOT_CLIMB_HOLD;
             case ClimbAproach:
                 return PIVOT_CLIMB_APROACH;
+            case AlgaeGrab:
+                return PIVOT_ALGAE_GRAB;
+            case CoralGrab:
+                return PIVOT_CORAL_GRAB;
+            case AlgaeTransfer:
+                return PIVOT_ALGAE_TRANSFER;
             default:
             case Stow:
                 return PIVOT_STOW;
