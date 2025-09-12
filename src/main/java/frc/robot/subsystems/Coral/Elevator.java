@@ -31,6 +31,7 @@ public class Elevator {
     private static final double POSE_SCORING_L2 = 6.0;
     private static final double POSE_SCORING_L3 = 26.5;
     private static final double POSE_SCORING_L4 = 56.0;
+    private static final double ALGAE_HANDOFF = 0.0;
     private static final double POSE_DEALGAEFICATE_L2 = POSE_SCORING_L2;
     private static final double POSE_DEALGAEFICATE_L3 = POSE_SCORING_L3;
     private static final double POSE_ALGAE_NET = 58.0;
@@ -202,7 +203,9 @@ public class Elevator {
                 return POSE_DEALGAEFICATE_L3;
             case AlgaeNet:
                 return POSE_ALGAE_NET;
-            case Stowed:
+            case AlgaeHandoff:
+                return ALGAE_HANDOFF;
+            case Stowed: 
             default:
                 return POSE_STOWED;
         }
