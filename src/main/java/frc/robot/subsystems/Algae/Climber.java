@@ -1,11 +1,11 @@
 package frc.robot.subsystems.Algae;
-
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
 
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -14,8 +14,10 @@ import com.revrobotics.spark.SparkMax;
 
 import frc.robot.subsystems.Angle;
 import frc.robot.systems.Algae.ClimberPose;
-
+import frc.robot.Robot;
+import frc.robot.systems.Pose;
 public class Climber {
+    Joystick controlPanelClimber;
     private static final Angle PIVOT_CLIMB_HOLD = new Angle().setDegrees(140.0);
     private static final Angle PIVOT_CLIMB_APROACH = new Angle().setDegrees(0.0);
     private static final Angle PIVOT_CLIMB_ALGAEXFER = new Angle().setDegrees(90);
@@ -58,11 +60,13 @@ public class Climber {
 
         linearActuator = new Servo(actuatorChannel);
         linearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+        controlPanelClimber = new Joystick(3);
     }
 
     public void run() {
-        double speed = controller.calculate(getAngle().degrees(), getSetAngle().degrees());
-        pivotMotor.set(speed);
+        
+       /* double speed = controller.calculate(getAngle().degrees(), getSetAngle().degrees());
+        pivotMotor.set(speed); */
 
         /*if (
             pose == ClimberPose.ClimbHold
@@ -72,7 +76,16 @@ public class Climber {
         } else {
             linearActuator.set(ACTIATOR_STOW / ACTUATOR_LENGTH);
         } */
-    }
+       /*if climb button pressed set pose to climb
+       else: approach button pressed go to approach
+       */
+      if(controlPanelClimber.getRawButton(5)){
+            Pose.pose = "Climb";
+
+      
+      }
+      }
+    
 
     public void setPose(ClimberPose pose) {
         this.pose = pose;
