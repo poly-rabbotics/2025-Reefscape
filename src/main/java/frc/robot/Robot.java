@@ -65,6 +65,7 @@ public class Robot extends LoggedRobot {
     
     private static boolean invertedTurn = true;
 
+    Pose robotPose;
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
@@ -72,7 +73,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit() {
         Logger.recordMetadata("ProjectName", "7042 Theseus");
-
+        robotPose = new Pose();
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
@@ -191,6 +192,7 @@ public class Robot extends LoggedRobot {
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             driverTeleop();
         }
+            Pose.run();
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)
             || DriverStation.isJoystickConnected(CONTROL_PANEL_PORT_CORAL)
@@ -298,6 +300,8 @@ public class Robot extends LoggedRobot {
      * from the operator's controller.
      */
     public void operatorTeleop() {
+
+        Pose.run();
         double dealgaeSpeed = -0.2;
         ScoringPoint scoringPoint = ScoringPoint.Stowed;
         ClimberPose algaePose = ClimberPose.Stow;
