@@ -201,11 +201,6 @@ public class Elevator {
                 return POSE_DEALGAEFICATE_L2;
             case DealgaeficateL3:
                 return POSE_DEALGAEFICATE_L3;
-            case AlgaeNet:
-                return POSE_ALGAE_NET;
-            case AlgaeHandoff:
-                return ALGAE_HANDOFF;
-            case Stowed: 
             default:
                 return POSE_STOWED;
         }

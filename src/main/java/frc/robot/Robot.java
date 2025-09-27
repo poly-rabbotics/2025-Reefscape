@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import frc.robot.systems.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Algae.GroundIntake;
 import frc.robot.systems.Algae.ClimberPose;
 import frc.robot.systems.Coral.ScoringPoint;
 import frc.robot.systems.SwerveDrive.DriveOrientation;
@@ -41,6 +42,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project.
  */
 public class Robot extends LoggedRobot {
+    GroundIntake groundIntake;
     private static final int CONTROLLER_PORT_DRIVER = 0;
     private static final int CONTROLLER_PORT_OPERATOR = 1;
     private static final int CONTROL_PANEL_PORT_CORAL = 2; // Elevator
@@ -72,6 +74,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
+        groundIntake=new GroundIntake(20,21); 
         Logger.recordMetadata("ProjectName", "7042 Theseus");
         robotPose = new Pose();
         if (isReal()) {
@@ -110,17 +113,17 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        PoseEstimator.update();
-        LEDLights.run();
-        recordLogFrame();
+        //PoseEstimator.update();
+        //LEDLights.run();
+        //recordLogFrame();
 
-        Logger.recordOutput("Alliance", DriverStation.getAlliance().orElse(Alliance.Blue));
-        Logger.recordOutput("Selected Auto Number", AutonomousManager.getSwitchSelection(
+        //Logger.recordOutput("Alliance", DriverStation.getAlliance().orElse(Alliance.Blue));
+        /*Logger.recordOutput("Selected Auto Number", AutonomousManager.getSwitchSelection(
             controlPanelAlgae.getRawButton(1),
             controlPanelAlgae.getRawButton(2),
             controlPanelAlgae.getRawButton(3),
             controlPanelAlgae.getRawButton(4)
-        ));
+        ));*/
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             int dPadAngle = controllerDriver.getPOV();
@@ -189,6 +192,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopPeriodic() {
+        groundIntake.run();
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             driverTeleop();
         }
@@ -292,7 +296,7 @@ public class Robot extends LoggedRobot {
 
         double speedX = controllerDriver.getLeftX();
         double speedY = -controllerDriver.getLeftY();
-        SwerveDrive.run(speedX, speedY, -controllerDriver.getRightX());
+        //SwerveDrive.run(speedX, speedY, -controllerDriver.getRightX());
     }
 
     /**
@@ -358,8 +362,8 @@ public class Robot extends LoggedRobot {
 
         Algae.setPose(algaePose);
 
-        Algae.run();
-        Coral.run();
+        //Algae.run();
+        //Coral.run();
         
         double mainOverrideSpeed = Controls.defaultCurve(-controllerOperator.getLeftY());
         // double secondaryOverrideSpeed = Controls.defaultCurve(-controllerOperator.getRightY());

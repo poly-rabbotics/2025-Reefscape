@@ -140,12 +140,6 @@ public class Climber {
                 return PIVOT_CLIMB_HOLD;
             case ClimbAproach:
                 return PIVOT_CLIMB_APROACH;
-            case AlgaeGrab:
-                return PIVOT_ALGAE_GRAB;
-            case CoralGrab:
-                return PIVOT_CORAL_GRAB;
-            case AlgaeTransfer:
-                return PIVOT_ALGAE_TRANSFER;
             default:
             case Stow:
                 return PIVOT_STOW;
