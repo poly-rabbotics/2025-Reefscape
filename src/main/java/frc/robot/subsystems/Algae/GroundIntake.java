@@ -1,35 +1,17 @@
 package frc.robot.subsystems.Algae;
-
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.EncoderConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DigitalInput;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.systems.Algae;
-import frc.robot.systems.Algae.ClimberPose;
-import frc.robot.systems.Coral.ScoringPoint;
+
 
 public class GroundIntake {
     Joystick buttonPanelRight;
     Joystick buttonPanelLeft;
     //change these values
-    private static final double MOTOR_GEAR_RATIO = 1.0 / 15.0;
-    private static final double SPROCKET_RATIO = 15.0 / 18.0;
-    private static final double WHEEL_CIRCUMFRANCE = 2.25 * Math.PI; 
+
     private static final double TRANSFER_DISTANCE = 500.0;
    
     private static final double INTAKE_SPEED = -1.0;
@@ -51,18 +33,12 @@ public class GroundIntake {
     TalonFXConfiguration leftConfig;
     TalonFXConfiguration rightConfig;
 
-    private IntakeState currentState = IntakeState.Idle;
-    private PIDController controller = new PIDController(PID_P, PID_I, PID_D);
-
     
     public enum IntakeState {
        Intaking, Outtaking, Transferring, Idle
     }
 
-    public GroundIntake(
-        int leftMotorID,
-        int rightMotorID
-    ) {
+    public GroundIntake(int leftMotorID,int rightMotorID) {
         buttonPanelLeft = new Joystick(2);
         buttonPanelRight = new Joystick(3);
         leftMotor = new TalonFX(leftMotorID);
@@ -70,25 +46,21 @@ public class GroundIntake {
 
         encoderLeft = leftMotor.getPosition().getValueAsDouble();
         encoderRight = rightMotor.getPosition().getValueAsDouble();
-        leftMotor.setPosition(rightMotorID);
-        rightMotor.setPosition(leftMotorID);
 
         leftConfig = new TalonFXConfiguration();
         leftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        leftConfig.Slot0.kP = 0.0;
-        leftConfig.Slot0.kI = 0.0;
-        leftConfig.Slot0.kD = 0.0;
-        leftMotor.getConfigurator().apply(leftConfig);
-                          
+        leftConfig.Slot0.kP = PID_P;
+        leftConfig.Slot0.kI = PID_I;
+        leftConfig.Slot0.kD = PID_D;
+        leftMotor.getConfigurator().apply(leftConfig);                         
 
 
         rightConfig = new TalonFXConfiguration();
         rightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        rightConfig.Slot0.kP = 0.0;
-        rightConfig.Slot0.kI = 0.0;
-        rightConfig.Slot0.kD = 0.0;
-        rightMotor.getConfigurator().apply(rightConfig);
-                          
+        rightConfig.Slot0.kP = PID_P;
+        rightConfig.Slot0.kI = PID_I;
+        rightConfig.Slot0.kD = PID_D;
+        rightMotor.getConfigurator().apply(rightConfig);                        
    
     }
 
@@ -97,6 +69,7 @@ public void run() {
 if(buttonPanelRight.getRawButton(GROUND_INTAKE_BUTTON)){
 leftMotor.set(INTAKE_SPEED);
 rightMotor.set(-INTAKE_SPEED);
+
 } else if(buttonPanelRight.getRawButton(GROUND_OUTAKE_BUTTON)){
     leftMotor.set(OUTTAKE_SPEED);
     rightMotor.set(-OUTTAKE_SPEED);
@@ -107,15 +80,21 @@ if((buttonPanelRight.getRawButtonReleased(GROUND_INTAKE_BUTTON))
     rightMotor.set(0);
     leftMotor.setPosition(0);
     rightMotor.setPosition(0);
+    leftMotor.setControl(new PositionDutyCycle(0));
+    rightMotor.setControl(new PositionDutyCycle(0));
+}
 if(buttonPanelLeft.getRawButtonPressed(GROUND_TRANSFER_BUTTON)){
-    leftMotor.setPosition(TRANSFER_DISTANCE);
-    rightMotor.setPosition(TRANSFER_DISTANCE);
+    leftMotor.setControl(new PositionDutyCycle(TRANSFER_DISTANCE));
+    rightMotor.setControl(new PositionDutyCycle(TRANSFER_DISTANCE));
 }
 
 }
-SmartDashboard.putNumber("Ground Intake left Motor Pos", leftMotor.getPosition().getValueAsDouble());
-SmartDashboard.putNumber("Ground Intake right Motor Pos", rightMotor.getPosition().getValueAsDouble());
-}
+
+    public void print()
+    {
+        SmartDashboard.putNumber("Ground Intake left Motor Pos", leftMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Ground Intake right Motor Pos", rightMotor.getPosition().getValueAsDouble());
+    }
 
 }
     

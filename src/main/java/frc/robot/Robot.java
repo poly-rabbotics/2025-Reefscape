@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -20,6 +19,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import frc.robot.systems.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Algae.Climber;
 import frc.robot.subsystems.Algae.GroundIntake;
 import frc.robot.systems.Algae.ClimberPose;
 import frc.robot.systems.Coral.ScoringPoint;
@@ -68,6 +68,8 @@ public class Robot extends LoggedRobot {
     private static boolean invertedTurn = true;
 
     Pose robotPose;
+    OI oi;
+    public static Climber climber;
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
@@ -75,6 +77,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit() {
         groundIntake=new GroundIntake(20,21); 
+        climber = new Climber(1,1);
         Logger.recordMetadata("ProjectName", "7042 Theseus");
         robotPose = new Pose();
         if (isReal()) {
@@ -113,6 +116,9 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
+
+         oi.run();
+         Pose.run();
         //PoseEstimator.update();
         //LEDLights.run();
         //recordLogFrame();
@@ -124,6 +130,8 @@ public class Robot extends LoggedRobot {
             controlPanelAlgae.getRawButton(3),
             controlPanelAlgae.getRawButton(4)
         ));*/
+        groundIntake.print();
+        Pose.print();
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             int dPadAngle = controllerDriver.getPOV();
@@ -193,10 +201,12 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         groundIntake.run();
+        climber.test();
+    
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             driverTeleop();
         }
-            Pose.run();
+            
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)
             || DriverStation.isJoystickConnected(CONTROL_PANEL_PORT_CORAL)
@@ -305,7 +315,7 @@ public class Robot extends LoggedRobot {
      */
     public void operatorTeleop() {
 
-        Pose.run();
+        
         double dealgaeSpeed = -0.2;
         ScoringPoint scoringPoint = ScoringPoint.Stowed;
         ClimberPose algaePose = ClimberPose.Stow;

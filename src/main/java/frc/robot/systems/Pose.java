@@ -1,5 +1,7 @@
 package frc.robot.systems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Pose {
     public static String pose = "";
 public static double elevatorPos = 0.0;
@@ -98,4 +100,11 @@ switch (pose){
         
             return pivotPos;
         }
+
+    public static void print(){
+        SmartDashboard.putString("Pose", pose);
+        SmartDashboard.putNumber("Climber Setpoint", climberPos);
+        SmartDashboard.putNumber("Elevator Setpoint", elevatorPos);
+        SmartDashboard.putNumber("Coral Pivot Setpoint", pivotPos);
+    }
     }

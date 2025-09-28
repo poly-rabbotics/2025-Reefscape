@@ -1,15 +1,18 @@
 package frc.robot.subsystems.Algae;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.ClosedLoopConfig.*;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
 
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 
 import frc.robot.subsystems.Angle;
@@ -34,14 +37,19 @@ public class Climber {
     private static final double ACTUATOR_HOLD = 1.5;
     private static final double ACTIATOR_STOW = 0.0;
     
-    private final Servo linearActuator;
     private final SparkMax pivotMotor;
-    private final PIDController controller = new PIDController(0.035, 0.0, 0.0);
+    SparkMaxConfig pivotMotorConfig;
+    SparkAbsoluteEncoder absoluteEncoder;
+    //private final PIDController controller = new PIDController(0.035, 0.0, 0.0);
+
+    private final double P_0 = 0.035;
+    private final double I_0 = 0.0;
+    private final double D_0 = 0.0;
 
     private ClimberPose pose = ClimberPose.Stow;
 
     public Climber(int pivotMotorId, int actuatorChannel) {
-        pivotMotor = new SparkMax(pivotMotorId, MotorType.kBrushless);
+        /*pivotMotor = new SparkMax(pivotMotorId, MotorType.kBrushless);
         pivotMotor.configure(
             new SparkMaxConfig()
                 .inverted(true)
@@ -56,15 +64,29 @@ public class Climber {
                 .voltageCompensation(12.0),
             ResetMode.kResetSafeParameters,
             PersistMode.kNoPersistParameters
-        );
+        );*/
 
-        linearActuator = new Servo(actuatorChannel);
-        linearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+        pivotMotor = new SparkMax(pivotMotorId, MotorType.kBrushless);
+        pivotMotorConfig = new SparkMaxConfig();
+        absoluteEncoder = pivotMotor.getAbsoluteEncoder();
+
+        pivotMotorConfig.idleMode(SparkMaxConfig.IdleMode.kBrake);
+        pivotMotorConfig.absoluteEncoder.positionConversionFactor(360);
+        pivotMotorConfig.absoluteEncoder.inverted(false);
+        pivotMotorConfig.inverted(false);
+        pivotMotorConfig.closedLoop.pid(P_0,I_0,D_0);
+        pivotMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        pivotMotorConfig.closedLoop.positionWrappingInputRange(-180, 180);
+        pivotMotorConfig.closedLoop.positionWrappingEnabled(true);
+        pivotMotor.configure(pivotMotorConfig,ResetMode.kResetSafeParameters,PersistMode.kPersistParameters);
+        
+
         controlPanelClimber = new Joystick(3);
     }
 
     public void run() {
         
+        pivotMotor.getClosedLoopController().setReference(Pose.climberPos,ControlType.kPosition);
        /* double speed = controller.calculate(getAngle().degrees(), getSetAngle().degrees());
         pivotMotor.set(speed); */
 
@@ -79,12 +101,17 @@ public class Climber {
        /*if climb button pressed set pose to climb
        else: approach button pressed go to approach
        */
-      if(controlPanelClimber.getRawButton(5)){
-            Pose.pose = "Climb";
-
       
       }
-      }
+    public void test() {
+        Joystick testJoy = new Joystick(4);
+
+        double power = testJoy.getRawAxis(1);
+        double deadband = 0.1;
+        if(power < Math.abs(deadband))
+            power = 0;
+        pivotMotor.set(0);
+    }
     
 
     public void setPose(ClimberPose pose) {
@@ -123,9 +150,6 @@ public class Climber {
         return pivotMotor.getAbsoluteEncoder().getVelocity();
     }
 
-    public double getActuatorSet() {
-        return linearActuator.get();
-    }
 
     public void _setPivotSpeed(double speed) {
         pivotMotor.set(speed);
