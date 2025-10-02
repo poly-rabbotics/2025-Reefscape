@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import frc.robot.systems.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Coral.*;
 import frc.robot.subsystems.Algae.Climber;
 import frc.robot.subsystems.Algae.GroundIntake;
 import frc.robot.systems.Algae.ClimberPose;
@@ -34,6 +35,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import com.ctre.phoenix6.signals.InvertedValue;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -70,16 +73,21 @@ public class Robot extends LoggedRobot {
     Pose robotPose;
     OI oi;
     public static Climber climber;
+    public static Elevator elevator;
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
      */
     @Override
     public void robotInit() {
+        climber = new Climber(15);
         groundIntake=new GroundIntake(20,21); 
-        climber = new Climber(1,1);
+        
         Logger.recordMetadata("ProjectName", "7042 Theseus");
         robotPose = new Pose();
+        elevator = new Elevator(14, InvertedValue.Clockwise_Positive, 0);
+
+        oi = new OI();
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
@@ -132,6 +140,8 @@ public class Robot extends LoggedRobot {
         ));*/
         groundIntake.print();
         Pose.print();
+        elevator.print();
+        climber.print();
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             int dPadAngle = controllerDriver.getPOV();
@@ -211,7 +221,7 @@ public class Robot extends LoggedRobot {
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_OPERATOR)
             || DriverStation.isJoystickConnected(CONTROL_PANEL_PORT_CORAL)
             || DriverStation.isJoystickConnected(CONTROL_PANEL_PORT_ALGAE)) {
-            operatorTeleop();
+           // operatorTeleop();
         }
     }
 

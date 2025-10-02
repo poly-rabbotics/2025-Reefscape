@@ -12,16 +12,16 @@ public class GroundIntake {
     Joystick buttonPanelLeft;
     //change these values
 
-    private static final double TRANSFER_DISTANCE = 500.0;
+    private static final double TRANSFER_DISTANCE = 5.0;
    
-    private static final double INTAKE_SPEED = -1.0;
-    private static final double OUTTAKE_SPEED = 1.0;
+    private static final double INTAKE_SPEED = 0.4;
+    private static final double OUTTAKE_SPEED = -0.2;
 
     private static final int GROUND_INTAKE_BUTTON = 8;
     private static final int GROUND_OUTAKE_BUTTON = 9;
     private static final int GROUND_TRANSFER_BUTTON = 9;
     //change pid values
-    private static final double PID_P = 0.035;
+    private static final double PID_P = 0.2;
     private static final double PID_I = 0.0;
     private static final double PID_D = 0.0;
 
@@ -68,11 +68,11 @@ public class GroundIntake {
 public void run() {
 if(buttonPanelRight.getRawButton(GROUND_INTAKE_BUTTON)){
 leftMotor.set(INTAKE_SPEED);
-rightMotor.set(-INTAKE_SPEED);
+rightMotor.set(INTAKE_SPEED);
 
 } else if(buttonPanelRight.getRawButton(GROUND_OUTAKE_BUTTON)){
     leftMotor.set(OUTTAKE_SPEED);
-    rightMotor.set(-OUTTAKE_SPEED);
+    rightMotor.set(OUTTAKE_SPEED);
 }
 if((buttonPanelRight.getRawButtonReleased(GROUND_INTAKE_BUTTON))
 ||(buttonPanelRight.getRawButtonReleased(GROUND_OUTAKE_BUTTON))){

@@ -3,6 +3,7 @@ package frc.robot.systems;
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.signals.InvertedValue;
 
+import frc.robot.Robot;
 import frc.robot.subsystems.Coral.*;
 import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 
@@ -10,8 +11,7 @@ public class Coral {
     private static final CoralIntake coralIntake = new CoralIntake(11, 7, 1, 2);
     private static final Dealgaeficator algae = new Dealgaeficator(0);
     private static final CoralPivot pivot = new CoralPivot(3);
-    private static final Elevator elevator
-        = new Elevator(14, InvertedValue.Clockwise_Positive, 0);
+    static Elevator elevator = Robot.elevator;
 
     public enum ScoringPoint {
         ScoringL1, ScoringL2, ScoringL3, ScoringL4,
@@ -25,7 +25,7 @@ public class Coral {
     public static void run() {
         pivot.run();
         coralIntake.run();
-        elevator.run();
+        //elevator.run();
     }
 
     public static void setIntakeState(IntakeState state) {

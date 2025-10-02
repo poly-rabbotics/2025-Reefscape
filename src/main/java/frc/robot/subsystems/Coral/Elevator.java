@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Coral;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -87,6 +88,12 @@ public class Elevator {
         // Motion magic control
         MotionMagicVoltage magicRequest = new MotionMagicVoltage(getSetpoint() / INCHES_PER_ROTATION);
         elfKraken.setControl(magicRequest);
+    }
+
+    public void print()
+    {
+        SmartDashboard.putNumber("Elevator Position:", getKrakenPosition());
+        SmartDashboard.putBoolean("Elevator Lower Limit Hit", atLowerLimit());
     }
 
     /**

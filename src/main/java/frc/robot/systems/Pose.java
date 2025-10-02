@@ -8,6 +8,9 @@ public static double elevatorPos = 0.0;
 public static double pivotPos = 0.0;
 public static double climberPos = 0.0;
 
+public static double defaultElevatorPose = 0.0;
+public static double defaultPivotPose = 25.0;
+
 public Pose(){
 
     }
@@ -15,9 +18,9 @@ public Pose(){
 public static void run(){
 switch (pose){
     case "FldNav":
-        elevatorPos = 0.0;
-            pivotPos = 25.0;
-                climberPos = 0.0;
+        elevatorPos = defaultElevatorPose;
+            pivotPos = defaultPivotPose;
+                climberPos = 140.0;
                 break;
     case "StnInt":
         elevatorPos = 0.0;
@@ -59,26 +62,31 @@ switch (pose){
             pivotPos = -40.0;
                 climberPos = 0.0;
                 break;
-    case "GrndAl": // All Positions TBD
-        elevatorPos = 0.0;
-            pivotPos = 0.0;
-                climberPos = 0.0;
+    case "GrndAl": 
+        elevatorPos = defaultElevatorPose;
+            pivotPos = defaultPivotPose;
+                climberPos = 35.0;
                 break;
     case "Processor": // All Positions TBD
-        elevatorPos = 0.0;
-            pivotPos = 0.0;
-                climberPos = 0.0;
+        elevatorPos = defaultElevatorPose;
+            pivotPos = defaultPivotPose;
+                climberPos = 60.0;
                 break;
     case "AlXFR": // All Positions TBD
         elevatorPos = 0.0;
-            pivotPos = 0.0;
-                climberPos = 0.0;
-                break;
-    case "Climb": // All Positions TBD ( except climberPos )
-        elevatorPos = 0.0;
-            pivotPos = 0.0;
+            pivotPos = defaultPivotPose;
                 climberPos = 140.0;
                 break;
+    case "Climb": // All Positions TBD ( except climberPos )
+        elevatorPos = defaultElevatorPose;
+            pivotPos = -90.0;
+                climberPos = 142.0;
+                break;
+    case "ClimbApproach": // All Positions TBD ( except climberPos )
+                elevatorPos = defaultElevatorPose;
+                    pivotPos = -90.0;
+                        climberPos = 10.0;
+                        break;
         default: 
         break;
 

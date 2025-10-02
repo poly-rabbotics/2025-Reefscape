@@ -32,7 +32,9 @@ public class OI {
             rightRaw[i] = rightControl.getRawButton(i);
         }
 
-        if(leftRaw[4])
+        if(leftRaw[5])
+            Pose.pose = "Climb";
+        else if(leftRaw[4])
             Pose.pose = "L4";
         else if(leftRaw[3])
             Pose.pose = "L3";
@@ -40,10 +42,19 @@ public class OI {
             Pose.pose = "L2";
         else if(leftRaw[1])
             Pose.pose = "L1";
+        else if(leftRaw[8])
+            Pose.pose = "ClimbApproach";
+        
+        else if(rightRaw[4])
+            Pose.pose = "GrndAl";
 
-
+        else if(leftRaw[9])
+            Pose.pose = "AlXFR";
+        else if(rightRaw[3])
+            Pose.pose = "Processor";
 
         else Pose.pose = "FldNav";
+
         
     }
     
