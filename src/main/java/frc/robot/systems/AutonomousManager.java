@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Function;
 
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.DrivePath;
@@ -19,6 +21,8 @@ import frc.robot.systems.Coral.ScoringPoint;
 public class AutonomousManager {
     private static final int AUTO_SWITCH_COUNT = 4;
     private static AutonomousProcedure[] procedures = new AutonomousProcedure[1 << AUTO_SWITCH_COUNT];
+    static Joystick controlPanel = new Joystick(2); 
+
 
     static {
         buildProcedures();
@@ -44,17 +48,27 @@ public class AutonomousManager {
      * in order of least significant bit first.
      */
     public static Optional<AutonomousProcedure> getProcedureFromSwitches(boolean... switches) {
-        return getAutoProcedure(getSwitchSelection(switches));
+        return getAutoProcedure(getSwitchSelection());
     }
 
-    public static int getSwitchSelection(boolean... switches) {
+    public static int getSwitchSelection() {
         int mode = 0;
 
-        for (int i = 0; i < switches.length; i++) {
-            mode += switches[i] ? (1 << i) : 0;
-        }
+        if(controlPanel.getRawButton(1))
+            mode+=1;
+        if(controlPanel.getRawButton(2))
+            mode+=2;
+        if(controlPanel.getRawButton(3))
+            mode +=4;
+        if(controlPanel.getRawButton(4))
+            mode +=8;
 
         return mode;
+    }
+
+    public static void print()
+    {
+        SmartDashboard.putNumber("Auto Selection:", getSwitchSelection());
     }
 
     private static Function<StepStatus, StepStatus> makeStep(Runnable fn) {

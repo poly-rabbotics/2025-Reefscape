@@ -77,6 +77,7 @@ public class Robot extends LoggedRobot {
     public static CoralPivot coralPivot;
     public static Dealgaeficator algae;
     public static CoralIntake coralIntake;
+    int autoSelection;
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
@@ -133,6 +134,7 @@ public class Robot extends LoggedRobot {
          Pose.run();
         PoseEstimator.update();
         LEDLights.run();
+
         //recordLogFrame();
 
         //Logger.recordOutput("Alliance", DriverStation.getAlliance().orElse(Alliance.Blue));
@@ -147,6 +149,7 @@ public class Robot extends LoggedRobot {
         Pose.print();
         elevator.print();
         climber.print();
+        AutonomousManager.print();
    
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
