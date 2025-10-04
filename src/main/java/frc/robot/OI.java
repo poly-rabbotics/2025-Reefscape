@@ -1,5 +1,7 @@
 package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.systems.Pose;
 
 public class OI {
@@ -13,11 +15,15 @@ public class OI {
     boolean[] rightReleased = new boolean[13];
     boolean[] rightRaw = new boolean[13];
 
+    Timer time;
+
 
     public OI()
     {
         leftControl = new Joystick(2);
         rightControl = new Joystick(3);
+        time = new Timer();
+        time.reset();
     }
 
     public void run()
@@ -32,7 +38,7 @@ public class OI {
             rightRaw[i] = rightControl.getRawButton(i);
         }
 
-        if(leftRaw[5])
+        if(rightRaw[5])
             Pose.pose = "Climb";
         else if(leftRaw[4])
             Pose.pose = "L4";
@@ -44,16 +50,35 @@ public class OI {
             Pose.pose = "L1";
         else if(leftRaw[8])
             Pose.pose = "ClimbApproach";
+        else if(leftRaw[7])
+            Pose.pose = "Net";
         
         else if(rightRaw[4])
             Pose.pose = "GrndAl";
+        else if(leftRaw[5])
+            Pose.pose = "Al3";
+        else if(leftRaw[6])
+            Pose.pose = "Al2";
 
-        else if(leftRaw[9])
-            Pose.pose = "AlXFR";
         else if(rightRaw[3])
             Pose.pose = "Processor";
 
         else Pose.pose = "FldNav";
+
+
+        if(leftReleased[9])
+            time.reset();
+        if(leftRaw[9]&&time.get()>1.0)
+        {
+            Pose.pose = "AlXFR";
+            time.stop();
+        }
+        else if(leftRaw[9])
+        {
+            time.start();
+            Pose.pose = "AlXFRPrep";
+        }
+        SmartDashboard.putNumber("Timer",time.get());
 
         
     }

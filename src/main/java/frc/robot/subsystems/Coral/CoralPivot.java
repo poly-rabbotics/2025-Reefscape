@@ -15,6 +15,7 @@ import com.revrobotics.spark.config.EncoderConfig;
 
 import frc.robot.subsystems.Angle;
 import frc.robot.systems.Coral.ScoringPoint;
+import frc.robot.systems.Pose;
 
 public class CoralPivot {
     private static final double GEAR_RATIO = 1.0 / 75.0;
@@ -81,7 +82,7 @@ public class CoralPivot {
         motor
             .getClosedLoopController()
             .setReference(
-                getSetAngle().degrees(),
+                Pose.pivotPos,
                 ControlType.kPosition,
                 ClosedLoopSlot.kSlot0,
                 PID_FF * Math.cos(MAX_G_TORQUE.radians() - getAngle().radians())

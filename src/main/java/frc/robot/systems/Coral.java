@@ -1,7 +1,6 @@
 package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
-import com.ctre.phoenix6.signals.InvertedValue;
 
 import frc.robot.Robot;
 import frc.robot.subsystems.Coral.*;
@@ -23,7 +22,7 @@ public class Coral {
      * Overload of run function for autos & stuffs
      */
     public static void run() {
-        pivot.run();
+        //pivot.run();
         coralIntake.run();
         //elevator.run();
     }

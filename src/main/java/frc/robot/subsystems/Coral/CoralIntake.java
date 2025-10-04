@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.systems.Coral;
 import frc.robot.systems.Coral.ScoringPoint;
 
@@ -59,6 +60,8 @@ public class CoralIntake {
     private IntakeState currentState = IntakeState.Idle;
     private PIDController controller = new PIDController(PID_P, PID_I, PID_D);
 
+    Joystick buttonPanelRight;
+
     public enum IntakeState {
         Storing, Intaking, Outtaking, Idle
     }
@@ -73,6 +76,7 @@ public class CoralIntake {
         topMotor = new SparkMax(topMotorID, MotorType.kBrushless);
         frontProx = new DigitalInput(frontProxChannel);
         backProx = new DigitalInput(backProxChannel);
+        buttonPanelRight = new Joystick(3);
 
         topMotor.configure(
             new SparkMaxConfig()
@@ -100,10 +104,27 @@ public class CoralIntake {
         backProxLastState = backProx.get();
     }
 
+    public void run()
+    {
+        double speed = 0;
+
+        if(buttonPanelRight.getRawButton(10))
+        {
+            speed=INTAKE_SPEED;
+        }
+        else if(buttonPanelRight.getRawButton(11))
+        {
+            speed=OUTTAKE_SPEED;
+        }
+
+
+        topMotor.set(speed);
+        bottomMotor.set(speed);
+    }
     /**
      * Runs the intake and performs position control, should be called periodically.
      */
-    public void run() {
+    public void oldrun() {
         // if (proxTripped(frontProx.get(), frontProxLastState) && !proxOn(backProx.get())) {
         if (proxTripped(backProx.get(), backProxLastState)) {
             // back edge of coral is in the intake, front edge a coral's width beyond the front

@@ -5,16 +5,16 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
+//import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.wpilibj.Compressor;
+//import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 
 import frc.robot.systems.*;
@@ -36,6 +36,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+
 import com.ctre.phoenix6.signals.InvertedValue;
 
 /**
@@ -46,12 +47,11 @@ import com.ctre.phoenix6.signals.InvertedValue;
  */
 public class Robot extends LoggedRobot {
     GroundIntake groundIntake;
+ 
     private static final int CONTROLLER_PORT_DRIVER = 0;
     private static final int CONTROLLER_PORT_OPERATOR = 1;
     private static final int CONTROL_PANEL_PORT_CORAL = 2; // Elevator
     private static final int CONTROL_PANEL_PORT_ALGAE = 3; // Algae and switches
-
-    private static Compressor comp = new Compressor(0, PneumaticsModuleType.CTREPCM);
 
     private static final XboxController controllerDriver
         = new XboxController(CONTROLLER_PORT_DRIVER);
@@ -74,6 +74,9 @@ public class Robot extends LoggedRobot {
     OI oi;
     public static Climber climber;
     public static Elevator elevator;
+    public static CoralPivot coralPivot;
+    public static Dealgaeficator algae;
+    public static CoralIntake coralIntake;
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
@@ -83,14 +86,17 @@ public class Robot extends LoggedRobot {
         climber = new Climber(15);
         groundIntake=new GroundIntake(20,21); 
         
-        Logger.recordMetadata("ProjectName", "7042 Theseus");
+        //Logger.recordMetadata("ProjectName", "7042 Theseus");
         robotPose = new Pose();
-        elevator = new Elevator(14, InvertedValue.Clockwise_Positive, 0);
+        elevator = new Elevator(14, InvertedValue.Clockwise_Positive, 3);
+        coralPivot = new CoralPivot(3);
+        algae = new Dealgaeficator(0);
+        coralIntake = new CoralIntake(11, 7, 1, 2);
 
         oi = new OI();
         if (isReal()) {
-            Logger.addDataReceiver(new WPILOGWriter());
-            Logger.addDataReceiver(new NT4Publisher());
+            //Logger.addDataReceiver(new WPILOGWriter());
+            //Logger.addDataReceiver(new NT4Publisher());
         } else {
             try {
                 // Try to replay from a log file.
@@ -110,25 +116,23 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        Logger.start();
+        //Logger.start();
 
         // Log driver station data
-        DataLogManager.start();
-        DriverStation.startDataLog(DataLogManager.getLog());
+        //DataLogManager.start();
+        //DriverStation.startDataLog(DataLogManager.getLog());
 
         Pigeon.setYaw(new Angle().setDegrees(0.0));
-
-        // Compressor stuffs
-        comp.enableDigital();
     }
 
     @Override
     public void robotPeriodic() {
 
+        //Run these all the time when the robot is powered on
          oi.run();
          Pose.run();
-        //PoseEstimator.update();
-        //LEDLights.run();
+        PoseEstimator.update();
+        LEDLights.run();
         //recordLogFrame();
 
         //Logger.recordOutput("Alliance", DriverStation.getAlliance().orElse(Alliance.Blue));
@@ -138,10 +142,12 @@ public class Robot extends LoggedRobot {
             controlPanelAlgae.getRawButton(3),
             controlPanelAlgae.getRawButton(4)
         ));*/
+        //Print useful data to the Dashboard
         groundIntake.print();
         Pose.print();
         elevator.print();
         climber.print();
+   
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             int dPadAngle = controllerDriver.getPOV();
@@ -211,7 +217,11 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         groundIntake.run();
-        climber.test();
+        climber.run();
+        elevator.run();
+        coralPivot.run();
+        algae.run();
+        coralIntake.run();
     
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             driverTeleop();

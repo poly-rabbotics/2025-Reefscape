@@ -10,6 +10,7 @@ public static double climberPos = 0.0;
 
 public static double defaultElevatorPose = 0.0;
 public static double defaultPivotPose = 25.0;
+public static double defaultClimberPose = 140.0;
 
 public Pose(){
 
@@ -20,69 +21,74 @@ switch (pose){
     case "FldNav":
         elevatorPos = defaultElevatorPose;
             pivotPos = defaultPivotPose;
-                climberPos = 140.0;
+                climberPos = defaultClimberPose;
                 break;
     case "StnInt":
         elevatorPos = 0.0;
             pivotPos = 5.0;
-                climberPos = 0.0;
+                climberPos = defaultClimberPose;
                 break;
     case "L1":
         elevatorPos = 0.0;
             pivotPos = 0.0;
-                climberPos = 0.0;
+                climberPos = defaultClimberPose;
                 break;
     case "L2":
         elevatorPos = 6.0;
             pivotPos = -20.0;
-                climberPos = 0.0;
+                climberPos = defaultClimberPose;
                 break;
     case "L3":
         elevatorPos = 26.5;
             pivotPos = -30.0;
-                climberPos = 0.0;
+                climberPos = defaultClimberPose;
                 break;
     case "L4":
         elevatorPos = 56.0;
             pivotPos = -50.0;
-                climberPos = 0.0;
+                climberPos = defaultClimberPose;
                 break;
-    case "AL2":
+    case "Al2":
         elevatorPos = 6.0;
             pivotPos = -90.0;
-                climberPos = 0.0;
+                climberPos = defaultClimberPose;
                 break;
-    case "AL3":
+    case "Al3":
         elevatorPos = 26.5;
             pivotPos = -90.0;
-                climberPos = 0.0;
+                climberPos = defaultClimberPose;
                 break;
     case "Net":
         elevatorPos = 58.0;
             pivotPos = -40.0;
-                climberPos = 0.0;
+                climberPos = defaultClimberPose;
                 break;
     case "GrndAl": 
         elevatorPos = defaultElevatorPose;
             pivotPos = defaultPivotPose;
                 climberPos = 35.0;
                 break;
-    case "Processor": // All Positions TBD
+    case "Processor": 
         elevatorPos = defaultElevatorPose;
             pivotPos = defaultPivotPose;
                 climberPos = 60.0;
                 break;
-    case "AlXFR": // All Positions TBD
-        elevatorPos = 0.0;
+    case "AlXFRPrep": // All Positions TBD
+        elevatorPos = 20.0;
             pivotPos = defaultPivotPose;
-                climberPos = 140.0;
+                climberPos = 100.0;
+                        break;
+    case "AlXFR": // All Positions TBD
+        elevatorPos = 20.0;
+            pivotPos = 105;
+                climberPos = 150.0;
                 break;
-    case "Climb": // All Positions TBD ( except climberPos )
+    case "Climb": 
         elevatorPos = defaultElevatorPose;
             pivotPos = -90.0;
                 climberPos = 142.0;
                 break;
-    case "ClimbApproach": // All Positions TBD ( except climberPos )
+    case "ClimbApproach": 
                 elevatorPos = defaultElevatorPose;
                     pivotPos = -90.0;
                         climberPos = 10.0;

@@ -12,7 +12,7 @@ public class GroundIntake {
     Joystick buttonPanelLeft;
     //change these values
 
-    private static final double TRANSFER_DISTANCE = 5.0;
+    private static final double TRANSFER_DISTANCE = 4.0;
    
     private static final double INTAKE_SPEED = 0.4;
     private static final double OUTTAKE_SPEED = -0.2;

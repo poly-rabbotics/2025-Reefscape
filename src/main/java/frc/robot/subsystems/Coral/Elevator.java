@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import javax.lang.model.util.ElementScanner14;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -11,7 +14,9 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.signals.InvertedValue;
+import edu.wpi.first.wpilibj.Joystick;
 
+import frc.robot.systems.Pose;
 import frc.robot.systems.Coral.ScoringPoint;
 
 public class Elevator {
@@ -42,10 +47,13 @@ public class Elevator {
     private final DigitalInput bottomSwitch;
     private final TalonFX elfKraken;
 
+    Joystick overrideJoy;
+
     private ScoringPoint setPose = ScoringPoint.Stowed;
 
     public Elevator(int motorID, InvertedValue inverted, int bottomLimit) {
         elfKraken = new TalonFX(motorID);
+        overrideJoy = new Joystick(1);
 
         // Configure motor to give position feedback in inches extension.
         // Use `TalonFX.getPosition()`, not `TalonFX.getRotorPosition()` for elevator position.
@@ -81,13 +89,25 @@ public class Elevator {
      * Run the elevator's devices according to its current state.
      */
     public void run() {
+
         if (atLowerLimit()) {
-            setPosition(MIN_HEIGHT_INCHES);
+            setPosition(MIN_HEIGHT_INCHES);            
         }
 
+        if(overrideJoy.getRawButton(1))
+        {
+            elfKraken.set(-.1);
+        }
+        else if(overrideJoy.getRawButtonReleased(1))
+        {
+            elfKraken.set(0);
+            setPosition(MIN_HEIGHT_INCHES);
+        }
+        
+        else{
         // Motion magic control
         MotionMagicVoltage magicRequest = new MotionMagicVoltage(getSetpoint() / INCHES_PER_ROTATION);
-        elfKraken.setControl(magicRequest);
+        elfKraken.setControl(magicRequest);}
     }
 
     public void print()
@@ -134,7 +154,8 @@ public class Elevator {
      * Returns the setpoint position of the elevator
      */
     public double getSetpoint() {
-        return extensionFromScoringPose(setPose);
+        return Pose.elevatorPos;
+        //return extensionFromScoringPose(setPose);
     }
 
     /**
