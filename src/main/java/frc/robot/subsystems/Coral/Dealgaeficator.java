@@ -18,11 +18,11 @@ public class Dealgaeficator {
     {
         if (buttonPanel.getRawButton(6)||Pose.pose=="AlXFR"||Pose.pose=="AlXFRPrep")
         {
-            set(1);
+            set(-1);
         }
         else if(buttonPanel.getRawButton(7))
         {
-            set(-1);
+            set(1);
         }
         else {
             set(0);
