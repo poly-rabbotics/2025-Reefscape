@@ -23,7 +23,7 @@ public class Coral {
      */
     public static void run() {
         //pivot.run();
-        coralIntake.run();
+        //coralIntake.run();
         //elevator.run();
     }
 

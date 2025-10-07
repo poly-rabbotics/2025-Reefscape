@@ -5,9 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-//import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-//import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -87,7 +87,7 @@ public class Robot extends LoggedRobot {
         climber = new Climber(15);
         groundIntake=new GroundIntake(20,21); 
         
-        //Logger.recordMetadata("ProjectName", "7042 Theseus");
+        Logger.recordMetadata("ProjectName", "7042 Theseus");
         robotPose = new Pose();
         elevator = new Elevator(14, InvertedValue.Clockwise_Positive, 3);
         coralPivot = new CoralPivot(3);
@@ -95,9 +95,12 @@ public class Robot extends LoggedRobot {
         coralIntake = new CoralIntake(11, 7, 1, 2);
 
         oi = new OI();
-        if (isReal()) {
-            //Logger.addDataReceiver(new WPILOGWriter());
-            //Logger.addDataReceiver(new NT4Publisher());
+
+        Logger.addDataReceiver(new WPILOGWriter());
+        Logger.addDataReceiver(new NT4Publisher());
+        /*if (isReal()) {
+            Logger.addDataReceiver(new WPILOGWriter());
+            Logger.addDataReceiver(new NT4Publisher());
         } else {
             try {
                 // Try to replay from a log file.
@@ -115,9 +118,10 @@ public class Robot extends LoggedRobot {
                 System.out.println("Could not find log to replay from ...");
                 System.out.println("Starting non-replay simulation ...");
             }
-        }
+        }*/
 
-        //Logger.start();
+        Logger.start();
+        SwerveDrive.recordState();
 
         // Log driver station data
         //DataLogManager.start();
@@ -134,8 +138,9 @@ public class Robot extends LoggedRobot {
          Pose.run();
         PoseEstimator.update();
         LEDLights.run();
+        
 
-        //recordLogFrame();
+        recordLogFrame();
 
         //Logger.recordOutput("Alliance", DriverStation.getAlliance().orElse(Alliance.Blue));
         /*Logger.recordOutput("Selected Auto Number", AutonomousManager.getSwitchSelection(
@@ -225,6 +230,10 @@ public class Robot extends LoggedRobot {
         coralPivot.run();
         algae.run();
         coralIntake.run();
+
+       
+
+        
     
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
             driverTeleop();
@@ -292,6 +301,8 @@ public class Robot extends LoggedRobot {
 
         // If the driver is not actively turning the robot, enable automated turn control to
         // compensate for drift.
+        SmartDashboard.putString("Swerve Mode", SwerveDrive.getMode().toString());
+        SmartDashboard.putNumber("Pigeon Yaw",Pigeon.getYaw().degrees());
         if (
             SwerveDrive.getMode() == SwerveMode.Headless &&
             Math.abs(controllerDriver.getRightX()) < 0.15
@@ -329,7 +340,9 @@ public class Robot extends LoggedRobot {
 
         double speedX = controllerDriver.getLeftX();
         double speedY = -controllerDriver.getLeftY();
-        //SwerveDrive.run(speedX, speedY, -controllerDriver.getRightX());
+        SwerveDrive.run(speedX, speedY, -controllerDriver.getRightX());
+
+        
     }
 
     /**
