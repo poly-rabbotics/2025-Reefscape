@@ -241,7 +241,7 @@ public class AutonomousManager {
         procedures[0] = new AutonomousProcedure();
 
         procedures[1] = new AutonomousProcedure()
-            .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
+            .andThen(makeStep(() -> Pose.pose = "L3"))
 
             .andThen(makeTimedStep(3.0))
 
@@ -285,7 +285,7 @@ public class AutonomousManager {
 
         // Start center, get leave points
         procedures[3] = new AutonomousProcedure()
-            .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
+            .andThen(makeTimedStep(3.0))
 
             .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(6.4540, 3.8510, new Rotation2d(Math.PI)))))
 

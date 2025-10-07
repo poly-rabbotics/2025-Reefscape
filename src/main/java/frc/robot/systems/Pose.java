@@ -13,6 +13,10 @@ public static double defaultPivotPose = 25.0;
 public static double defaultClimberPose = 140.0;
 
 public Pose(){
+    pose = "FldNav";
+    elevatorPos = defaultElevatorPose;
+    pivotPos = defaultPivotPose;
+    climberPos = defaultClimberPose;
 
     }
 
