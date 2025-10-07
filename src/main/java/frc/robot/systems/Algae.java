@@ -28,8 +28,8 @@ public class Algae {
     }
     
     public static void recordState() {
-        /*Logger.recordOutput("Climber Pivot Speed", climber.getPivotSpeed());
-        //Logger.recordOutput("Climber Actuator Position", climber.getActuatorSet());
+       /*  Logger.recordOutput("Climber Pivot Speed", climber.getPivotSpeed());
+        Logger.recordOutput("Climber Actuator Position", climber.getActuatorSet());
         Logger.recordOutput("Climber Pivot Velocity (Degrees per Second)", climber.getPivotVelocity());
         Logger.recordOutput("Climber Set Pose", climber.getSetPose());
         Logger.recordOutput("Climber Angle (Degrees)", climber.getAngle().degrees());

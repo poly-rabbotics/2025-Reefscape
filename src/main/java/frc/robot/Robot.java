@@ -98,7 +98,7 @@ public class Robot extends LoggedRobot {
 
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
-        /*if (isReal()) {
+        if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
         } else {
@@ -118,7 +118,7 @@ public class Robot extends LoggedRobot {
                 System.out.println("Could not find log to replay from ...");
                 System.out.println("Starting non-replay simulation ...");
             }
-        }*/
+        }
 
         Logger.start();
         SwerveDrive.recordState();

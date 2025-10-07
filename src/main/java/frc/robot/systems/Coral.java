@@ -7,9 +7,9 @@ import frc.robot.subsystems.Coral.*;
 import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 
 public class Coral {
-    private static final CoralIntake coralIntake = new CoralIntake(11, 7, 1, 2);
-    private static final Dealgaeficator algae = new Dealgaeficator(0);
-    private static final CoralPivot pivot = new CoralPivot(3);
+    private static final CoralIntake coralIntake=Robot.coralIntake;
+    private static final Dealgaeficator algae=Robot.algae;
+    private static final CoralPivot pivot=Robot.coralPivot;
     static Elevator elevator = Robot.elevator;
 
     public enum ScoringPoint {
