@@ -112,7 +112,7 @@ public class CoralIntake {
         {
             speed=INTAKE_SPEED;
         }
-        else if(buttonPanelRight.getRawButton(11))
+        else if(buttonPanelRight.getRawButton(11)||currentState==IntakeState.Outtaking)
         {
             speed=OUTTAKE_SPEED;
         }

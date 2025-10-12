@@ -145,7 +145,15 @@ public class PoseEstimator {
      * Set position. This will quickly be undone by a vision target, but until then odometry will
      * start at the origin.
      */
-    public static void reset(Pose3d pose) {
+    public static void reset(Pose2d pose) {
+        SwerveDrive.setPoseOf(swervePoseEstimator,
+        
+        
+        new Pose3d(pose.getX(), pose.getY(), 0, new Rotation3d(0, 0, pose.getRotation().getRadians())));
+    }
+
+    
+     public static void reset(Pose3d pose) {
         SwerveDrive.setPoseOf(swervePoseEstimator, pose);
     }
 
@@ -153,7 +161,7 @@ public class PoseEstimator {
         swervePoseEstimator = SwerveDrive
             .createSwervePoseEstimator(
                 new Pose3d(
-                    0.0, 0.0, 0.0,
+                    0, 0, 0.0,
                     new Rotation3d(
                         Pigeon.getRoll().radians(),
                         Pigeon.getPitch().radians(),

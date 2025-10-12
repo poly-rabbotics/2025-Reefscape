@@ -21,7 +21,7 @@ import frc.robot.systems.Coral.ScoringPoint;
 public class AutonomousManager {
     private static final int AUTO_SWITCH_COUNT = 4;
     private static AutonomousProcedure[] procedures = new AutonomousProcedure[1 << AUTO_SWITCH_COUNT];
-    static Joystick controlPanel = new Joystick(2); 
+    static Joystick controlPanel = new Joystick(3); 
 
 
     static {
@@ -152,7 +152,7 @@ public class AutonomousManager {
      */
     private static Function<StepStatus, StepStatus> makeDriveStep(DrivePath path) {
         return (prevState) -> {
-            DriverStation.getAlliance().ifPresent((a) -> path.convertToAlliance(a));
+           // DriverStation.getAlliance().ifPresent((a) -> path.convertToAlliance(a));
             SwerveDrive.setPath(path);
             SwerveDrive.run();
 
@@ -238,7 +238,14 @@ public class AutonomousManager {
 
     private static void buildProcedures() {
         // Does nothing, assumes starting forward.
-        procedures[0] = new AutonomousProcedure();
+        procedures[0] = new AutonomousProcedure()
+            .andThen(makeTimedStep(4.0, makeDriveStep(new Pose2d(1.65, 0, new Rotation2d(0)))))
+            .andThen(makeStep(() -> Pose.pose = "L3"))
+            .andThen(makeTimedStep(3.0))
+            .andThen(scoreCoral())
+            .andThen(makeTimedStep(1.0))
+            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(1.00, 0, new Rotation2d(0)))))
+            .andThen(makeStep(() -> Pose.pose = "FldNav"));
 
         procedures[1] = new AutonomousProcedure()
             .andThen(makeStep(() -> Pose.pose = "L3"))

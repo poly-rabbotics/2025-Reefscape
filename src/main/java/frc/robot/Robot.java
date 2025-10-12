@@ -29,6 +29,8 @@ import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 
 import java.util.Optional;
 
+import javax.lang.model.util.ElementScanner14;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -128,16 +130,21 @@ public class Robot extends LoggedRobot {
         //DriverStation.startDataLog(DataLogManager.getLog());
 
         Pigeon.setYaw(new Angle().setDegrees(0.0));
+        PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
+
     }
 
     @Override
     public void robotPeriodic() {
 
         //Run these all the time when the robot is powered on
-         oi.run();
-         Pose.run();
+         
+        Pose.run();
         PoseEstimator.update();
         LEDLights.run();
+
+        if(DriverStation.isTeleop())
+            oi.run();
         
 
         recordLogFrame();
@@ -155,6 +162,35 @@ public class Robot extends LoggedRobot {
         elevator.print();
         climber.print();
         AutonomousManager.print();
+
+        if(DriverStation.isAutonomous()&&DriverStation.isDisabled()){
+            switch (AutonomousManager.getSwitchSelection())
+            {
+            case 0:
+
+                PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
+                break;
+            case 1:
+                PoseEstimator.reset(new Pose2d(7.591,6.168, new Rotation2d(Pigeon.getYaw().radians())));
+                break;
+            case 2:
+                PoseEstimator.reset(new Pose2d(7.591,1.911, new Rotation2d(Pigeon.getYaw().radians())));
+                break;
+            case 3:
+                PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
+                break;
+            default:
+                PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));  
+                break;
+            }
+            SmartDashboard.putNumber("Starting Pos",AutonomousManager.getSwitchSelection());
+        }
+        else {
+            SmartDashboard.putNumber("Starting Pos",-1);
+        }
+        
+
+
    
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
@@ -188,7 +224,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        Coral.setIntakeState(IntakeState.Idle);
+        //Coral.setIntakeState(IntakeState.Idle);
         AutonomousManager.reset();
         SwerveDrive.setMode(SwerveMode.FollowPath);
 
@@ -198,12 +234,18 @@ public class Robot extends LoggedRobot {
             controlPanelAlgae.getRawButton(3),
             controlPanelAlgae.getRawButton(4)
         );
+        Pose.pose="FldNav";
+        
+        //PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
     }
 
     @Override
     public void autonomousPeriodic() {
-        Coral.run();
-        Algae.run();
+        //Coral.run();
+        //Algae.run();
+        coralPivot.run();
+        elevator.run();
+        coralIntake.run();
 
         autonomousProcedure.ifPresent(proc -> {
             proc.run();
@@ -224,6 +266,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopPeriodic() {
+        //oi.run();
         groundIntake.run();
         climber.run();
         elevator.run();

@@ -9,7 +9,7 @@ public static double pivotPos = 0.0;
 public static double climberPos = 0.0;
 
 public static double defaultElevatorPose = 0.0;
-public static double defaultPivotPose = 25.0;
+public static double defaultPivotPose = 18.0;
 public static double defaultClimberPose = 140.0;
 
 public Pose(){
@@ -34,7 +34,7 @@ switch (pose){
                 break;
     case "L1":
         elevatorPos = 0.0;
-            pivotPos = 0.0;
+            pivotPos = 60;
                 climberPos = defaultClimberPose;
                 break;
     case "L2":
@@ -48,7 +48,7 @@ switch (pose){
                 climberPos = defaultClimberPose;
                 break;
     case "L4":
-        elevatorPos = 56.0;
+        elevatorPos = 55.0;
             pivotPos = -50.0;
                 climberPos = defaultClimberPose;
                 break;
@@ -70,7 +70,7 @@ switch (pose){
     case "GrndAl": 
         elevatorPos = defaultElevatorPose;
             pivotPos = defaultPivotPose;
-                climberPos = 35.0;
+                climberPos = 30.0;
                 break;
     case "Processor": 
         elevatorPos = defaultElevatorPose;
@@ -90,7 +90,7 @@ switch (pose){
     case "Climb": 
         elevatorPos = defaultElevatorPose;
             pivotPos = -90.0;
-                climberPos = 142.0;
+                climberPos = 147.0;
                 break;
     case "ClimbApproach": 
                 elevatorPos = defaultElevatorPose;

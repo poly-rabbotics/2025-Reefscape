@@ -47,8 +47,8 @@ public class SwerveDrive {
     private static final Angle[] MODULE_CANCODER_OFFSETS = {
         new Angle().setDegrees(-71.89),
         new Angle().setDegrees(-38.94 - 180.0),
-        new Angle().setDegrees(-64.86 - 180.0 - 10.0),
-        new Angle().setDegrees(-389.16 + 90.0)
+        new Angle().setDegrees(-64.86 - 180.0 - 5.0),
+        new Angle().setDegrees(-377.16 + 90.0)
     };
 
     // Positions for each wheel in "Rock Mode".
