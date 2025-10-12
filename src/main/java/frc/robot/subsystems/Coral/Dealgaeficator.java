@@ -16,11 +16,11 @@ public class Dealgaeficator {
 
     public void run()
     {
-        if (buttonPanel.getRawButton(7)||Pose.pose=="AlXFR"||Pose.pose=="AlXFRPrep")
+        if (buttonPanel.getRawButton(9)||Pose.pose=="AlXFR"||Pose.pose=="AlXFRPrep") // orignally 7
         {
             set(-1);
         }
-        else if(buttonPanel.getRawButton(6))
+        else if(buttonPanel.getRawButton(8)) // originally 6
         {
             set(1);
         }
