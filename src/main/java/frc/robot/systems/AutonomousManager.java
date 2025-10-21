@@ -335,6 +335,52 @@ public class AutonomousManager {
             .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
             ;
 
+        procedures[10] = new AutonomousProcedure()
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(2.155, 1.824, new Rotation2d(0)))))
+            .andThen(makeCoralStep(ScoringPoint.ScoringL4))
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(2.467, 1.307, new Rotation2d(1.0472)))))
+            .andThen(scoreCoral())
+        
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(4.125, 2.604, new Rotation2d(0)))))
+            .andThen(makeStep(() -> Pose.pose = "FldNav"))
+
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(6.192, 2.906, new Rotation2d(2.0944)))))
+        
+            .andThen(intakeCoral())
+
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(1.921, 2.165, new Rotation2d(1.0472)))))
+            .andThen(makeCoralStep(ScoringPoint.ScoringL4))
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(2.155, 1.093, new Rotation2d(1.0472)))))
+            .andThen(scoreCoral())
+
+            
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(2.155, 1.824, new Rotation2d(Math.PI)))))
+            .andThen(makeStep(() -> Pose.pose = "FldNav"));
+
+
+
+
+            
+
+           
+          
+
+
+            
+                
+            
+
+
+
+            
+            
+            
+            
+
+
+
+
+
         // Starts center then scores coral far reef right side (driver POV) L3, intakes and moves
         // counter clockwise to score as many L3 as possible. Blue Side.
         // procedures[2] = new AutonomousProcedure()
