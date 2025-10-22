@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,8 +29,6 @@ import frc.robot.systems.SwerveDrive.DriveOrientation;
 import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 
 import java.util.Optional;
-
-import javax.lang.model.util.ElementScanner14;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -79,6 +78,7 @@ public class Robot extends LoggedRobot {
     public static CoralPivot coralPivot;
     public static Dealgaeficator algae;
     public static CoralIntake coralIntake;
+    public static boolean visionIsGood = false;
     int autoSelection;
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -130,7 +130,7 @@ public class Robot extends LoggedRobot {
         //DriverStation.startDataLog(DataLogManager.getLog());
 
         Pigeon.setYaw(new Angle().setDegrees(0.0));
-        PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
+        //PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
 
     }
 
@@ -163,12 +163,16 @@ public class Robot extends LoggedRobot {
         climber.print();
         AutonomousManager.print();
 
-        if(DriverStation.isAutonomous()&&DriverStation.isDisabled()){
+        if(DriverStation.isAutonomous()&&DriverStation.isDisabled()&&!visionIsGood){
+            Pose2d pose;
+
+
             switch (AutonomousManager.getSwitchSelection())
             {
             case 0:
-
-                PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
+                pose = new Pose2d(7.576,3.989, new Rotation2d(Math.PI));
+                pose = DrivePath.makeAllianceSide(pose,DriverStation.getAlliance().get());
+                PoseEstimator.reset(pose);
                 break;
             case 1:
                 PoseEstimator.reset(new Pose2d(7.591,6.168, new Rotation2d(Pigeon.getYaw().radians())));
@@ -220,6 +224,14 @@ public class Robot extends LoggedRobot {
                 SwerveDrive.setDriveOrientation(DriveOrientation.NeutralObserver);
             }
         }
+        /*PoseEstimator.swervePoseEstimator.resetPosition(new Rotation3d(
+            Pigeon.getRoll().radians(),
+            Pigeon.getPitch().radians(),
+            Pigeon.getYaw().radians()
+        ),
+        SwerveDrive.positions,new Pose3d(5, 6, 0, new Rotation3d(0, 0, 1.5)));*/
+
+        //SwerveDrive.setPoseOf(PoseEstimator.swervePoseEstimator,new Pose3d(5, 6, 0, new Rotation3d(0, 0, 1.5)));
     }
 
     @Override
@@ -262,6 +274,8 @@ public class Robot extends LoggedRobot {
         if (invertedTurn) {
             SwerveDrive.setRotationCurve((x) -> Controls.turnCurveRohan(-x));
         }
+
+       
     }
 
     @Override

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -31,21 +33,23 @@ public class PoseEstimator {
     private static final double DISTANCE_CUTOFF = 5.0;
     
     private static final Transform3d BOT_TO_CAM_FRONT
-        = new Transform3d(-0.329, -0.158, 0.201, new Rotation3d(0.0, 0.0, 150.0 * Math.PI / 180.0));
+        = new Transform3d(-0.329, -0.158, 0.201, new Rotation3d(0.0, 0.0, 0));
     private static final Transform3d BOT_TO_CAM_BACK
-        = new Transform3d(0.330, -0.214, 0.342, new Rotation3d(0.0, 0.0, 30.0 * Math.PI / 180.0));
+        = new Transform3d(0.330, -0.214, 0.342, new Rotation3d(0.0, 0.0, Math.PI));
 
-    private static final PhotonCamera camFront = new PhotonCamera("FrontCam");
+    //private static final PhotonCamera camFront = new PhotonCamera("FrontCam");
     private static final PhotonCamera camBack = new PhotonCamera("BackCam");
+    private static final PhotonCamera camTest = new PhotonCamera("CameraTest");
 
     private static AprilTagFieldLayout field;
 
-    private static final PhotonPoseEstimator photonEstimatorFront;
+   // private static final PhotonPoseEstimator photonEstimatorFront;
     private static final PhotonPoseEstimator photonEstimatorBack;
+    private static final PhotonPoseEstimator photonEstimatorTest;
     private static final List<PhotonTrackedTarget> trackedTargets
         = new ArrayList<PhotonTrackedTarget>();
 
-    private static SwerveDrivePoseEstimator3d swervePoseEstimator
+    public static SwerveDrivePoseEstimator3d swervePoseEstimator
         = SwerveDrive.createSwervePoseEstimator(new Pose3d());
 
     static {
@@ -58,40 +62,54 @@ public class PoseEstimator {
             field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
         }
 
-        photonEstimatorFront = new PhotonPoseEstimator(
+       /* photonEstimatorFront = new PhotonPoseEstimator(
             field,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             BOT_TO_CAM_FRONT
-        );
+        );*/
 
-        photonEstimatorBack = new PhotonPoseEstimator(
+         photonEstimatorBack = new PhotonPoseEstimator(
             field,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            PoseStrategy.LOWEST_AMBIGUITY,
             BOT_TO_CAM_BACK
         );
 
-        photonEstimatorFront.setReferencePose(new Pose3d());
+        photonEstimatorTest = new PhotonPoseEstimator(field, PoseStrategy.LOWEST_AMBIGUITY,BOT_TO_CAM_FRONT);
+
+        //photonEstimatorFront.setReferencePose(new Pose3d());
         photonEstimatorBack.setReferencePose(new Pose3d());
+        photonEstimatorTest.setReferencePose(new Pose3d());
     }
 
     /**
      * Update the estimator with both odometry and vision data.
      */
     public static void update() {
-        Optional<EstimatedRobotPose> estimateFront = updateEstimator(photonEstimatorFront, camBack);
-        Optional<EstimatedRobotPose> estimateBack = updateEstimator(photonEstimatorBack, camFront);
-        Optional<EstimatedRobotPose> workingEstimate = estimateFront.or(() -> estimateBack);
-
+        //Optional<EstimatedRobotPose> estimateFront = updateEstimator(photonEstimatorFront, camBack);
+        Optional<EstimatedRobotPose> estimateBack = updateEstimator(photonEstimatorBack, camBack);
+        Optional<EstimatedRobotPose> estimateTest = updateEstimator(photonEstimatorTest, camTest);
+        //Optional<EstimatedRobotPose> workingEstimate = estimateTest.or(() -> estimateBack);
+        
         SwerveDrive.updatePoseEstimator(swervePoseEstimator);
 
         trackedTargets.clear();
-        estimateFront.ifPresent((ef) -> trackedTargets.addAll(ef.targetsUsed));
-        estimateBack.ifPresent((eb) -> trackedTargets.addAll(eb.targetsUsed));
-
-        workingEstimate.ifPresent(
+        estimateTest.ifPresent((ef) -> trackedTargets.addAll(ef.targetsUsed));
+        //estimateBack.ifPresent((eb) -> trackedTargets.addAll(eb.targetsUsed));
+        
+        SmartDashboard.putBoolean("VisionTarget", estimateTest.isPresent());
+        if(estimateTest.isPresent())
+        {
+            Robot.visionIsGood=true;
+        }
+        estimateTest.ifPresent(
             (est) -> swervePoseEstimator
                 .addVisionMeasurement(est.estimatedPose, est.timestampSeconds)
         );
+        
+        
+        
+
+        //swervePoseEstimator.addVisionMeasurement(null, AMBIGUITY_CUTOFF);
     }
 
     /**
@@ -198,7 +216,7 @@ public class PoseEstimator {
     }
 
     public static void recordState() {
-        Logger.recordOutput("Pose Estimator Estimated Robot Pose", estimate());
+        Logger.recordOutput("Pose Estimator Estimated Robot Pose (3d)", swervePoseEstimator.getEstimatedPosition());
         Logger.recordOutput("Pose Estimator Estimated Robot Pose (2D)", estimate2d());
 
         Logger.recordOutput(

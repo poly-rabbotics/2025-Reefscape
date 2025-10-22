@@ -1,9 +1,11 @@
 package frc.robot.systems;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
+/*import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;*/
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -147,12 +149,23 @@ public class AutonomousManager {
         return makeDriveStep(path);
     }
 
+    private static Function<StepStatus, StepStatus> makeDriveStep(List<Pose2d> poses) {
+        ArrayList<Pose2d> listPoses = new ArrayList<Pose2d>(poses);
+
+        for (Pose2d pose : poses) {
+            listPoses.add(pose);
+        }
+        
+        DrivePath path = new DrivePath(listPoses, AutonomousManager::withinPositionTolerance);
+        return makeDriveStep(path);
+    }
+
     /**
      * Makes a step for running the drive.
      */
     private static Function<StepStatus, StepStatus> makeDriveStep(DrivePath path) {
         return (prevState) -> {
-           // DriverStation.getAlliance().ifPresent((a) -> path.convertToAlliance(a));
+            DriverStation.getAlliance().ifPresent((a) -> path.convertToAlliance(a));
             SwerveDrive.setPath(path);
             SwerveDrive.run();
 
@@ -237,15 +250,23 @@ public class AutonomousManager {
     }
 
     private static void buildProcedures() {
+        try {
+           // PathPlannerPath path = PathPlannerPath.fromPathFile("New New Path.path");
+
+            //path.getPathPoses();
+        
         // Does nothing, assumes starting forward.
         procedures[0] = new AutonomousProcedure()
-            .andThen(makeTimedStep(4.0, makeDriveStep(new Pose2d(1.65, 0, new Rotation2d(0)))))
+            //.andThen(makeTimedStep(4.0, makeDriveStep(path.getPathPoses())))
             .andThen(makeStep(() -> Pose.pose = "L3"))
             .andThen(makeTimedStep(3.0))
             .andThen(scoreCoral())
             .andThen(makeTimedStep(1.0))
             .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(1.00, 0, new Rotation2d(0)))))
             .andThen(makeStep(() -> Pose.pose = "FldNav"));
+
+        }
+        catch(Exception e){};
 
         procedures[1] = new AutonomousProcedure()
             .andThen(makeStep(() -> Pose.pose = "L3"))
@@ -334,6 +355,10 @@ public class AutonomousManager {
             // Move out of the way.
             .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
             ;
+            //Start in the center, scores coral twice and picks uo an algae
+        procedures[10] = new AutonomousProcedure()
+            .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(1.686, 1.815, new Rotation2d()))) );
+
 
         // Starts center then scores coral far reef right side (driver POV) L3, intakes and moves
         // counter clockwise to score as many L3 as possible. Blue Side.
