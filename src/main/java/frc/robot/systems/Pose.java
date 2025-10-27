@@ -75,7 +75,7 @@ switch (pose){
     case "Processor": 
         elevatorPos = defaultElevatorPose;
             pivotPos = defaultPivotPose;
-                climberPos = 60.0;
+                climberPos = 55.0;
                 break;
     case "AlXFRPrep": // All Positions TBD
         elevatorPos = 20.0;
@@ -90,7 +90,7 @@ switch (pose){
     case "Climb": 
         elevatorPos = defaultElevatorPose;
             pivotPos = -90.0;
-                climberPos = 147.0;
+                climberPos = 150.0;
                 break;
     case "ClimbApproach": 
                 elevatorPos = defaultElevatorPose;

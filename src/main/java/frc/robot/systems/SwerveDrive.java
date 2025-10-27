@@ -99,7 +99,7 @@ public class SwerveDrive {
     private static final SwerveModule modules[] = new SwerveModule[MODULE_MOVEMENT_CAN_IDS.length];
 
     // Positions of the modules, are used for things like odometry.
-    private static final SwerveModulePosition positions[]
+    public static final SwerveModulePosition positions[]
         = new SwerveModulePosition[MODULE_MOVEMENT_CAN_IDS.length];
 
     // Kinematics takes our desired drive state and produces states for each module.
@@ -615,7 +615,7 @@ public class SwerveDrive {
                 Pigeon.getYaw().radians()
             ),
             positions,
-            new Pose3d()
+            pose
         );
     }
 
