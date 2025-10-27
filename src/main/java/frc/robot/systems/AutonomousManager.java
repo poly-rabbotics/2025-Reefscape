@@ -334,53 +334,66 @@ public class AutonomousManager {
             // Move out of the way.
             .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
             ;
-
+        // CASE 0: 2 Coral Auto that starts from the center, and scores all coral on the right side in relation to the Driver POV
         procedures[10] = new AutonomousProcedure()
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(2.155, 1.824, new Rotation2d(0)))))
-            .andThen(makeCoralStep(ScoringPoint.ScoringL4))
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(2.467, 1.307, new Rotation2d(1.0472)))))
+            // Drive to back right reef closest to start point (from Driver POV)
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(5.392, 2.143, new Rotation2d(0)))))
+            .andThen(makeStep(() -> Pose.pose = "L4"))
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(5.080, 2.660, new Rotation2d(1.0472)))))
             .andThen(scoreCoral())
         
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(4.125, 2.604, new Rotation2d(0)))))
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.422, 1.363, new Rotation2d(0)))))
             .andThen(makeStep(() -> Pose.pose = "FldNav"))
 
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(6.192, 2.906, new Rotation2d(2.0944)))))
-        
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(1.355, 1.061, new Rotation2d(2.0944)))))
+            // Drives to right side human player station (Driver POV)
             .andThen(intakeCoral())
 
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(1.921, 2.165, new Rotation2d(1.0472)))))
-            .andThen(makeCoralStep(ScoringPoint.ScoringL4))
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(2.155, 1.093, new Rotation2d(1.0472)))))
+            // Scores coral again at center left reef closest to start point.
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(5.626, 1.802, new Rotation2d(1.0472)))))
+            .andThen(makeStep(() -> Pose.pose = "L4"))
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(5.392, 1.093, new Rotation2d(1.0472)))))
             .andThen(scoreCoral())
 
-            
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(2.155, 1.824, new Rotation2d(Math.PI)))))
+            // Drives out and then switches into Field Navigation Position
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(5.626, 1.957, new Rotation2d(Math.PI)))))
             .andThen(makeStep(() -> Pose.pose = "FldNav"));
 
+        // CASE  Starts right edge (Driver POV), scores both coral at the center right edge of the reef, and then goes into Field Navigation Position
+        procedures[11] = new AutonomousProcedure()
+            // Scores initially center right reef, then scores at right human player station (from Driver POV)
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.428, 1.945 , new Rotation2d(2.0944)))))
+            .andThen(makeStep(() -> Pose.pose = "L4"))
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.620, 2.880, new Rotation2d(2.0944)))))
+            .andThen(scoreCoral())
+            .andThen(makeStep(() -> Pose.pose = "FldNav"))
+
+            // Drives to right side human player station and then intakes one coral
+            .andThen(makeTimedStep(1,makeDriveStep(new Pose2d(1.211, 1.154, new Rotation2d(-2.181)))))
+            .andThen(intakeCoral())
+
+            // Drives to center right side reef and scores coral again, then shifts away from the reef and returns to field Nav Position
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.956,2.700, new Rotation2d(1.0472)))))
+            .andThen(makeStep(() -> Pose.pose = "L4"))
+            .andThen(scoreCoral())
+
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.956, 1.945, new Rotation2d(Math.PI)))))
+            .andThen(makeStep(() -> Pose.pose = "FldNav"));
+        // Starts left edge (Driver POV), scores both coral on front left center reef and then moves to Field Nav on the left side of the reef.
+        procedures[12] = new AutonomousProcedure()
+            // Scores coral on the center left edge (from driver POV)
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.908, 5.973, new Rotation2d(0)))))
+            .andThen(makeStep(() -> Pose.pose = "L4"))
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.908, 5.362, new Rotation2d()))));
 
 
 
+
+            
             
 
            
-          
-
-
-            
-                
-            
-
-
-
-            
-            
-            
-            
-
-
-
-
-
+    
         // Starts center then scores coral far reef right side (driver POV) L3, intakes and moves
         // counter clockwise to score as many L3 as possible. Blue Side.
         // procedures[2] = new AutonomousProcedure()

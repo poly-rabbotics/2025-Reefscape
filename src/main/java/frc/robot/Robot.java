@@ -167,19 +167,23 @@ public class Robot extends LoggedRobot {
             switch (AutonomousManager.getSwitchSelection())
             {
             case 0:
-
+                // Center Position
                 PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
                 break;
             case 1:
+                // Robot starts left edge (driver POV)
                 PoseEstimator.reset(new Pose2d(7.591,6.168, new Rotation2d(Pigeon.getYaw().radians())));
                 break;
             case 2:
+                // Robot starts right edge (driver POV)
                 PoseEstimator.reset(new Pose2d(7.591,1.911, new Rotation2d(Pigeon.getYaw().radians())));
                 break;
             case 3:
+                // Robot starts center (driver POV)
                 PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
                 break;
             default:
+                // Center Position
                 PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));  
                 break;
             }
