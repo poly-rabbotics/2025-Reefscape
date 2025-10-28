@@ -168,6 +168,7 @@ public class PoseEstimator {
         
         
         new Pose3d(pose.getX(), pose.getY(), 0, new Rotation3d(0, 0, pose.getRotation().getRadians())));
+    
     }
 
     
@@ -217,7 +218,7 @@ public class PoseEstimator {
 
     public static void recordState() {
         Logger.recordOutput("Pose Estimator Estimated Robot Pose (3d)", swervePoseEstimator.getEstimatedPosition());
-        Logger.recordOutput("Pose Estimator Estimated Robot Pose (2D)", estimate2d());
+        Logger.recordOutput("Pose Estimator Estimated Robot Pose (2D)", swervePoseEstimator.getEstimatedPosition().toPose2d());
 
         Logger.recordOutput(
             "Pose Estimator Tracked Target Poses",

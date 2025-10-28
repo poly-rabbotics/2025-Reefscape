@@ -125,7 +125,7 @@ public class DrivePath {
         return new Pose2d(
             17.5 - pose.getX(),
             8.0 - pose.getY(),
-            pose.getRotation().plus(new Rotation2d(Math.PI))
+            pose.getRotation()
         );
     }
 }

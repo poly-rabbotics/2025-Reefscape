@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
-
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.systems.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Coral.*;
@@ -128,8 +129,7 @@ public class Robot extends LoggedRobot {
         // Log driver station data
         //DataLogManager.start();
         //DriverStation.startDataLog(DataLogManager.getLog());
-
-        Pigeon.setYaw(new Angle().setDegrees(0.0));
+        
         //PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
 
     }
@@ -140,7 +140,7 @@ public class Robot extends LoggedRobot {
         //Run these all the time when the robot is powered on
          
         Pose.run();
-        PoseEstimator.update();
+        
         LEDLights.run();
 
         if(DriverStation.isTeleop())
@@ -165,33 +165,60 @@ public class Robot extends LoggedRobot {
 
         if(DriverStation.isAutonomous()&&DriverStation.isDisabled()&&!visionIsGood){
             Pose2d pose;
+            Rotation2d rot;
 
+            Optional<Alliance> ally = DriverStation.getAlliance();
+            if(ally.get() == Alliance.Blue)
+            {
+                Pigeon.setYaw(new Angle().setDegrees(180));
+                SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
+            }
+            else
+            {
+                Pigeon.setYaw(new Angle().setDegrees(0));
+                SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
+            }
+            rot = new Rotation2d(0);
+            Pose2d leftPose = new Pose2d(7.591,6.168, rot);
+            Pose2d rightPose = new Pose2d(7.591,1.911, rot);
+            Pose2d centerPose = new Pose2d(7.576,3.989, rot);
 
+            
             switch (AutonomousManager.getSwitchSelection())
             {
             case 0:
-                pose = new Pose2d(7.576,3.989, new Rotation2d(Math.PI));
-                pose = DrivePath.makeAllianceSide(pose,DriverStation.getAlliance().get());
-                PoseEstimator.reset(pose);
+                pose =  centerPose;    
                 break;
             case 1:
-                PoseEstimator.reset(new Pose2d(7.591,6.168, new Rotation2d(Pigeon.getYaw().radians())));
+                pose = leftPose;
                 break;
             case 2:
-                PoseEstimator.reset(new Pose2d(7.591,1.911, new Rotation2d(Pigeon.getYaw().radians())));
+                pose = rightPose;
                 break;
             case 3:
-                PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
+                pose = leftPose;
+                break;
+            case 4:
+                pose = rightPose;
+                break;
+            case 5:
+                pose = centerPose;
                 break;
             default:
-                PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));  
+                pose = centerPose;  
                 break;
             }
+
+            pose = DrivePath.makeAllianceSide(pose,DriverStation.getAlliance().get());
+            PoseEstimator.reset(pose);
+
             SmartDashboard.putNumber("Starting Pos",AutonomousManager.getSwitchSelection());
         }
         else {
             SmartDashboard.putNumber("Starting Pos",-1);
         }
+
+        PoseEstimator.update();
         
 
 
@@ -231,7 +258,7 @@ public class Robot extends LoggedRobot {
         ),
         SwerveDrive.positions,new Pose3d(5, 6, 0, new Rotation3d(0, 0, 1.5)));*/
 
-        //SwerveDrive.setPoseOf(PoseEstimator.swervePoseEstimator,new Pose3d(5, 6, 0, new Rotation3d(0, 0, 1.5)));
+        
     }
 
     @Override

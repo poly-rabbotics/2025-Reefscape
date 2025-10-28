@@ -23,7 +23,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.SwerveMode;
@@ -609,14 +609,11 @@ public class SwerveDrive {
      */
     public static void setPoseOf(SwerveDrivePoseEstimator3d estimator, Pose3d pose) {
         estimator.resetPosition(
-            new Rotation3d(
-                Pigeon.getRoll().radians(),
-                Pigeon.getPitch().radians(),
-                Pigeon.getYaw().radians()
-            ),
+            new Rotation3d(0,0,0),
             positions,
             pose
         );
+        SmartDashboard.putNumber("Rotation",pose.getRotation().getAngle());
     }
 
     /**
