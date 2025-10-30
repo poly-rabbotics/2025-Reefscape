@@ -13,10 +13,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
+import frc.robot.subsystems.Coral.CoralIntake;
 import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 import frc.robot.systems.Coral.ScoringPoint;
 
@@ -230,8 +232,28 @@ public class AutonomousManager {
     }
 
     private static Function<StepStatus, StepStatus> intakeCoral() {
+        final double intakeTime = 2;
+        Timer stepTimer = new Timer();
+        
         return (prevState) -> {
-            switch (Coral.getIntakeState()) {
+            if (!stepTimer.isRunning()) {
+                stepTimer.start();
+            }
+            if((Robot.coralIntake.bothTripped()) && prevState == StepStatus.Done){
+                Coral.setIntakeState(IntakeState.Idle);
+                return StepStatus.Done;
+            }  
+            if (Coral.getIntakeState() != IntakeState.Intaking){
+                Coral.setIntakeState(IntakeState.Intaking);
+            }
+            if (stepTimer.get() >= intakeTime && Robot.coralIntake.bothTripped() == false){
+                Coral.setIntakeState(IntakeState.Intaking);
+                Pose.pose = "L1";
+                
+            }
+            return StepStatus.Running;
+            
+          /*   switch (Coral.getIntakeState()) {
                 case Intaking:
                     return StepStatus.Running;
 
@@ -244,10 +266,9 @@ public class AutonomousManager {
 
                 default:
                     Coral.setIntakeState(IntakeState.Intaking);
-                    return StepStatus.Running;
-            }
-        };
-    }
+                    return StepStatus.Running; */
+            };
+        }
 
     private static void buildProcedures() {
         try {
