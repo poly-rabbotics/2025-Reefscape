@@ -235,7 +235,7 @@ public class AutonomousManager {
         final double intakeTime = 4;
         final double intakeTimeout = 6;
         Timer stepTimer = new Timer();
-        Timer stepTimer = new Timer();
+        Timer stepTimer2 = new Timer();
         
         return (prevState) -> {
             if (!stepTimer.isRunning()) {
