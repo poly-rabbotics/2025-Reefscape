@@ -264,54 +264,54 @@ public class AutonomousManager {
         }
         catch(Exception e){};
 
-        procedures[1] = new AutonomousProcedure()
-            .andThen(makeStep(() -> Pose.pose = "L3"))
+        //procedures[1] = new AutonomousProcedure()
+        //    .andThen(makeStep(() -> Pose.pose = "L3"))
 
-            .andThen(makeTimedStep(3.0))
+        //    .andThen(makeTimedStep(3.0))
 
             // Move to L2 point
-            .andThen(makeCoralStep(ScoringPoint.ScoringL2))
+        //    .andThen(makeCoralStep(ScoringPoint.ScoringL2))
 
             // Back left reef, center/right side (driver POV)
-            .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(5.4, 6.0, new Rotation2d(-2.1)))))
-            .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.188, 5.010, new Rotation2d(-2.1)))))
+        //    .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(5.4, 6.0, new Rotation2d(-2.1)))))
+        //    .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.188, 5.010, new Rotation2d(-2.1)))))
 
             // Score coral
-            .andThen(scoreCoral())
+        //    .andThen(scoreCoral())
 
             // Move out of the way.
-            .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
-            ;
+        //    .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))));
+            
 
         // Start right side score L2 driver side reef
-        procedures[2] = new AutonomousProcedure()
+        // procedures[2] = new AutonomousProcedure()
 
             // Set preload position
-            .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
+        //    .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
 
             // Move to L2
-            .andThen(makeCoralStep(ScoringPoint.ScoringL2))
+        //    .andThen(makeCoralStep(ScoringPoint.ScoringL2))
 
             // Drive to driver side reef
-            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(2.5957, 2.4092, new Rotation2d()))))
-            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(3.2207, 3.8563, new Rotation2d()))))
+        //    .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(2.5957, 2.4092, new Rotation2d()))))
+        //    .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(3.2207, 3.8563, new Rotation2d()))))
 
             // Score on L2
-            .andThen(scoreCoral())
+        //    .andThen(scoreCoral())
 
             // Drive back and stow
-            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(1.8364, 3.8931, new Rotation2d()))))
-            .andThen(makeCoralStep(ScoringPoint.Stowed))
+        //    .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(1.8364, 3.8931, new Rotation2d()))))
+        //    .andThen(makeCoralStep(ScoringPoint.Stowed))
 
             // Set up for intake in Tele
-            .andThen(makeDriveStep(new Pose2d(1.8595, 0.7987, new Rotation2d(-2.2377))))
+        //    .andThen(makeDriveStep(new Pose2d(1.8595, 0.7987, new Rotation2d(-2.2377))))
             ;
 
         // Start center, get leave points
-        procedures[3] = new AutonomousProcedure()
-            .andThen(makeTimedStep(3.0))
+        //procedures[3] = new AutonomousProcedure()
+        //  .andThen(makeTimedStep(3.0))
 
-            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(6.4540, 3.8510, new Rotation2d(Math.PI)))))
+        //    .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(6.4540, 3.8510, new Rotation2d(Math.PI)))))
 
             // .andThen(makeCoralStep(ScoringPoint.ScoringL3))
 
@@ -327,32 +327,30 @@ public class AutonomousManager {
         // Start left most edge, angled 135 degrees from forward clockwise.
         // Pushes friend backward,
         // Scores l2
-        procedures[9] = new AutonomousProcedure()
+        //procedures[9] = new AutonomousProcedure()
             // Push our friend a bit
-            .andThen(
-                makeTimedStep(
-                    2.0,
-                    makeDriveStep(new Pose2d(8.0, 6.67, new Rotation2d(-135.0 * Math.PI / 180.0)))
-                )
-            )
+        //    .andThen(
+        //        makeTimedStep(2.0,makeDriveStep(new Pose2d(8.0, 6.67, new Rotation2d(-135.0 * Math.PI / 180.0)))
+                
 
-            .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
+        //    .andThen(makeStep(() -> Coral.setCoralPosition(2.6)))
 
             // Move to L2 point
-            .andThen(makeCoralStep(ScoringPoint.ScoringL2))
+        //    .andThen(makeCoralStep(ScoringPoint.ScoringL2))
 
             // Back left reef, center/right side (driver POV)
-            .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(5.4, 6.0, new Rotation2d(-2.1)))))
-            .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.188, 5.010, new Rotation2d(-2.1)))))
+        //     .andThen(makeTimedStep(1.0, makeDriveStep(new Pose2d(5.4, 6.0, new Rotation2d(-2.1)))))
+        //    .andThen(makeTimedStep(2.8, makeDriveStep(new Pose2d(5.188, 5.010, new Rotation2d(-2.1)))))
 
             // Score coral
-            .andThen(scoreCoral())
+        //    .andThen(scoreCoral())
 
             // Move out of the way.
-            .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
+        //    .andThen(makeDriveStep(new Pose2d(5.31, 7.0, new Rotation2d(-2.1))))
             ;
+        
         // CASE 5: 2 Coral Auto that starts from the center, and scores all coral on the right side in relation to the Driver POV
-        procedures[10] = new AutonomousProcedure()
+        procedures[1] = new AutonomousProcedure()
             // Drive to back center right reef closest to start point, then moves in and scores on center right reef (from Driver POV)
             .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(5.392, 2.143, new Rotation2d(2.0944)))))
             .andThen(makeStep(() -> Pose.pose = "L4"))
@@ -378,7 +376,7 @@ public class AutonomousManager {
             .andThen(makeStep(() -> Pose.pose = "FldNav"));
 
         // Case 2: Starts right edge (Driver POV), scores both coral at the center right edge of the reef, and then goes into Field Navigation Position
-        procedures[11] = new AutonomousProcedure()
+        procedures[2] = new AutonomousProcedure()
             // Scores initially center right reef, then scores at right human player station (from Driver POV)
             .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.428, 1.945 , new Rotation2d(1.0472)))))
             .andThen(makeStep(() -> Pose.pose = "L4"))
@@ -402,7 +400,7 @@ public class AutonomousManager {
             .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.956, 1.945, new Rotation2d(Math.PI)))))
             .andThen(makeStep(() -> Pose.pose = "FldNav"));
         // Case 1: Starts left edge (Driver POV), scores both coral on front left center reef and then moves to Field Nav on the left side of the reef.
-        procedures[12] = new AutonomousProcedure()
+        procedures[3] = new AutonomousProcedure()
             // Scores coral on the center left edge (from driver POV)
             .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(3.908, 5.973, new Rotation2d(-1.0472)))))
             .andThen(makeStep(() -> Pose.pose = "L4"))
@@ -427,16 +425,16 @@ public class AutonomousManager {
             .andThen(makeStep(() -> Pose.pose = "L4" ));
 
         // Starts center position, drives out to reef and scores on center back reef
-        procedures [13] = new AutonomousProcedure()
+        procedures [4] = new AutonomousProcedure()
             // Switches into L3 Position and then moves forwards and scores
             .andThen(makeStep(() -> Pose.pose = "L3"))
             .andThen(makeTimedStep(3.0))
-            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(5.898,3.815, new Rotation2d(Math.PI)))))
+            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(5.910,3.815, new Rotation2d(Math.PI)))))
             .andThen(scoreCoral())
 
             // Waits for a second then switches into Field Nav Position
             .andThen(makeTimedStep(1.0))
-            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(6.55, 3.815, new Rotation2d(Math.PI)))))
+            .andThen(makeTimedStep(2.0, makeDriveStep(new Pose2d(5.910, 3.024, new Rotation2d(Math.PI)))))
             .andThen(makeStep(() -> Pose.pose = "FldNav"));
 
 
