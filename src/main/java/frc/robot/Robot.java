@@ -131,7 +131,6 @@ public class Robot extends LoggedRobot {
         //DriverStation.startDataLog(DataLogManager.getLog());
         
         //PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
-
     }
 
     @Override
@@ -241,10 +240,12 @@ public class Robot extends LoggedRobot {
 
             if (controllerDriver.getRightBumperButtonReleased()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
+                Pigeon.setYaw(new Angle().setDegrees(0));
             }
 
             if (controllerDriver.getLeftBumperButtonReleased()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
+                Pigeon.setYaw(new Angle().setDegrees(180));
             }
 
             if (controllerDriver.getStartButtonReleased()) {
@@ -264,6 +265,18 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         //Coral.setIntakeState(IntakeState.Idle);
+        Optional<Alliance> ally = DriverStation.getAlliance();
+        if(ally.get() == Alliance.Blue)
+        {
+            Pigeon.setYaw(new Angle().setDegrees(180));
+            SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
+        }
+        else
+        {
+            Pigeon.setYaw(new Angle().setDegrees(0));
+            SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
+        }
+
         AutonomousManager.reset();
         SwerveDrive.setMode(SwerveMode.FollowPath);
 

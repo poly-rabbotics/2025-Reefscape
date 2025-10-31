@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.AutonomousProcedure;
 import frc.robot.subsystems.DrivePath;
+import frc.robot.subsystems.SwerveMode;
 import frc.robot.subsystems.AutonomousProcedure.StepStatus;
 import frc.robot.subsystems.Coral.CoralIntake.IntakeState;
 import frc.robot.systems.Coral.ScoringPoint;
@@ -165,12 +166,15 @@ public class AutonomousManager {
      */
     private static Function<StepStatus, StepStatus> makeDriveStep(DrivePath path) {
         return (prevState) -> {
+            SwerveDrive.setMode(SwerveMode.FollowPath);
             DriverStation.getAlliance().ifPresent((a) -> path.convertToAlliance(a));
             SwerveDrive.setPath(path);
             SwerveDrive.run();
 
             if (path.isCompleted() && prevState == StepStatus.Done) {
-                return StepStatus.Done;
+                SwerveDrive.setMode(SwerveMode.Headless);
+                SwerveDrive.run();
+                return StepStatus.Done;                
             }
 
             return StepStatus.Running;
