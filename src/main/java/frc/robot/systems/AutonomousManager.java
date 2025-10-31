@@ -250,19 +250,14 @@ public class AutonomousManager {
     }
 
     private static void buildProcedures() {
-        try {
-           // PathPlannerPath path = PathPlannerPath.fromPathFile("New New Path.path");
-
-            //path.getPathPoses();
         
-        // Case 0: Moves out towards reef one meter then stalls.
         procedures[0] = new AutonomousProcedure()
             // Drive out straight 1m, then stall
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(6.576, 3.989, new Rotation2d(Math.PI)))));
+            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(6.576, 3.989, new Rotation2d(Math.PI)))))
             .andThen(makeTimedStep(3));
             
-        }
-        catch(Exception e){};
+        
+        
 
         //procedures[1] = new AutonomousProcedure()
         //    .andThen(makeStep(() -> Pose.pose = "L3"))
