@@ -253,7 +253,7 @@ public class AutonomousManager {
         
         procedures[0] = new AutonomousProcedure()
             // Drive out straight 1m, then stall
-            .andThen(makeTimedStep(1, makeDriveStep(new Pose2d(6.576, 3.989, new Rotation2d(Math.PI)))))
+            .andThen(makeTimedStep(3, makeDriveStep(new Pose2d(6.576, 3.989, new Rotation2d(Math.PI)))))
             .andThen(makeTimedStep(3));
             
         
