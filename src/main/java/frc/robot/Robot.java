@@ -190,7 +190,7 @@ public class Robot extends LoggedRobot {
                 pose =  centerPose;    
                 break;
             case 1:
-                pose = leftPose;
+                pose = centerPose;
                 break;
             case 2:
                 pose = rightPose;
@@ -199,7 +199,7 @@ public class Robot extends LoggedRobot {
                 pose = leftPose;
                 break;
             case 4:
-                pose = rightPose;
+                pose = centerPose;
                 break;
             case 5:
                 pose = centerPose;
