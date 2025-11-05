@@ -178,9 +178,9 @@ public class Robot extends LoggedRobot {
                 SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
             }
             rot = new Rotation2d(0);
-            Pose2d leftPose = new Pose2d(7.591,6.168, rot);
-            Pose2d rightPose = new Pose2d(7.591,1.911, rot);
-            Pose2d centerPose = new Pose2d(7.576,3.989, rot);
+            Pose2d leftPose = new Pose2d(6.94,6.168, rot);
+            Pose2d rightPose = new Pose2d(6.94,1.911, rot);
+            Pose2d centerPose = new Pose2d(6.94,4.17, rot);
 
             
             switch (AutonomousManager.getSwitchSelection())
@@ -208,7 +208,7 @@ public class Robot extends LoggedRobot {
                 break;
             }
 
-            pose = DrivePath.makeAllianceSide(pose,DriverStation.getAlliance().get());
+            pose = DrivePath.makeAllianceSideTranslation(pose,DriverStation.getAlliance().get());
             PoseEstimator.reset(pose);
 
             SmartDashboard.putNumber("Starting Pos",AutonomousManager.getSwitchSelection());
@@ -240,12 +240,12 @@ public class Robot extends LoggedRobot {
 
             if (controllerDriver.getRightBumperButtonReleased()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
-                Pigeon.setYaw(new Angle().setDegrees(0));
+                //Pigeon.setYaw(new Angle().setDegrees(0));
             }
 
             if (controllerDriver.getLeftBumperButtonReleased()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
-                Pigeon.setYaw(new Angle().setDegrees(180));
+                //Pigeon.setYaw(new Angle().setDegrees(180));
             }
 
             if (controllerDriver.getStartButtonReleased()) {

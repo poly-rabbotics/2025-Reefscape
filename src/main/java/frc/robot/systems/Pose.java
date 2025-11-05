@@ -38,12 +38,12 @@ switch (pose){
                 climberPos = defaultClimberPose;
                 break;
     case "L2":
-        elevatorPos = 6.0;
+        elevatorPos = 4.5;
             pivotPos = -20.0;
                 climberPos = defaultClimberPose;
                 break;
     case "L3":
-        elevatorPos = 26.5;
+        elevatorPos = 24.0;
             pivotPos = -30.0;
                 climberPos = defaultClimberPose;
                 break;
@@ -53,12 +53,12 @@ switch (pose){
                 climberPos = defaultClimberPose;
                 break;
     case "Al2":
-        elevatorPos = 6.0;
+        elevatorPos = 5.0;
             pivotPos = -90.0;
                 climberPos = defaultClimberPose;
                 break;
     case "Al3":
-        elevatorPos = 26.5;
+        elevatorPos = 25.0;
             pivotPos = -90.0;
                 climberPos = defaultClimberPose;
                 break;
@@ -70,7 +70,7 @@ switch (pose){
     case "GrndAl": 
         elevatorPos = defaultElevatorPose;
             pivotPos = defaultPivotPose;
-                climberPos = 30.0;
+                climberPos = 22.0;
                 break;
     case "Processor": 
         elevatorPos = defaultElevatorPose;
@@ -78,12 +78,12 @@ switch (pose){
                 climberPos = 55.0;
                 break;
     case "AlXFRPrep": // All Positions TBD
-        elevatorPos = 20.0;
+        elevatorPos = 19.0;
             pivotPos = defaultPivotPose;
                 climberPos = 100.0;
                         break;
     case "AlXFR": // All Positions TBD
-        elevatorPos = 20.0;
+        elevatorPos = 19.0;
             pivotPos = 105;
                 climberPos = 150.0;
                 break;
