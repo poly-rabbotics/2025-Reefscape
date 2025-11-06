@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 public final class Angle implements Cloneable {
     public static final double TAU = Math.PI * 2;
+    public static final double PI = Math.PI;
 
     private double dec = 0.0;
 

@@ -23,7 +23,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Angle;
 import frc.robot.subsystems.DrivePath;
 import frc.robot.subsystems.SwerveMode;
@@ -47,8 +47,8 @@ public class SwerveDrive {
     private static final Angle[] MODULE_CANCODER_OFFSETS = {
         new Angle().setDegrees(-71.89),
         new Angle().setDegrees(-38.94 - 180.0),
-        new Angle().setDegrees(-64.86 - 180.0 - 10.0),
-        new Angle().setDegrees(-389.16 + 90.0)
+        new Angle().setDegrees(-64.86 - 180.0 - 5.0),
+        new Angle().setDegrees(-377.16 + 90.0)
     };
 
     // Positions for each wheel in "Rock Mode".
@@ -99,7 +99,7 @@ public class SwerveDrive {
     private static final SwerveModule modules[] = new SwerveModule[MODULE_MOVEMENT_CAN_IDS.length];
 
     // Positions of the modules, are used for things like odometry.
-    private static final SwerveModulePosition positions[]
+    public static final SwerveModulePosition positions[]
         = new SwerveModulePosition[MODULE_MOVEMENT_CAN_IDS.length];
 
     // Kinematics takes our desired drive state and produces states for each module.
@@ -609,14 +609,11 @@ public class SwerveDrive {
      */
     public static void setPoseOf(SwerveDrivePoseEstimator3d estimator, Pose3d pose) {
         estimator.resetPosition(
-            new Rotation3d(
-                Pigeon.getRoll().radians(),
-                Pigeon.getPitch().radians(),
-                Pigeon.getYaw().radians()
-            ),
+            new Rotation3d(0,0,0),
             positions,
-            new Pose3d()
+            pose
         );
+        SmartDashboard.putNumber("Rotation",pose.getRotation().getAngle());
     }
 
     /**

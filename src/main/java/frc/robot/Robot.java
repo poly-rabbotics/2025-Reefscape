@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,7 +18,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
-
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.systems.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Coral.*;
@@ -77,6 +79,7 @@ public class Robot extends LoggedRobot {
     public static CoralPivot coralPivot;
     public static Dealgaeficator algae;
     public static CoralIntake coralIntake;
+    public static boolean visionIsGood = false;
     int autoSelection;
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -126,18 +129,21 @@ public class Robot extends LoggedRobot {
         // Log driver station data
         //DataLogManager.start();
         //DriverStation.startDataLog(DataLogManager.getLog());
-
-        Pigeon.setYaw(new Angle().setDegrees(0.0));
+        
+        //PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
     }
 
     @Override
     public void robotPeriodic() {
 
         //Run these all the time when the robot is powered on
-         oi.run();
-         Pose.run();
-        PoseEstimator.update();
+         
+        Pose.run();
+        
         LEDLights.run();
+
+        if(DriverStation.isTeleop())
+            oi.run();
         
 
         recordLogFrame();
@@ -155,6 +161,66 @@ public class Robot extends LoggedRobot {
         elevator.print();
         climber.print();
         AutonomousManager.print();
+
+        if(DriverStation.isAutonomous()&&DriverStation.isDisabled()&&!visionIsGood){
+            Pose2d pose;
+            Rotation2d rot;
+
+            Optional<Alliance> ally = DriverStation.getAlliance();
+            if(ally.get() == Alliance.Blue)
+            {
+                Pigeon.setYaw(new Angle().setDegrees(180));
+                SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
+            }
+            else
+            {
+                Pigeon.setYaw(new Angle().setDegrees(0));
+                SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
+            }
+            rot = new Rotation2d(0);
+            Pose2d leftPose = new Pose2d(6.94,6.168, rot);
+            Pose2d rightPose = new Pose2d(6.94,1.911, rot);
+            Pose2d centerPose = new Pose2d(6.94,4.17, rot);
+
+            
+            switch (AutonomousManager.getSwitchSelection())
+            {
+            case 0:
+                pose =  centerPose;    
+                break;
+            case 1:
+                pose = centerPose;
+                break;
+            case 2:
+                pose = rightPose;
+                break;
+            case 3:
+                pose = leftPose;
+                break;
+            case 4:
+                pose = centerPose;
+                break;
+            case 5:
+                pose = centerPose;
+                break;
+            default:
+                pose = centerPose;  
+                break;
+            }
+
+            pose = DrivePath.makeAllianceSideTranslation(pose,DriverStation.getAlliance().get());
+            PoseEstimator.reset(pose);
+
+            SmartDashboard.putNumber("Starting Pos",AutonomousManager.getSwitchSelection());
+        }
+        else {
+            SmartDashboard.putNumber("Starting Pos",-1);
+        }
+
+        PoseEstimator.update();
+        
+
+
    
 
         if (DriverStation.isJoystickConnected(CONTROLLER_PORT_DRIVER)) {
@@ -174,21 +240,43 @@ public class Robot extends LoggedRobot {
 
             if (controllerDriver.getRightBumperButtonReleased()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
+                //Pigeon.setYaw(new Angle().setDegrees(0));
             }
 
             if (controllerDriver.getLeftBumperButtonReleased()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
+                //Pigeon.setYaw(new Angle().setDegrees(180));
             }
 
             if (controllerDriver.getStartButtonReleased()) {
                 SwerveDrive.setDriveOrientation(DriveOrientation.NeutralObserver);
             }
         }
+        /*PoseEstimator.swervePoseEstimator.resetPosition(new Rotation3d(
+            Pigeon.getRoll().radians(),
+            Pigeon.getPitch().radians(),
+            Pigeon.getYaw().radians()
+        ),
+        SwerveDrive.positions,new Pose3d(5, 6, 0, new Rotation3d(0, 0, 1.5)));*/
+
+        
     }
 
     @Override
     public void autonomousInit() {
-        Coral.setIntakeState(IntakeState.Idle);
+        //Coral.setIntakeState(IntakeState.Idle);
+        Optional<Alliance> ally = DriverStation.getAlliance();
+        if(ally.get() == Alliance.Blue)
+        {
+            Pigeon.setYaw(new Angle().setDegrees(180));
+            SwerveDrive.setDriveOrientation(DriveOrientation.BlueDriver);
+        }
+        else
+        {
+            Pigeon.setYaw(new Angle().setDegrees(0));
+            SwerveDrive.setDriveOrientation(DriveOrientation.RedDriver);
+        }
+
         AutonomousManager.reset();
         SwerveDrive.setMode(SwerveMode.FollowPath);
 
@@ -198,12 +286,18 @@ public class Robot extends LoggedRobot {
             controlPanelAlgae.getRawButton(3),
             controlPanelAlgae.getRawButton(4)
         );
+        Pose.pose="FldNav";
+        
+        //PoseEstimator.reset(new Pose2d(7.576,3.989, new Rotation2d(Pigeon.getYaw().radians())));
     }
 
     @Override
     public void autonomousPeriodic() {
-        Coral.run();
-        Algae.run();
+        //Coral.run();
+        //Algae.run();
+        coralPivot.run();
+        elevator.run();
+        coralIntake.run();
 
         autonomousProcedure.ifPresent(proc -> {
             proc.run();
@@ -220,10 +314,13 @@ public class Robot extends LoggedRobot {
         if (invertedTurn) {
             SwerveDrive.setRotationCurve((x) -> Controls.turnCurveRohan(-x));
         }
+
+       
     }
 
     @Override
     public void teleopPeriodic() {
+        //oi.run();
         groundIntake.run();
         climber.run();
         elevator.run();

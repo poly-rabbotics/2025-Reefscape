@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Algae;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import edu.wpi.first.wpilibj.Joystick;
@@ -12,7 +13,7 @@ public class GroundIntake {
     Joystick buttonPanelLeft;
     //change these values
 
-    private static final double TRANSFER_DISTANCE = 3.0;
+    private static final double TRANSFER_DISTANCE = 3.5;
    
     private static final double INTAKE_SPEED = 0.4;
     private static final double OUTTAKE_SPEED = -0.4;
@@ -74,6 +75,7 @@ rightMotor.set(INTAKE_SPEED);
     leftMotor.set(OUTTAKE_SPEED);
     rightMotor.set(OUTTAKE_SPEED);
 }
+
 if((buttonPanelRight.getRawButtonReleased(GROUND_INTAKE_BUTTON))
 ||(buttonPanelRight.getRawButtonReleased(GROUND_OUTAKE_BUTTON))){
     leftMotor.set(0);

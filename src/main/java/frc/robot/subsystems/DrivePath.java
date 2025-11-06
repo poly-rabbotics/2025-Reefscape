@@ -128,4 +128,17 @@ public class DrivePath {
             pose.getRotation().plus(new Rotation2d(Math.PI))
         );
     }
+
+    public static Pose2d makeAllianceSideTranslation(Pose2d pose, Alliance alliance) {
+        if (allianceSideOf(pose) == alliance) {
+            return pose;
+        }
+
+        // Mirror about the diagonal
+        return new Pose2d(
+            17.5 - pose.getX(),
+            8.0 - pose.getY(),
+            pose.getRotation()
+        );
+    }
 }

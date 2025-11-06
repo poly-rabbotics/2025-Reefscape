@@ -14,3 +14,4 @@ simgui-window.json
 simgui.json
 .classpath
 .factorypath
+src/main/java/frc/robot/systems/AutonomousManager.java
